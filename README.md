@@ -20,6 +20,12 @@ See [language_reference.md](./language_reference.md)
 - Software Design
 - Interactive Documents
 
+## Building
+
+```Bash
+node esbuild
+```
+
 ## Usage
 
 Core methods:
@@ -57,14 +63,3 @@ Built on:
 Copyright © 2024 Adrian Turcev
 
 Licensed under the [MPL-2.0 license](./LICENSE.txt)
-
-## Used in
-
-- SPACE: Portable And Accessible Code Editor
-- TYPE: Your Personal Encyclopedia
-
-## Building
-
-```Bash
-node esbuild
-```
