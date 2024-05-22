@@ -62,3 +62,9 @@ Licensed under the [MPL-2.0 license](./LICENSE.txt)
 
 - SPACE: Portable And Accessible Code Editor
 - TYPE: Your Personal Encyclopedia
+
+## Building
+
+```Bash
+node esbuild
+```
