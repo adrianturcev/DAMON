@@ -1,14 +1,17 @@
 # DAMON: A Map-Oriented Notation
 
-Dictionary-like notations for specification requirements keep increasing in numbers.
+A human-*editable* JSON shorthand
 
-Indeed, while JSON gets considered human-*readable*, JSON-*editing* turns-out significantly harder than Markdown-editing.
-
-I propose an insertion-order-cautious and whitespace-encoded harmonization that remains type-compatible.
+- Keeps insertion-order (see js [map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map))
+- Embraces the offside-rule
+    - So long, punctuation management!
+    - Hello, affordances for reordering!
+- Reuses JSON types
+- (...)
 
 ## Syntax
 
-See [language_reference.md](./language_reference.md)
+See [language_reference.md](./language_reference.md) for full features
 
 ## Demo
 
