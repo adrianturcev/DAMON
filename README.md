@@ -4,8 +4,6 @@
 
 - Keeps insertion-order (see js [map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map))
 - Embraces the offside-rule
-    - So long, punctuation management!
-    - Hello, affordances for reordering!
 - Reuses JSON types
 
 ## Full Syntax
