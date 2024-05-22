@@ -1,0 +1,34 @@
+{
+  "name": "@1dr4/damon",
+  "version": "1.0.2",
+  "description": "A light map-language",
+  "author": "Adrian Turcev",
+  "license": "MPL-2.0",
+  "homepage": "https://github.com/adrianturcev/damon",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adrianturcev/DAMON.git"
+  },
+  "bugs": {
+    "url": "https://github.com/adrianturcev/damon/issues"
+  },
+  "keywords": [
+    "language",
+    "notation",
+    "map"
+  ],
+  "engines": {
+    "node": "20.11.1"
+  },
+  "packageManager": "npm@10.2.4",
+  "main": "main.js",
+  "scripts": {
+    "watch": "node esbuild.js"
+  },
+  "dependencies": {
+    "dompurify": "^3.0.11",
+    "esbuild": "^0.20.2",
+    "json-in-order": "^0.2.1",
+    "tslib": "^2.6.2"
+  }
+}
