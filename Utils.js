@@ -75,7 +75,7 @@ class Utils {
                                 jsonSchema !== undefined
                                 && key in schema['@context']
                             ) {
-                                keyspan.innerHTML =
+                                keySpan.innerHTML =
                                     DOMPurify.sanitize(
                                         `<a href="${ schema['@context'][key].description }">${ key }</a>`
                                     );
