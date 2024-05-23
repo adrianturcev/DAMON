@@ -67,7 +67,7 @@ class Utils {
                             keySpan = document.createElement('span'),
                             newListItem = document.createElement('li');
                         keySpan.className = "type-key";
-                        if (/^https?:\/\//.test(key)) {
+                        if (/^https?:\/\//.test(key)) { 
                             let keyLink = DOMPurify.sanitize(`<a href="${ key }">${ key }</a>`);
                             keySpan.innerHTML = keyLink;
                         } else {
@@ -77,7 +77,7 @@ class Utils {
                             ) {
                                 keySpan.innerHTML =
                                     DOMPurify.sanitize(
-                                        `<a href="${ schema['@context'][key].description }">${ key }</a>`
+                                        `<a href="${ schema['@context'][key]['@id'] }">${ key }</a>`
                                     );
                             } else {
                                 keySpan.textContent = key;
