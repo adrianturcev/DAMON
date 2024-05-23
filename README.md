@@ -1,8 +1,8 @@
 # DAMON: A Map-Oriented Notation
 
-A human-*editable* JSON shorthand that:
+A JSON-shorthand that:
 
-- Keeps insertion-order (see js [map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map))
+- Stores [insertion order](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map)
 - Embraces the offside-rule
 - Reuses JSON types
 
