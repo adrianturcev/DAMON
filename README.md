@@ -26,6 +26,14 @@ See [language_reference.md](./language_reference.md)
 node esbuild
 ```
 
+## Installation
+
+Node:
+
+```bash
+npm install damon2
+```
+
 ## Usage
 
 Core methods:
