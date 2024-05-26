@@ -1,7 +1,7 @@
 {
-  "name": "@1dr4/damon",
-  "version": "1.0.2",
-  "description": "A light map-language",
+  "name": "damon2",
+  "version": "2.0.2",
+  "description": "A JSON shorthand",
   "author": "Adrian Turcev",
   "license": "MPL-2.0",
   "homepage": "https://github.com/adrianturcev/damon",
@@ -21,7 +21,7 @@
     "node": "20.11.1"
   },
   "packageManager": "npm@10.2.4",
-  "main": "main.js",
+  "main": "Damon.js",
   "scripts": {
     "watch": "node esbuild.js"
   },
