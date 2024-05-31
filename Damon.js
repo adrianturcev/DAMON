@@ -271,9 +271,9 @@ class Damon {
                 )
             ) {
                 throw new Error(
-                    "Error line " + ((headless * 1) + $.damonOriginalLinesMapping.indexOf(i) + 1) + ": bad formatting",
+                    "Error line " + ($.damonOriginalLinesMapping.indexOf(i) + 1) + ": bad formatting",
                     {
-                        line: (headless * 1) + $.damonOriginalLinesMapping.indexOf(i) + 1,
+                        line: $.damonOriginalLinesMapping.indexOf(i) + 1,
                         language: "DAMON"
                     }
                 );
