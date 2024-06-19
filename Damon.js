@@ -430,7 +430,26 @@ class Damon {
             for (let i = 0, c = tree.children.length; i < c; i++) {
                 treeItemIndex++;
                 if (tree.children[i].content.length == 0) {
-                    jsonMap.set("", null);
+                    // implicit value
+                    let errorType;
+                    if (tree.children[i].children.length > 0) {
+                        errorType = "implicit map key";
+                        jsonMap.set("", new Map());
+                        // Storing formatting for auto-formatting
+                        if (jsonMap.implicitMaps === undefined) {
+                            jsonMap.implicitMaps = [];
+                        }
+                        jsonMap.implicitMaps.push("");
+                        _recurse(tree.children[i], jsonMap.get(""));
+                    } else {
+                        errorType = "implicit null key";
+                        jsonMap.set("", null);
+                        // Storing formatting for auto-formatting
+                        if (jsonMap.implicitNulls ===  undefined) {
+                            jsonMap.implicitNulls = [];
+                        }
+                        jsonMap.implicitNulls.push("");
+                    }
                 } else {
                     let text = tree.children[i].content,
                         errorType = "key";
