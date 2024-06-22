@@ -4,10 +4,6 @@ import * as DOMPurify from 'dompurify';
 module.exports =
 class Utils {
     //# MODEL
-    /**
-    * @param {string} id
-    * @param {{ mode: string; }} app
-    */
     constructor() {
         let $ = this;
     }
