@@ -7,6 +7,7 @@ class Utils {
     constructor() {
         let $ = this;
     }
+
     /**
      * @param {string} string
      * @returns {string}
