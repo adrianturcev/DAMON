@@ -1454,7 +1454,7 @@ class Damon {
                             }
                         } else {
                             if (Array.from(value.keys()).length > 0) {
-                                list += '    '.repeat(level) + `"${key}", [\r\n`;
+                                list += '    '.repeat(level) + `["${key}", \r\n`;
                                 _recurse(value, level + 1);
                                 list += '    '.repeat(level) + `]`;
                             } else {
