@@ -1439,7 +1439,9 @@ class Damon {
                 && jsonMap instanceof Map
                 && jsonMap.constructor === Map
             ) {
+                let i = -1;
                 for (const [key, value] of jsonMap) {
+                    i++;
                     if (
                         typeof value === 'object'
                         && value !== null
@@ -1454,9 +1456,18 @@ class Damon {
                             }
                         } else {
                             if (Array.from(value.keys()).length > 0) {
+                                if (level == 1) {
+                                    if (i == 0) {
+                                        list = "";
+                                    } else {
+                                        throw new Error("Multiple S-Expression roots");
+                                    }
+                                }
                                 list += '    '.repeat(level) + `["${key}", \r\n`;
                                 _recurse(value, level + 1);
-                                list += '    '.repeat(level) + `]`;
+                                if (level != 1) {
+                                    list += '    '.repeat(level) + `]`;
+                                }
                             } else {
                                 list += '    '.repeat(level) + `"${key}", []`;
                             }
