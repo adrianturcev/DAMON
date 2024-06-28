@@ -365,7 +365,7 @@ class Damon {
         if (damonTree.content == '- {}') {
             let map = new Map();
             return _recurse(damonTree, map);
-        } else if (tree.content == '- []') {
+        } else if (damonTree.content == '- []') {
             return _recurse(damonTree, []);
         } else {
             // implicit dictionary
