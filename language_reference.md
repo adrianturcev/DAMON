@@ -111,15 +111,15 @@ Produces this JSON snippet:
 
 ## Advanced usage
 
+Use case: facilitating list conversion
+
 ### Implicit dictionary properties values
 
 - You may ommit map terminators
-
 - You may ommit null terminators
+- You may not leave trailing-spaces
 
-- You may not leave trailing-spaces (try / +\n/ to find those)
-
-Value-terminating keys still get parsed!
+( ! ) Value-terminating keys still get parsed!
 
 This:
 
