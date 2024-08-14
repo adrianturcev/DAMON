@@ -1,5 +1,10 @@
 # Language Reference
 
+## Recommended file format
+
+- File extension: .dm
+- Encoding: UTF-8
+
 ## Basic Usage
 
 ### Maps
