@@ -45,6 +45,16 @@ class Damon {
      */
     damonToMap(damon) {
         let $ = this;
+        let treeOrPrimitive = $._damonToTree(damon);
+        if (
+            treeOrPrimitive === true
+            || treeOrPrimitive === false
+            || treeOrPrimitive === null
+            || typeof treeOrPrimitive === 'string'
+            || typeof treeOrPrimitive === 'number'
+        ) {
+            return treeOrPrimitive;
+        }
         return $._treeToMap($._damonToTree(damon));
     }
 
@@ -63,8 +73,82 @@ class Damon {
      */
     jsonToDamon(json) {
         let $ = this;
-        let inOrderMap = parse(json);
-        return $.mapToDamon(inOrderMap);
+        return $.mapToDamon($.jsonToMap(json));
+    }
+
+    /**
+     * @param {string} json
+     * @returns {map|array|boolean|null|string|number}
+     */
+    jsonToMap(json) {
+        let $ = this;
+        var delimiter = /\r\n/.test(json) ? '\r\n' : '\n',
+            jsonLines = json.split(delimiter);
+        // - Remove comments lines
+        jsonLines = jsonLines.filter(x => !(/^ *\/\//.test(x)));
+        // - Remove empty lines
+        jsonLines = jsonLines.filter(x => x != '');
+        // - Remove lines containing only indentation
+        jsonLines = jsonLines.filter(x => !/^[ \t]+$/.test(x));
+        if (jsonLines.length == 1) {
+            if (["true", "false", "null"].indexOf(jsonLines[0].trim()) > -1) {
+                return JSON.parse(jsonLines[0]);
+            } else if (/^".*"$/.test(jsonLines[0].trim())) {
+                try {
+                    return JSON.parse(jsonLines[0].trim());
+                } catch (error) {
+                    console.error("Error line number 1: not JSON-compliant, detailed error follows");
+                    error.line = 1;
+                    error.language = "JSON";
+                    error.type = "string";
+                    throw error;
+                }
+            } else if (
+                isFinite(jsonLines[0])
+                && !isNaN(parseFloat(jsonLines[0]))
+                && Number.isFinite(jsonLines[0] * 1)
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/NaN
+                && !Number.isNaN(jsonLines[0] * 1)
+            ) {
+                if (
+                    jsonLines[0].indexOf(0) == 0
+                    && jsonLines[0].length > 1
+                    && jsonLines[0].indexOf('.') !== 1
+                ) {
+                    throw new Error(
+                        "Error line number 1: leading 0",
+                        {
+                        line: 1,
+                        language: "DAMON"
+                        }
+                    );
+                }
+                try {
+                    return JSON.parse(jsonLines[0] * 1);
+                } catch (error) {
+                    console.error("Error line number 1: not JSON-compliant, detailed error follows");
+                    error.line = 1;
+                    error.language = "JSON";
+                    error.type = "number";
+                    throw error;
+                }
+            } else if (jsonLines[0] * 1 === Infinity) {
+                // Make JSON.parse throw at Infinity
+                try {
+                    JSON.parse(jsonLines[0] * 1);
+                } catch (error) {
+                    console.error("Error line number 1: not JSON-compliant, detailed error follows");
+                    error.line = 1;
+                    error.language = "JSON";
+                    error.type = "infinity";
+                    throw error;
+                }
+            } else {
+                return parse(json);
+            }
+        } else {
+            return parse(json);
+        }
     }
 
     /**
@@ -104,6 +188,62 @@ class Damon {
         damonLines = damonLines.filter(x => x != '');
         // - Remove lines containing only indentation
         damonLines = damonLines.filter(x => !/^[ \t]+$/.test(x));
+        // Lone  non-structural values
+        if (damonLines.length == 1) {
+            if (["true", "false", "null"].indexOf(damonLines[0].trim()) > -1) {
+                return JSON.parse(damonLines[0]);
+            } else if (/^".*"$/.test(damonLines[0].trim())) {
+                try {
+                    return JSON.parse(damonLines[0].trim());
+                } catch (error) {
+                    console.error("Error line number 1: not JSON-compliant, detailed error follows");
+                    error.line = 1;
+                    error.language = "JSON";
+                    error.type = "string";
+                    throw error;
+                }
+            } else if (
+                isFinite(damonLines[0])
+                && !isNaN(parseFloat(damonLines[0]))
+                && Number.isFinite(damonLines[0] * 1)
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/NaN
+                && !Number.isNaN(damonLines[0] * 1)
+            ) {
+                if (
+                    damonLines[0].indexOf(0) == 0
+                    && damonLines[0].length > 1
+                    && damonLines[0].indexOf('.') !== 1
+                ) {
+                    throw new Error(
+                        "Error line number 1: leading 0",
+                        {
+                        line: 1,
+                        language: "DAMON"
+                        }
+                    );
+                }
+                try {
+                    return JSON.parse(damonLines[0] * 1);
+                } catch (error) {
+                    console.error("Error line number 1: not JSON-compliant, detailed error follows");
+                    error.line = 1;
+                    error.language = "JSON";
+                    error.type = "number";
+                    throw error;
+                }
+            } else if (damonLines[0] * 1 === Infinity) {
+                // Make JSON.parse throw at Infinity
+                try {
+                    JSON.parse(damonLines[0] * 1);
+                } catch (error) {
+                    console.error("Error line number 1: not JSON-compliant, detailed error follows");
+                    error.line = 1;
+                    error.language = "JSON";
+                    error.type = "infinity";
+                    throw error;
+                }
+            }
+        }
         // Keep a mapping
         let damonLinesIndex = 0;
         $.damonOriginalLinesMapping = [];
@@ -535,6 +675,7 @@ class Damon {
                                             if (
                                                 item.indexOf(0) == 0
                                                 && item.length > 1
+                                                && item.indexOf('.') !== 1
                                             ) {
                                                 throw new Error(
                                 "Error line number "
@@ -699,6 +840,7 @@ class Damon {
                                 if (
                                     value.indexOf(0) == 0
                                     && value.length > 1
+                                    && value.indexOf('.') !== 1
                                 ) {
                                     throw new Error(
                                 "Error line number "
@@ -1068,6 +1210,7 @@ class Damon {
                         if (
                             text.indexOf(0) == 0
                             && text.length > 1
+                            && text.indexOf('.') !== 1
                         ) {
                             throw new Error(
                                 "Error line number "
@@ -1136,7 +1279,7 @@ class Damon {
     }
 
     /**
-     * @param {map|array} jsonMap
+     * @param {map|array|boolean|null|string|number} jsonMap
      * @returns {string}
      */
     mapToDamon(jsonMap) {
@@ -1144,8 +1287,15 @@ class Damon {
         var list = ``;
         if (Array.isArray(jsonMap)) {
             list += '- []\n';
-        } else {
+        } else if (
+            typeof jsonMap === 'object'
+            && jsonMap !== null
+            && jsonMap instanceof Map
+            && jsonMap.constructor === Map
+        ) {
             list += '- {}\n';
+        } else {
+            return JSON.stringify(jsonMap);
         }
         _recurse(jsonMap);
         return list.slice(0, -1); // last linefeed
@@ -1292,7 +1442,7 @@ class Damon {
     }
 
     /**
-     * @param {map|array} jsonMap
+     * @param {map|array|boolean|null|string|number} jsonMap
      * @returns {string}
      */
     mapToJSON(jsonMap) {
@@ -1303,11 +1453,18 @@ class Damon {
             _recurse(jsonMap);
             list += "]";
             return list;
-        } else {
+        } else if (
+            typeof jsonMap === 'object'
+            && jsonMap !== null
+            && jsonMap instanceof Map
+            && jsonMap.constructor === Map
+        ) {
             list += "{\r\n";
             _recurse(jsonMap);
             list += "}";
             return list;
+        } else {
+            return JSON.stringify(jsonMap);
         }
         /**
          * @param {map|array} jsonMap
@@ -1414,18 +1571,27 @@ class Damon {
             }
         }
     }
-    
+
     /**
-     * @param {map} jsonMap
+     * @param {map|boolean|null|string|number} jsonMap
      * @returns {string}
      */
     implicitMapToSExpression(jsonMap) {
         let $ = this;
         var list = ``;
-        list += "[\r\n";
-        _recurse(jsonMap);
-        list += "]";
-        return list;
+         if (
+            typeof jsonMap === 'object'
+            && jsonMap !== null
+            && jsonMap instanceof Map
+            && jsonMap.constructor === Map
+        ) {
+            list += "[\r\n";
+            _recurse(jsonMap);
+            list += "]";
+            return list;
+        } else {
+            return JSON.stringify(jsonMap);
+        }
         /**
          * @param {map|array} jsonMap
          * @param {number} [level=1]

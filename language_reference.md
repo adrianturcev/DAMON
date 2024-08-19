@@ -7,6 +7,20 @@
 
 ## Basic Usage
 
+### Values
+
+Lone values remain unchanged:
+
+```yaml
+"" # Alternatively: true/false/null/number
+```
+
+Produces:
+
+```JSON
+"" // Or true/false/null/number
+```
+
 ### Maps
 
 This DAMON snippet:
@@ -234,3 +248,14 @@ You may turn this off:
 ```js
 new DAMON(true)
 ```
+
+Cheatsheet
+
+```js
+// List Import
+Array.from(map.keys());
+// Multiline Strings
+Array.from(map.keys()).join('\n');
+// S-Expression conversion
+// See [Typedown]()
+// For more, see json-lisp
