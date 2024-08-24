@@ -23,7 +23,8 @@ See [language_reference.md](./language_reference.md)
 ## Building
 
 ```Bash
-node esbuild
+node esbuild # dev
+node esbuild-dist # dist
 ```
 
 ## Installation
