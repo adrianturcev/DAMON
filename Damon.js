@@ -681,23 +681,7 @@ class Damon {
                     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/NaN
                                             && !Number.isNaN(item * 1)
                                         ) { // Number
-                                            if (
-                                                item.indexOf(0) == 0
-                                                && item.length > 1
-                                                && item.indexOf('.') !== 1
-                                            ) {
-                                                throw new Error(
-                                "Error line number "
-                                + ((damonTree.headless * -1) + $.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2)
-                                + ": leading 0",
-                                                    {
-                                line: (damonTree.headless * -1) + $.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2,
-                                language: "DAMON"
-                                                    }
-                                                );
-                                            } else {
-                                                return true;
-                                            }
+                                            return true;
                                         } else {
                                             return false;
                                         }
