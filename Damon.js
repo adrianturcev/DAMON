@@ -64,7 +64,16 @@ class Damon {
      */
     damonToJSON(damon) {
         let $ = this;
-        return $.mapToJSON($.damonToMap(damon));
+        return $._mapToJSON($.damonToMap(damon));
+    }
+
+    /**
+     * @param {string} damon
+     * @returns {map}
+     */
+    damonToSExpression(damon) {
+        let $ = this;
+        return $._implicitMapToSExpression($.damonToMap(damon));
     }
 
     /**
@@ -73,7 +82,7 @@ class Damon {
      */
     jsonToDamon(json) {
         let $ = this;
-        return $.mapToDamon($.jsonToMap(json));
+        return $._mapToDamon($.jsonToMap(json));
     }
 
     /**
@@ -1282,7 +1291,7 @@ class Damon {
      * @param {map|array|boolean|null|string|number} jsonMap
      * @returns {string}
      */
-    mapToDamon(jsonMap) {
+    _mapToDamon(jsonMap) {
         let $ = this;
         var list = ``;
         if (Array.isArray(jsonMap)) {
@@ -1295,7 +1304,10 @@ class Damon {
         ) {
             list += '- {}\n';
         } else {
-            return JSON.stringify(jsonMap);
+            if (typeof jsonMap == 'string') {
+                jsonMap = '"' + jsonMap + '"';
+            }
+            return jsonMap;
         }
         _recurse(jsonMap);
         return list.slice(0, -1); // last linefeed
@@ -1346,20 +1358,28 @@ class Damon {
                                 && (level * 4 + 2 + value.join(', ').length + (nullsCounter * 4)) <= 80
                             ) {
                                 // No nesting, fits on an archivable line
-                                let line = '[' + value.map((x) => JSON.stringify(x)).join(', ') + ']';
+                                let line =
+                                    '['
+                                    + value.map(function (x) {
+                                        if (typeof x == 'string') {
+                                            x = '"' + x + '"';
+                                        }
+                                        return x;
+                                    }).join(', ')
+                                    + ']';
                                 list +=
                                     '    '.repeat(level)
-                                    + '- ' + JSON.stringify(key).slice(1, -1) + ': ' + line + '\n';
+                                    + '- ' + key + ': ' + line + '\n';
                             } else {
-                                list += '    '.repeat(level) + '- ' + JSON.stringify(key).slice(1, -1) + ': []\n';
+                                list += '    '.repeat(level) + '- ' + key + ': []\n';
                                 _recurse(value, level + 1);
                             }
                         } else {
-                            list += '    '.repeat(level) + '- ' + JSON.stringify(key).slice(1, -1) + ': {}\n';
+                            list += '    '.repeat(level) + '- ' + key + ': {}\n';
                             _recurse(value, level + 1);
                         }
                     } else {
-                        list += '    '.repeat(level) + '- ' + JSON.stringify(key).slice(1, -1) + ': ';
+                        list += '    '.repeat(level) + '- ' + key + ': ';
                         if (value === true) {
                             list += "true\n";
                         } else if (value === false) {
@@ -1372,7 +1392,9 @@ class Damon {
                         ) {
                             list += value + "\n";
                         } else {
-                            list += `${JSON.stringify(value)}\n`;
+                            // console.log(value[2]);
+                            // console.log(JSON.parse('"' + value.slice(3) + '"'));
+                            list += `"${value}"\n`;
                         }
                     }
                 }
@@ -1410,7 +1432,15 @@ class Damon {
                                 jsonMap[i].length == arrayOfPrimitives.length
                                 && (level * 4 + 2 + jsonMap[i].join(', ').length + (nullsCounter * 4)) <= 80
                             ) {
-                                let line = '[' + jsonMap[i].map((x) => JSON.stringify(x)).join(', ') + ']';
+                                let line =
+                                    '['
+                                    + jsonMap[i].map(function (x) {
+                                        if (typeof x == 'string') {
+                                            x = '"' + x + '"';
+                                        }
+                                        return x;
+                                    }).join(', ')
+                                    + ']';
                                 list += '    '.repeat(level) + '- ' + line + '\n';
                             } else {
                                 list += '    '.repeat(level) + "- []\n";
@@ -1433,7 +1463,7 @@ class Damon {
                         ) {
                             list += '    '.repeat(level) + '- ' + jsonMap[i] + "\n";
                         } else {
-                            list += '    '.repeat(level) + `- ${JSON.stringify(jsonMap[i])}\n`;
+                            list += '    '.repeat(level) + `- "${jsonMap[i]}"\n`;
                         }
                     }
                 }
@@ -1445,7 +1475,7 @@ class Damon {
      * @param {map|array|boolean|null|string|number} jsonMap
      * @returns {string}
      */
-    mapToJSON(jsonMap) {
+    _mapToJSON(jsonMap) {
         let $ = this;
         var list = ``;
         if (Array.isArray(jsonMap)) {
@@ -1464,7 +1494,10 @@ class Damon {
             list += "}";
             return list;
         } else {
-            return JSON.stringify(jsonMap);
+            if (typeof jsonMap == 'string') {
+                jsonMap = '"' + jsonMap + '"';
+            }
+            return jsonMap;
         }
         /**
          * @param {map|array} jsonMap
@@ -1576,7 +1609,7 @@ class Damon {
      * @param {map|boolean|null|string|number} jsonMap
      * @returns {string}
      */
-    implicitMapToSExpression(jsonMap) {
+    _implicitMapToSExpression(jsonMap) {
         let $ = this;
         var list = ``;
          if (
@@ -1590,7 +1623,10 @@ class Damon {
             list += "]";
             return list;
         } else {
-            return JSON.stringify(jsonMap);
+            if (typeof jsonMap == 'string') {
+                jsonMap = '"' + jsonMap + '"';
+            }
+            return jsonMap;
         }
         /**
          * @param {map|array} jsonMap
