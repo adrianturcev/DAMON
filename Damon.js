@@ -64,7 +64,7 @@ class Damon {
      */
     damonToJSON(damon) {
         let $ = this;
-        return $._mapToJSON($.damonToMap(damon));
+        return $.mapToJSON($.damonToMap(damon));
     }
 
     /**
@@ -73,7 +73,7 @@ class Damon {
      */
     damonToSExpression(damon) {
         let $ = this;
-        return $._implicitMapToSExpression($.damonToMap(damon));
+        return $.implicitMapToSExpression($.damonToMap(damon));
     }
 
     /**
@@ -82,7 +82,7 @@ class Damon {
      */
     jsonToDamon(json) {
         let $ = this;
-        return $._mapToDamon($.jsonToMap(json));
+        return $.mapToDamon($.jsonToMap(json));
     }
 
     /**
@@ -1275,7 +1275,7 @@ class Damon {
      * @param {map|array|boolean|null|string|number} jsonMap
      * @returns {string}
      */
-    _mapToDamon(jsonMap) {
+    mapToDamon(jsonMap) {
         let $ = this;
         var list = ``;
         if (Array.isArray(jsonMap)) {
@@ -1291,9 +1291,11 @@ class Damon {
             if (typeof jsonMap == 'string') {
                 jsonMap = '"' + jsonMap + '"';
             }
+            JSON.parse(jsonMap);
             return jsonMap;
         }
         _recurse(jsonMap);
+        $.damonToMap(list.slice(0, -1));
         return list.slice(0, -1); // last linefeed
         /**
          * @param {map|array} jsonMap
@@ -1459,13 +1461,14 @@ class Damon {
      * @param {map|array|boolean|null|string|number} jsonMap
      * @returns {string}
      */
-    _mapToJSON(jsonMap) {
+    mapToJSON(jsonMap) {
         let $ = this;
         var list = ``;
         if (Array.isArray(jsonMap)) {
             list += "[\r\n";
             _recurse(jsonMap);
             list += "]";
+            JSON.parse(list);
             return list;
         } else if (
             typeof jsonMap === 'object'
@@ -1476,11 +1479,13 @@ class Damon {
             list += "{\r\n";
             _recurse(jsonMap);
             list += "}";
+            JSON.parse(list);
             return list;
         } else {
             if (typeof jsonMap == 'string') {
                 jsonMap = '"' + jsonMap + '"';
             }
+            JSON.parse(jsonMap);
             return jsonMap;
         }
         /**
@@ -1593,7 +1598,7 @@ class Damon {
      * @param {map|boolean|null|string|number} jsonMap
      * @returns {string}
      */
-    _implicitMapToSExpression(jsonMap) {
+    implicitMapToSExpression(jsonMap) {
         let $ = this;
         var list = ``;
          if (
@@ -1605,11 +1610,13 @@ class Damon {
             list += "[\r\n";
             _recurse(jsonMap);
             list += "]";
+            JSON.parse(list)
             return list;
         } else {
             if (typeof jsonMap == 'string') {
                 jsonMap = '"' + jsonMap + '"';
             }
+            JSON.parse(jsonMap)
             return jsonMap;
         }
         /**

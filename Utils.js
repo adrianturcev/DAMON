@@ -28,6 +28,12 @@ class Utils {
      */
     mapToHtmlList(jsonMap, safeHTML = false, jsonSchema = undefined) {
         let $ = this;
+        // Parsing check
+        try {
+            $.mapToJSON(jsonMap);
+        } catch (error) {
+            throw new Error("Provided map value doesn't passes JSON.parse()")
+        }
         var jsonItemIndex = 0,
             list = document.createElement('ul'),
             schema;
@@ -333,6 +339,12 @@ class Utils {
      */
     mapToHtmlTable(jsonMap, safeHTML = false) {
         let $ = this;
+        // Parsing check
+        try {
+            $.mapToJSON(jsonMap);
+        } catch (error) {
+            throw new Error("Provided map value doesn't passes JSON.parse()")
+        }
         var jsonItemIndex = 0,
             table = document.createElement('table'),
             tHead = document.createElement('thead'),
@@ -453,6 +465,12 @@ class Utils {
      */
     mapTreeLeavesToHtmlTable(jsonMap, safeHTML = false) {
         let $ = this;
+        // Parsing check
+        try {
+            $.mapToJSON(jsonMap);
+        } catch (error) {
+            throw new Error("Provided map value doesn't passes JSON.parse()")
+        }
         var jsonItemIndex = 0,
             expectedDepth = 0,
             table = document.createElement('table'),
@@ -837,6 +855,13 @@ class Utils {
     */
     mapsDiff(firstMap, secondMap) {
         let $ = this;
+        // Parsing check
+        try {
+            $.mapToJSON(firstMap);
+            $.mapToJSON(secondMap);
+        } catch (error) {
+            throw new Error("Provided map value doesn't passes JSON.parse()")
+        }
         if (typeof firstMap !== typeof secondMap) {
             
         }
