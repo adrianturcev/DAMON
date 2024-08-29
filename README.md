@@ -24,7 +24,8 @@ See [language_reference.md](./language_reference.md)
 
 ```Bash
 node esbuild # dev
-node esbuild-dist # dist
+node esbuild-dist # default distribuable
+node esbuild-dist-lite # lite distribuable
 ```
 
 ## Installation
@@ -58,6 +59,10 @@ console.log(damon.jsonToDAMON(damon.damonToJSON(damonString)));
 console.log(damon.damonToMap(damonString));
 // Map(1) {"key" => "value"}
 ```
+
+### API
+
+
 
 ## Attributions
 

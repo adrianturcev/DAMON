@@ -1,6 +1,5 @@
 // Copyright © 2024 Adrian Turcev
 import {parse} from 'json-in-order';
-import Utils from './Utils.js';
 
 //# Damon
 module.exports =
@@ -17,7 +16,7 @@ class Damon {
         }
         this.pedantic = pedantic;
         this.damonOriginalLinesMapping = [];
-        this.utils = new Utils();
+        this.utils = DamonUtils();
     }
     /**
      * Object-like ordered dictionaries declarations in js
