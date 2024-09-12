@@ -21,7 +21,7 @@
     "node": "20.11.1"
   },
   "packageManager": "npm@10.2.4",
-  "main": "Damon.js", 
+  "main": "main.js", 
   "scripts": {
     "watch": "node esbuild.js"
   },
