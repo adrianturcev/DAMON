@@ -16,7 +16,7 @@ class Damon {
         }
         this.pedantic = pedantic;
         this.damonOriginalLinesMapping = [];
-        this.utils = DamonUtils();
+        this.utils = new DamonUtils();
     }
     /**
      * Object-like ordered dictionaries declarations in js
