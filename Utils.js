@@ -4,8 +4,9 @@ import * as DOMPurify from 'dompurify';
 module.exports =
 class Utils {
     //# MODEL
-    constructor() {
+    constructor(parentContext) {
         let $ = this;
+        $.parentContext = parentContext;
     }
 
     /**
@@ -30,8 +31,9 @@ class Utils {
         let $ = this;
         // Parsing check
         try {
-            $.mapToJSON(jsonMap);
+            $.parentContext.mapToJSON(jsonMap);
         } catch (error) {
+            console.log(error)
             throw new Error("Provided map value doesn't passes JSON.parse()")
         }
         var jsonItemIndex = 0,
@@ -341,7 +343,7 @@ class Utils {
         let $ = this;
         // Parsing check
         try {
-            $.mapToJSON(jsonMap);
+            $.parentContext.mapToJSON(jsonMap);
         } catch (error) {
             throw new Error("Provided map value doesn't passes JSON.parse()")
         }
@@ -467,7 +469,7 @@ class Utils {
         let $ = this;
         // Parsing check
         try {
-            $.mapToJSON(jsonMap);
+            $.parentContext.mapToJSON(jsonMap);
         } catch (error) {
             throw new Error("Provided map value doesn't passes JSON.parse()")
         }
@@ -857,8 +859,8 @@ class Utils {
         let $ = this;
         // Parsing check
         try {
-            $.mapToJSON(firstMap);
-            $.mapToJSON(secondMap);
+            $.parentContext.mapToJSON(firstMap);
+            $.parentContext.mapToJSON(secondMap);
         } catch (error) {
             throw new Error("Provided map value doesn't passes JSON.parse()")
         }
