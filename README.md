@@ -24,8 +24,7 @@ See [language_reference.md](./language_reference.md)
 
 ```Bash
 node esbuild # dev
-node esbuild-dist # default distribuable
-node esbuild-dist-lite # lite distribuable
+node esbuild-dist # distribuable
 ```
 
 ## Installation

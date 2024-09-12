@@ -848,4 +848,171 @@ class Utils {
             return jsonMap;
         }
     }
+
+    /**
+     * @param {map|array} firstMap
+     * @param {map|array} secondMap
+    */
+    mapsDiff(firstMap, secondMap) {
+        let $ = this;
+        // Parsing check
+        try {
+            $.mapToJSON(firstMap);
+            $.mapToJSON(secondMap);
+        } catch (error) {
+            throw new Error("Provided map value doesn't passes JSON.parse()")
+        }
+        if (typeof firstMap !== typeof secondMap) {
+            
+        }
+        // Intersection, Substraction, Addition
+        var list = ``;
+        if (Array.isArray(jsonMap)) {
+            list += '- []\n';
+        } else {
+            list += '- {}\n';
+        }
+        _recurse(jsonMap);
+        return list.slice(0, -1); // last linefeed
+        /**
+         * @param {map|array} jsonMap
+         * @param {number} [level=1]
+         * @returns {string}
+         */
+        function _recurse(jsonMap, level = 1) {
+            if (
+                typeof jsonMap === 'object'
+                && jsonMap !== null
+                && !Array.isArray(jsonMap)
+                && jsonMap instanceof Map
+                && jsonMap.constructor === Map
+            ) {
+                for (const [key, value] of jsonMap) {
+                    if (
+                        typeof value === 'object'
+                        && value !== null
+                    ) {
+                        if (Array.isArray(value)) {
+                            let nullsCounter = 0,
+                                arrayOfPrimitives = value.filter(function (item) {
+                                if (item === true) {
+                                    return true;
+                                } else if (item === false) {
+                                    return true;
+                                } else if (item === null) {
+                                    nullsCounter++;
+                                    return true;
+                                } else if (typeof item == 'string') {
+                                    return true;
+                                } else if (
+                                    isFinite(item)
+                                    && !isNaN(parseFloat(item))
+                                    && Number.isFinite(item * 1)
+                        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/NaN
+                                    && !Number.isNaN(item * 1)
+                                ) { // Number
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            });
+                            if (
+                                value.length == arrayOfPrimitives.length
+                                && (level * 4 + 2 + value.join(', ').length + (nullsCounter * 4)) <= 80
+                            ) {
+                                // No nesting, fits on an archivable line
+                                let line = '[' + value.map((x) => JSON.stringify(x)).join(', ') + ']';
+                                list +=
+                                    '    '.repeat(level)
+                                    + '- ' + JSON.stringify(key).slice(1, -1) + ': ' + line + '\n';
+                            } else {
+                                list += '    '.repeat(level) + '- ' + JSON.stringify(key).slice(1, -1) + ': []\n';
+                                _recurse(value, level + 1);
+                            }
+                        } else {
+                            list += '    '.repeat(level) + '- ' + JSON.stringify(key).slice(1, -1) + ': {}\n';
+                            _recurse(value, level + 1);
+                        }
+                    } else {
+                        list += '    '.repeat(level) + '- ' + JSON.stringify(key).slice(1, -1) + ': ';
+                        if (value === true) {
+                            list += "true\n";
+                        } else if (value === false) {
+                            list += "false\n";
+                        } else if (value === null) {
+                            list += "null\n";
+                        } else if (
+                            Number.isFinite(value)
+                            && !Number.isNaN(value)
+                        ) {
+                            list += value + "\n";
+                        } else {
+                            list += `${JSON.stringify(value)}\n`;
+                        }
+                    }
+                }
+            } else if (Array.isArray(jsonMap)) {
+                for (var i = 0, c = jsonMap.length; i < c; i++) {
+                    if (
+                        typeof jsonMap[i] === 'object'
+                        && jsonMap[i] !== null
+                    ) {
+                        if (Array.isArray(jsonMap[i])) {
+                            let nullsCounter = 0,
+                                arrayOfPrimitives = jsonMap[i].filter(function (item) {
+                                if (item === true) {
+                                    return true;
+                                } else if (item === false) {
+                                    return true;
+                                } else if (item === null) {
+                                    nullsCounter++;
+                                    return true;
+                                } else if (typeof item == 'string') {
+                                    return true;
+                                } else if (
+                                    isFinite(item)
+                                    && !isNaN(parseFloat(item))
+                                    && Number.isFinite(item * 1)
+                        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/NaN
+                                    && !Number.isNaN(item * 1)
+                                ) { // Number
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            });
+                            if (
+                                jsonMap[i].length == arrayOfPrimitives.length
+                                && (level * 4 + 2 + jsonMap[i].join(', ').length + (nullsCounter * 4)) <= 80
+                            ) {
+                                let line = '[' + jsonMap[i].map((x) => JSON.stringify(x)).join(', ') + ']';
+                                list += '    '.repeat(level) + '- ' + line + '\n';
+                            } else {
+                                list += '    '.repeat(level) + "- []\n";
+                                _recurse(jsonMap[i], level + 1);
+                            }
+                        } else {
+                            list += '    '.repeat(level) + "- {}\n";
+                            _recurse(jsonMap[i], level + 1);
+                        }
+                    } else {
+                        if (jsonMap[i] === true) {
+                            list += '    '.repeat(level) + "- true\n";
+                        } else if (jsonMap[i] === false) {
+                            list += '    '.repeat(level) + "- false\n";
+                        } else if (jsonMap[i] === null) {
+                            list += '    '.repeat(level) + "- null\n";
+                        } else if (
+                            Number.isFinite(jsonMap[i])
+                            && !Number.isNaN(jsonMap[i])
+                        ) {
+                            list += '    '.repeat(level) + '- ' + jsonMap[i] + "\n";
+                        } else {
+                            list += '    '.repeat(level) + `- ${JSON.stringify(jsonMap[i])}\n`;
+                        }
+                    }
+                }
+            }
+        }
+    }
  };

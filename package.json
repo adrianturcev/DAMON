@@ -1,6 +1,6 @@
 {
   "name": "damon2",
-  "version": "2.1.15",
+  "version": "2.1.16",
   "description": "A JSON shorthand",
   "author": "Adrian Turcev",
   "license": "MPL-2.0",
@@ -21,7 +21,7 @@
     "node": "20.11.1"
   },
   "packageManager": "npm@10.2.4",
-  "main": "main.js", 
+  "main": "Damon.js",
   "scripts": {
     "watch": "node esbuild.js"
   },

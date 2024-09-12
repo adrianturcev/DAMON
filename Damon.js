@@ -1,5 +1,6 @@
 // Copyright © 2024 Adrian Turcev
 import {parse} from 'json-in-order';
+const DamonUtils = require('./Utils.js');
 
 //# Damon
 module.exports =
