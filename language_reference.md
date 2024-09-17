@@ -18,7 +18,7 @@ Lone values remain unchanged:
 
 Produces:
 
-```JSON
+```JSONC
 // Or: true/false/null/number
 ""
 ```
