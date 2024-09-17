@@ -18,7 +18,7 @@ Lone values remain unchanged:
 
 Produces:
 
-```JSONC
+```js
 // Or: true/false/null/number
 ""
 ```
