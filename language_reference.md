@@ -12,13 +12,15 @@
 Lone values remain unchanged:
 
 ```yaml
-"" # Alternatively: true/false/null/number
+# Alternatively: true/false/null/number
+""
 ```
 
 Produces:
 
 ```JSON
-"" // Or true/false/null/number
+// Or: true/false/null/number
+""
 ```
 
 ### Maps
