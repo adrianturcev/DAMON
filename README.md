@@ -23,8 +23,8 @@ See [language_reference.md](./language_reference.md)
 ## Building
 
 ```Bash
-node esbuild # dev
-node esbuild-dist # distribuable
+npm run watch # dev
+npm run dist # distribuable
 ```
 
 ## Installation
@@ -59,10 +59,6 @@ console.log(damon.damonToMap(damonString));
 // Map(1) {"key" => "value"}
 ```
 
-### API
-
-
-
 ## Attributions
 
 Built on:
@@ -70,6 +66,10 @@ Built on:
 - JSON-types and JSON.parse()
 - json-in-order [@sanderevers](https://github.com/sanderevers)
 - DOMPurify [@cure53](https://github.com/cure53)
+
+## Going further
+
+- [Offside-rule grammar](https://michaeldadams.org/papers/layout_parsing/LayoutParsing.pdf)
 
 ## License
 
