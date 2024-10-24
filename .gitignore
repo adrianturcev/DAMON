@@ -1,12 +1,5 @@
-.vscode/
+.vscode/launch.json
 lib/
 node_modules/
-tests.js
-tests.json
-visualBenchmark.html
-index.html
-kanban.md
-about.md
+docs/
 damon_highlight_rules.js
-out.js
-out.js.map
