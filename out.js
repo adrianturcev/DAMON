@@ -1459,10 +1459,10 @@
           return set;
         }
         function cleanArray(array) {
-          for (let index = 0; index < array.length; index++) {
-            const isPropertyExist = objectHasOwnProperty(array, index);
+          for (let index2 = 0; index2 < array.length; index2++) {
+            const isPropertyExist = objectHasOwnProperty(array, index2);
             if (!isPropertyExist) {
-              array[index] = null;
+              array[index2] = null;
             }
           }
           return array;
@@ -4354,6 +4354,124 @@
                   list += ",\r\n";
                 } else {
                   list += "\r\n";
+                }
+              }
+            }
+          }
+        }
+        /**
+         * @param {string} damon
+         * @param {array} path
+         * @returns {array}
+         */
+        getRangeFromPath(damon, path) {
+          let $ = this;
+          let damonMap = $.damonToMap(damon), line = -1, found = false;
+          _incrementLineUntilReaching(damonMap, path);
+          if (damonMap.headless)
+            line -= 1;
+          let totalLines = 0, match = 0;
+          for (let i = 0, c = damonMap.damonOriginalLinesMapping.length; i < c; i++) {
+            if (damonMap.damonOriginalLinesMapping[i] !== null) {
+              match++;
+            }
+            if (match == line) {
+              totalLines = i + 1;
+              break;
+            }
+          }
+          let lineText = $._getDamonLines(damon)[totalLines], start = 0, end = lineText.length;
+          if (path.length == 1) {
+            if (typeof path[path.length - 1] == "string") {
+              start = lineText.length - lineText.trimStart().slice(2 + path[path.length - 1].length + 2).trimStart().length;
+            } else {
+              start = lineText.length - lineText.trimStart().slice(2).length;
+            }
+          } else {
+            if (typeof path[path.length - 2] == "string") {
+              if (typeof path[path.length - 1] == "string") {
+                start = lineText.length - lineText.trimStart().slice(2 + path[path.length - 1].length + 2).trimStart().length;
+              } else {
+                if (lineText[lineText.length - 1] == "]" && !/\[ *\]$/.test(lineText)) {
+                  let arrayText = lineText.trimStart().slice(2 + path[path.length - 2].length + 2), array = JSON.parse(arrayText), occurences = array.slice(0, path[path.length - 1].length).reduce((acc, value) => acc + (value === array[path[path.length - 1]]), 0);
+                  index = 0, match = array[path[path.length - 1]];
+                  if (typeof match == "string")
+                    match = '"' + match + '"';
+                  for (let i = 0, c = occurences + 1; i < c; i++) {
+                    index = arrayText.indexOf(match, index);
+                  }
+                  start = lineText.length - arrayText.length + index;
+                  end = start + match.length;
+                } else {
+                  start = lineText.length - lineText.trimStart().slice(2).length;
+                }
+              }
+            } else {
+              if (typeof path[path.length - 1] == "string") {
+                start = lineText.length - lineText.trimStart().slice(2 + path[path.length - 1].llength + 2).trimStart().length;
+              } else {
+                if (lineText[lineText.length - 1] == "]" && !/\[ *\]$/.test(lineText)) {
+                  let arrayText = lineText.trimStart().slice(2), array = JSON.parse(arrayText), occurences = array.slice(0, path[path.length - 1]).reduce((acc, value) => acc + (value === array[path[path.length - 1]]), 0);
+                  index = 0, match = array[path[path.length - 1]];
+                  if (typeof match == "string")
+                    match = '"' + match + '"';
+                  for (let i = 0, c = occurences + 1; i < c; i++) {
+                    index = arrayText.indexOf(match, index);
+                  }
+                  start = lineText.length - arrayText.length + index;
+                  end = start + match.length;
+                } else {
+                  start = lineText.length - lineText.trimStart().slice(2).length;
+                }
+              }
+            }
+          }
+          return [[totalLines, start], [totalLines, end]];
+          function _incrementLineUntilReaching(map, targetPath, currentPath = []) {
+            if (found == true) {
+              return;
+            }
+            line += 1;
+            if (typeof map === "object" && map !== null && !Array.isArray(map) && map instanceof Map && map.constructor === Map) {
+              for (const [key, value] of map) {
+                line += 1;
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && value instanceof Map && value.constructor === Map) {
+                  if (JSON.stringify(targetPath) === JSON.stringify(currentPath.concat([key]))) {
+                    found = true;
+                    return;
+                  } else if (Array.from(value.keys()).length) {
+                    line -= 1;
+                    _incrementLineUntilReaching(value, targetPath, currentPath.concat([key]));
+                  }
+                } else if (Array.isArray(value)) {
+                  if (JSON.stringify(targetPath) === JSON.stringify(currentPath.concat([key]))) {
+                    found = true;
+                    return;
+                  } else if ((map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(key) === -1) && value.length) {
+                    line -= 1;
+                    _incrementLineUntilReaching(value, targetPath, currentPath.concat([key]));
+                  }
+                }
+              }
+            } else {
+              for (let i = 0, c = map.length; i < c; i++) {
+                line += 1;
+                if (typeof map[i] === "object" && map[i] !== null && !Array.isArray(map[i]) && map[i] instanceof Map && map[i].constructor === Map) {
+                  if (JSON.stringify(targetPath) === JSON.stringify(currentPath.concat([i]))) {
+                    found = true;
+                    return;
+                  } else if (Array.from(map[i].keys()).length) {
+                    line -= 1;
+                    _incrementLineUntilReaching(map[i], targetPath, currentPath.concat([i]));
+                  }
+                } else if (Array.isArray(map[i])) {
+                  if (JSON.stringify(targetPath) === JSON.stringify(currentPath.concat([i]))) {
+                    found = true;
+                    return;
+                  } else if ((map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(i) === -1) && map[i].length) {
+                    line -= 1;
+                    _incrementLineUntilReaching(map[i], targetPath, currentPath.concat([i]));
+                  }
                 }
               }
             }
