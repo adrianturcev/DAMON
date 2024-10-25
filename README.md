@@ -24,7 +24,7 @@ See [language_reference.md](./language_reference.md)
 
 ```Bash
 npm run watch # dev
-npm run dist # distribuable
+npm run build # distribuable
 ```
 
 ## Installation
