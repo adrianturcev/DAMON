@@ -21,6 +21,9 @@ module.exports = function(grunt) {
         exec: {
             mocha: {
                 command: 'npx mocha tests/main.test.js --parallel --slow 0',
+            },
+            typescript: {
+                command: 'npx tsc --project jsconfig.json'
             }
         },
         esbuild: {
