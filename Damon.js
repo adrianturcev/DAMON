@@ -20,8 +20,8 @@ class Damon {
     }
     /**
      * Object-like ordered dictionaries declarations in js
-     * @param {string} strings
-     * @returns
+     * @param {TemplateStringsArray} strings
+     * @returns {Map<string, any>|Array<any>|boolean|null|string|number}
      */
     template(strings) {
         let $ = this;
@@ -40,7 +40,7 @@ class Damon {
 
     /**
      * @param {string} damon
-     * @returns {map|array}
+     * @returns {Map<string, any>|Array<any>|boolean|null|string|number}
      */
     damonToMap(damon) {
         let $ = this;
@@ -68,7 +68,7 @@ class Damon {
 
     /**
      * @param {string} damon
-     * @returns {map}
+     * @returns {string}
      */
     damonToSExpression(damon) {
         let $ = this;
@@ -81,17 +81,16 @@ class Damon {
      */
     jsonToDamon(json) {
         let $ = this;
-        return $.mapToDamon($.jsonToMap(json));
+        return $.mapToDamon($.jsonToMap(json), false);
     }
 
     /**
      * @param {string} json
-     * @returns {map|array|boolean|null|string|number}
+     * @returns {Map<string, any>|Array<any>|boolean|null|string|number}
      */
     jsonToMap(json) {
         let $ = this;
-        var delimiter = /\r\n/.test(json) ? '\r\n' : '\n',
-            jsonLines = json.split(delimiter);
+        var jsonLines = $._getLines(json);
         // - Remove comments lines
         jsonLines = jsonLines.filter(x => !(/^ *\/\//.test(x)));
         // - Remove empty lines
@@ -126,8 +125,8 @@ class Damon {
                     throw new Error(
                         "Error line number 1: leading 0",
                         {
-                        line: 1,
-                        language: "DAMON"
+                            line: 1,
+                            language: "DAMON"
                         }
                     );
                 }
@@ -162,9 +161,9 @@ class Damon {
 
     /**
      * @param {string} damon
-     * @returns {array} damonLines
+     * @returns {Array<string>} damonLines
      */
-    _getDamonLines(damon) {
+    _getLines(damon) {
         if (damon === '') {
             throw new Error(
                 "Error line 1: empty string",
@@ -176,7 +175,8 @@ class Damon {
         }
         if (
             /[\s]/.test(damon)
-            && damon.match(new RegExp(/[\s]/))[0].length == damon.length) {
+            && damon.match(new RegExp(/[\s]/))[0].length == damon.length
+        ) {
             throw new Error(
                 "Error line 1: string only contains whitespace",
                 {
@@ -208,11 +208,11 @@ class Damon {
     /**
      * Offside-rule parsing
      * @param {string} damon
-     * @returns {object}
+     * @returns {object|boolean|null|string|number}
      */
     _damonToTree(damon) {
         let $ = this;
-        let damonLines = $._getDamonLines(damon),
+        let damonLines = $._getLines(damon),
             damonOriginalLines = damonLines.slice(0);
         // Let the shaving, begin!
         // - Remove comments lines
@@ -250,8 +250,8 @@ class Damon {
                     throw new Error(
                         "Error line number 1: leading 0",
                         {
-                        line: 1,
-                        language: "DAMON"
+                            line: 1,
+                            language: "DAMON"
                         }
                     );
                 }
@@ -531,8 +531,8 @@ class Damon {
 
     /**
      * JSON primitives wrapping
-     * @param {object} tree
-     * @return {map | array}
+     * @param {Object} damonTree
+     * @return {Map<string, any> | Array<any>}
      */
     _treeToMap(damonTree) {
         let $ = this;
@@ -556,9 +556,9 @@ class Damon {
             return _recurse(damonTree, map);
         }
         /**
-         * @param {object} tree
-         * @param {map|array} jsonMap
-         * @returns {map|array}
+         * @param {Object} tree
+         * @param {Map<string, any>|Array<any>} jsonMap
+         * @returns {Map<string, any>|Array<any>}
          */
         function _recurse(tree, jsonMap) {
             if (
@@ -606,8 +606,8 @@ class Damon {
         }
 
         /**
-         * @param {object} tree
-         * @param {map|array} jsonMap
+         * @param {Object} tree
+         * @param {Map<string, any>|Array<any>} jsonMap
          */
         function _mapHandler(tree, jsonMap) {
             for (let i = 0, c = tree.children.length; i < c; i++) {
@@ -1112,8 +1112,8 @@ class Damon {
         }
 
         /**
-         * @param {object} tree
-         * @param {map|array} jsonMap
+         * @param {Object} tree
+         * @param {Map<string, any>|Array<any>} jsonMap
          */
         function _listHandler(tree, jsonMap) {
             for (let i = 0, c = tree.children.length; i < c; i++) {
@@ -1325,7 +1325,7 @@ class Damon {
     }
 
     /**
-     * @param {map|array|boolean|null|string|number} jsonMap
+     * @param {Map<string, any>|Array<any>|boolean|null|string|number} jsonMap
      * @param {boolean} pristine
      * @returns {string}
      */
@@ -1353,7 +1353,7 @@ class Damon {
         $.damonToMap(list.slice(0, -1));
         return list.slice(0, -1); // last linefeed
         /**
-         * @param {map|array} jsonMap
+         * @param {Map<string, any>|Array<any>} jsonMap
          * @param {number} [level=1]
          * @returns {string}
          */
@@ -1523,7 +1523,7 @@ class Damon {
     }
 
     /**
-     * @param {map|array|boolean|null|string|number} jsonMap
+     * @param {Map<string, any>|Array<any>|boolean|null|string|number} jsonMap
      * @returns {string}
      */
     mapToJSON(jsonMap) {
@@ -1554,7 +1554,7 @@ class Damon {
             return jsonMap;
         }
         /**
-         * @param {map|array} jsonMap
+         * @param {Map<string, any>|Array<any>} jsonMap
          * @param {number} [level=1]
          * @returns {string}
          */
@@ -1660,7 +1660,7 @@ class Damon {
     }
 
     /**
-     * @param {map|boolean|null|string|number} jsonMap
+     * @param {Map<string, any>|Array<any>|boolean|null|string|number} jsonMap
      * @returns {string}
      */
     implicitMapToSExpression(jsonMap) {
@@ -1685,7 +1685,7 @@ class Damon {
             return jsonMap;
         }
         /**
-         * @param {map|array} jsonMap
+         * @param {Map<string, any>|Array<any>} jsonMap
          * @param {number} [level=1]
          * @returns {string}
          */
@@ -1803,8 +1803,8 @@ class Damon {
 
     /**
      * @param {string} damon
-     * @param {array} path
-     * @returns {array}
+     * @param {Array<string|number>} path
+     * @returns {Array<Array<number>>}
      */
     getRangeFromPath(damon, path) {
         let $ = this;
@@ -1825,7 +1825,7 @@ class Damon {
                 break;
             }
         }
-        let lineText = $._getDamonLines(damon)[totalLines],
+        let lineText = $._getLines(damon)[totalLines],
             start = 0,
             end = lineText.length;
         if (path.length == 1) {
@@ -1851,7 +1851,7 @@ class Damon {
                             array = JSON.parse(arrayText),
                             occurences =
                                 array.slice(0, path[path.length - 1].length)
-                                    .reduce((acc, value) => acc + (value === array[path[path.length - 1]]), 0);
+                                    .reduce((acc, value) => acc + (value === array[path[path.length - 1]]), 0),
                             index = 0,
                             match = array[path[path.length - 1]];
                         if (typeof match == 'string')
@@ -1869,7 +1869,7 @@ class Damon {
                 if (typeof path[path.length - 1] == 'string') {
                     start =
                         lineText.length
-                        - lineText.trimStart().slice(2 + path[path.length - 1].llength + 2).trimStart().length;
+                        - lineText.trimStart().slice(2 + path[path.length - 1].length + 2).trimStart().length;
                 } else {
                     if (
                         lineText[lineText.length - 1] == ']'
@@ -1879,7 +1879,7 @@ class Damon {
                             array = JSON.parse(arrayText),
                             occurences =
                                 array.slice(0, path[path.length - 1])
-                                    .reduce((acc, value) => acc + (value === array[path[path.length - 1]]), 0);
+                                    .reduce((acc, value) => acc + (value === array[path[path.length - 1]]), 0),
                             index = 0,
                             match = array[path[path.length - 1]];
                         if (typeof match == 'string')
@@ -1897,12 +1897,10 @@ class Damon {
         }
         return [[totalLines, start], [totalLines, end]];
         /**
-         * @param {map} map
-         * @param {array} targetPath
-         * @param {number} line
-         * @param {array} [currentPath=[]]
-         * @returns {number}
-         */
+         * @param {Map<string, any>|Array<any>} map
+         * @param {Array<string|number>} targetPath
+         * @param {Array<string|number>} [currentPath=[]]
+        */
         function _incrementLineUntilReaching(map, targetPath, currentPath = []) {
             if (found == true) {
                 return;

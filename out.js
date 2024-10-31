@@ -1459,10 +1459,10 @@
           return set;
         }
         function cleanArray(array) {
-          for (let index2 = 0; index2 < array.length; index2++) {
-            const isPropertyExist = objectHasOwnProperty(array, index2);
+          for (let index = 0; index < array.length; index++) {
+            const isPropertyExist = objectHasOwnProperty(array, index);
             if (!isPropertyExist) {
-              array[index2] = null;
+              array[index] = null;
             }
           }
           return array;
@@ -3103,8 +3103,8 @@
         }
         /**
          * Object-like ordered dictionaries declarations in js
-         * @param {string} strings
-         * @returns
+         * @param {TemplateStringsArray} strings
+         * @returns {Map<string, any>|Array<any>|boolean|null|string|number}
          */
         template(strings) {
           let $ = this;
@@ -3122,7 +3122,7 @@
         }
         /**
          * @param {string} damon
-         * @returns {map|array}
+         * @returns {Map<string, any>|Array<any>|boolean|null|string|number}
          */
         damonToMap(damon) {
           let $ = this;
@@ -3142,7 +3142,7 @@
         }
         /**
          * @param {string} damon
-         * @returns {map}
+         * @returns {string}
          */
         damonToSExpression(damon) {
           let $ = this;
@@ -3154,15 +3154,15 @@
          */
         jsonToDamon(json) {
           let $ = this;
-          return $.mapToDamon($.jsonToMap(json));
+          return $.mapToDamon($.jsonToMap(json), false);
         }
         /**
          * @param {string} json
-         * @returns {map|array|boolean|null|string|number}
+         * @returns {Map<string, any>|Array<any>|boolean|null|string|number}
          */
         jsonToMap(json) {
           let $ = this;
-          var delimiter = /\r\n/.test(json) ? "\r\n" : "\n", jsonLines = json.split(delimiter);
+          var jsonLines = $._getLines(json);
           jsonLines = jsonLines.filter((x) => !/^ *\/\//.test(x));
           jsonLines = jsonLines.filter((x) => x != "");
           jsonLines = jsonLines.filter((x) => !/^[ \t]+$/.test(x));
@@ -3217,9 +3217,9 @@
         }
         /**
          * @param {string} damon
-         * @returns {array} damonLines
+         * @returns {Array<string>} damonLines
          */
-        _getDamonLines(damon) {
+        _getLines(damon) {
           if (damon === "") {
             throw new Error(
               "Error line 1: empty string",
@@ -3258,11 +3258,11 @@
         /**
          * Offside-rule parsing
          * @param {string} damon
-         * @returns {object}
+         * @returns {object|boolean|null|string|number}
          */
         _damonToTree(damon) {
           let $ = this;
-          let damonLines = $._getDamonLines(damon), damonOriginalLines = damonLines.slice(0);
+          let damonLines = $._getLines(damon), damonOriginalLines = damonLines.slice(0);
           damonLines = damonLines.filter((x) => !/^ *\/\//.test(x));
           damonLines = damonLines.filter((x) => x != "");
           damonLines = damonLines.filter((x) => !/^[ \t]+$/.test(x));
@@ -3493,8 +3493,8 @@
         }
         /**
          * JSON primitives wrapping
-         * @param {object} tree
-         * @return {map | array}
+         * @param {Object} damonTree
+         * @return {Map<string, any> | Array<any>}
          */
         _treeToMap(damonTree) {
           let $ = this;
@@ -4000,7 +4000,7 @@
           }
         }
         /**
-         * @param {map|array|boolean|null|string|number} jsonMap
+         * @param {Map<string, any>|Array<any>|boolean|null|string|number} jsonMap
          * @param {boolean} pristine
          * @returns {string}
          */
@@ -4131,7 +4131,7 @@
           }
         }
         /**
-         * @param {map|array|boolean|null|string|number} jsonMap
+         * @param {Map<string, any>|Array<any>|boolean|null|string|number} jsonMap
          * @returns {string}
          */
         mapToJSON(jsonMap2) {
@@ -4243,7 +4243,7 @@
           }
         }
         /**
-         * @param {map|boolean|null|string|number} jsonMap
+         * @param {Map<string, any>|Array<any>|boolean|null|string|number} jsonMap
          * @returns {string}
          */
         implicitMapToSExpression(jsonMap2) {
@@ -4361,8 +4361,8 @@
         }
         /**
          * @param {string} damon
-         * @param {array} path
-         * @returns {array}
+         * @param {Array<string|number>} path
+         * @returns {Array<Array<number>>}
          */
         getRangeFromPath(damon, path) {
           let $ = this;
@@ -4380,7 +4380,7 @@
               break;
             }
           }
-          let lineText = $._getDamonLines(damon)[totalLines], start = 0, end = lineText.length;
+          let lineText = $._getLines(damon)[totalLines], start = 0, end = lineText.length;
           if (path.length == 1) {
             if (typeof path[path.length - 1] == "string") {
               start = lineText.length - lineText.trimStart().slice(2 + path[path.length - 1].length + 2).trimStart().length;
@@ -4393,33 +4393,31 @@
                 start = lineText.length - lineText.trimStart().slice(2 + path[path.length - 1].length + 2).trimStart().length;
               } else {
                 if (lineText[lineText.length - 1] == "]" && !/\[ *\]$/.test(lineText)) {
-                  let arrayText = lineText.trimStart().slice(2 + path[path.length - 2].length + 2), array = JSON.parse(arrayText), occurences = array.slice(0, path[path.length - 1].length).reduce((acc, value) => acc + (value === array[path[path.length - 1]]), 0);
-                  index = 0, match = array[path[path.length - 1]];
-                  if (typeof match == "string")
-                    match = '"' + match + '"';
+                  let arrayText = lineText.trimStart().slice(2 + path[path.length - 2].length + 2), array = JSON.parse(arrayText), occurences = array.slice(0, path[path.length - 1].length).reduce((acc, value) => acc + (value === array[path[path.length - 1]]), 0), index = 0, match2 = array[path[path.length - 1]];
+                  if (typeof match2 == "string")
+                    match2 = '"' + match2 + '"';
                   for (let i = 0, c = occurences + 1; i < c; i++) {
-                    index = arrayText.indexOf(match, index);
+                    index = arrayText.indexOf(match2, index);
                   }
                   start = lineText.length - arrayText.length + index;
-                  end = start + match.length;
+                  end = start + match2.length;
                 } else {
                   start = lineText.length - lineText.trimStart().slice(2).length;
                 }
               }
             } else {
               if (typeof path[path.length - 1] == "string") {
-                start = lineText.length - lineText.trimStart().slice(2 + path[path.length - 1].llength + 2).trimStart().length;
+                start = lineText.length - lineText.trimStart().slice(2 + path[path.length - 1].length + 2).trimStart().length;
               } else {
                 if (lineText[lineText.length - 1] == "]" && !/\[ *\]$/.test(lineText)) {
-                  let arrayText = lineText.trimStart().slice(2), array = JSON.parse(arrayText), occurences = array.slice(0, path[path.length - 1]).reduce((acc, value) => acc + (value === array[path[path.length - 1]]), 0);
-                  index = 0, match = array[path[path.length - 1]];
-                  if (typeof match == "string")
-                    match = '"' + match + '"';
+                  let arrayText = lineText.trimStart().slice(2), array = JSON.parse(arrayText), occurences = array.slice(0, path[path.length - 1]).reduce((acc, value) => acc + (value === array[path[path.length - 1]]), 0), index = 0, match2 = array[path[path.length - 1]];
+                  if (typeof match2 == "string")
+                    match2 = '"' + match2 + '"';
                   for (let i = 0, c = occurences + 1; i < c; i++) {
-                    index = arrayText.indexOf(match, index);
+                    index = arrayText.indexOf(match2, index);
                   }
                   start = lineText.length - arrayText.length + index;
-                  end = start + match.length;
+                  end = start + match2.length;
                 } else {
                   start = lineText.length - lineText.trimStart().slice(2).length;
                 }
