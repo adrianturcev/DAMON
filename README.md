@@ -20,19 +20,19 @@ See [language_reference.md](./language_reference.md)
 - Software Design
 - Interactive Documents
 
-## Building
-
-```Bash
-npm run watch # dev
-npm run build # distribuable
-```
-
 ## Installation
 
 Node:
 
 ```bash
 npm install damon2
+```
+
+## Building
+
+```Bash
+npm run watch # dev
+npm run build # distribuable
 ```
 
 ## Usage
