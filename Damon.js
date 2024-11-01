@@ -90,7 +90,7 @@ class Damon {
      */
     jsonToMap(json) {
         let $ = this;
-        var jsonLines = $._getLines(json);
+        var jsonLines = $._getLines(json, 'JSON');
         // - Remove comments lines
         jsonLines = jsonLines.filter(x => !(/^ *\/\//.test(x)));
         // - Remove empty lines
@@ -161,15 +161,19 @@ class Damon {
 
     /**
      * @param {string} damon
+     * @param {string} [language='DAMON']
      * @returns {Array<string>} damonLines
      */
-    _getLines(damon) {
+    _getLines(damon, language = 'DAMON') {
+        if (['DAMON', 'JSON'].indexOf(language) == -1) {
+            throw new  Error("Bad language argument, expected 'DAMON' or 'JSON'");
+        }
         if (damon === '') {
             throw new Error(
                 "Error line 1: empty string",
                 {
                     line: 1,
-                    language: "DAMON"
+                    language: language
                 }
             );
         }
@@ -181,7 +185,7 @@ class Damon {
                 "Error line 1: string only contains whitespace",
                 {
                     line: 1,
-                    language: "DAMON"
+                    language: language
                 }
             );
         }
@@ -194,7 +198,7 @@ class Damon {
                     "Error line " + errorLine + ": oddly escaped newline",
                     {
                         line: errorLine,
-                        language: "DAMON"
+                        language: language
                     }
                 );
             }
