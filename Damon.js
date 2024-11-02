@@ -6,7 +6,7 @@ const DamonUtils = require('./src/Utils.js');
 module.exports =
 class Damon {
     /**
-     *Creates an instance of Damon.
+     * Creates an instance of Damon.
      * @param {Boolean} pedantic
      */
     constructor(pedantic = false) {
@@ -21,7 +21,7 @@ class Damon {
     /**
      * Object-like ordered dictionaries declarations in js
      * @param {TemplateStringsArray} strings
-     * @returns {Map<string, any>|Array<any>|boolean|null|string|number}
+     * @returns {damonValue}
      */
     template(strings) {
         let $ = this;
@@ -40,7 +40,10 @@ class Damon {
 
     /**
      * @param {string} damon
-     * @returns {Map<string, any>|Array<any>|boolean|null|string|number}
+     * @typedef {Map<string, damonValue>} damonMap
+     * @typedef {Array<damonValue>} damonArray
+     * @typedef {damonMap|damonArray|string|number|boolean|null} damonValue
+     * @returns damonValue
      */
     damonToMap(damon) {
         let $ = this;
@@ -86,7 +89,7 @@ class Damon {
 
     /**
      * @param {string} json
-     * @returns {Map<string, any>|Array<any>|boolean|null|string|number}
+     * @returns {damonValue}
      */
     jsonToMap(json) {
         let $ = this;
@@ -212,7 +215,17 @@ class Damon {
     /**
      * Offside-rule parsing
      * @param {string} damon
-     * @returns {object|boolean|null|string|number}
+     * @typedef {{
+     *     content: string,
+     *     level: number,
+     *     id: string,
+     *     children: Array<treeNode>
+     * }} treeNode
+     * @typedef {{
+     *     headless: boolean,
+     *     damonOriginalLinesMapping: Array<number|null>
+     * } & treeNode} treeRoot
+     * @returns {treeRoot}
      */
     _damonToTree(damon) {
         let $ = this;
@@ -535,8 +548,8 @@ class Damon {
 
     /**
      * JSON primitives wrapping
-     * @param {Object} damonTree
-     * @return {Map<string, any> | Array<any>}
+     * @param {treeRoot} damonTree
+     * @return {damonMap | damonArray}
      */
     _treeToMap(damonTree) {
         let $ = this;
@@ -1329,7 +1342,7 @@ class Damon {
     }
 
     /**
-     * @param {Map<string, any>|Array<any>|boolean|null|string|number} jsonMap
+     * @param {damonValue} jsonMap
      * @param {boolean} pristine
      * @returns {string}
      */
@@ -1527,7 +1540,7 @@ class Damon {
     }
 
     /**
-     * @param {Map<string, any>|Array<any>|boolean|null|string|number} jsonMap
+     * @param {damonValue} jsonMap
      * @returns {string}
      */
     mapToJSON(jsonMap) {
@@ -1664,7 +1677,7 @@ class Damon {
     }
 
     /**
-     * @param {Map<string, any>|Array<any>|boolean|null|string|number} jsonMap
+     * @param {damonMap} jsonMap
      * @returns {string}
      */
     implicitMapToSExpression(jsonMap) {
