@@ -1,6 +1,6 @@
 {
   "name": "damon2",
-  "version": "2.1.25",
+  "version": "2.1.26",
   "description": "A JSON shorthand",
   "author": "Adrian Turcev",
   "license": "MPL-2.0",
@@ -40,7 +40,6 @@
     "grunt-contrib-watch": "^1.1.0",
     "grunt-esbuild": "^1.0.1",
     "grunt-exec": "^3.0.0",
-    "mocha": "^10.7.3",
-    "typescript": "^5.6.3"
+    "mocha": "^10.7.3"
   }
 }
