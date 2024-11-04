@@ -10,7 +10,7 @@ class Damon {
      * @param {Boolean} pedantic
      */
     constructor(pedantic = false) {
-        let $ = this;
+        const $ = this;
         this.indentation = 4;
         if ([true, false, undefined].indexOf(pedantic) == -1) {
             throw new Error("@param {Boolean} pedantic");
@@ -24,7 +24,7 @@ class Damon {
      * @returns {damonValue}
      */
     template(strings) {
-        let $ = this;
+        const $ = this;
         var result = strings.raw[0];
         for (let i = 1; i < strings.raw.length; i++) {
             if (typeof arguments[i] == 'string') {
@@ -46,7 +46,7 @@ class Damon {
      * @returns damonValue
      */
     damonToMap(damon) {
-        let $ = this;
+        const $ = this;
         let treeOrPrimitive = $._damonToTree(damon);
         if (
             treeOrPrimitive === true
@@ -65,7 +65,7 @@ class Damon {
      * @returns {string}
      */
     damonToJSON(damon) {
-        let $ = this;
+        const $ = this;
         return $.mapToJSON($.damonToMap(damon));
     }
 
@@ -74,7 +74,7 @@ class Damon {
      * @returns {string}
      */
     damonToSExpression(damon) {
-        let $ = this;
+        const $ = this;
         return $.implicitMapToSExpression($.damonToMap(damon));
     }
 
@@ -83,7 +83,7 @@ class Damon {
      * @returns {string}
      */
     jsonToDamon(json) {
-        let $ = this;
+        const $ = this;
         return $.mapToDamon($.jsonToMap(json), false);
     }
 
@@ -92,7 +92,7 @@ class Damon {
      * @returns {damonValue}
      */
     jsonToMap(json) {
-        let $ = this;
+        const $ = this;
         var jsonLines = $._getLines(json, 'JSON');
         // - Remove comments lines
         jsonLines = jsonLines.filter(x => !(/^ *\/\//.test(x)));
@@ -228,7 +228,7 @@ class Damon {
      * @returns {treeRoot}
      */
     _damonToTree(damon) {
-        let $ = this;
+        const $ = this;
         let damonLines = $._getLines(damon),
             damonOriginalLines = damonLines.slice(0);
         // Let the shaving, begin!
@@ -516,7 +516,7 @@ class Damon {
      * @return {object|string} DOM
      */
     _findListItemCommonDirectParent(listItem, possibleParent) {
-        let $ = this;
+        const $ = this;
         if (possibleParent.children.indexOf(listItem) > -1) {
             return possibleParent;
         } else {
@@ -537,7 +537,7 @@ class Damon {
      * @return {object|string} DOM
      */
     _findListItemCommonAncestor(listItem, possibleParent, level) {
-        let $ = this;
+        const $ = this;
         var parent = $._findListItemCommonDirectParent(listItem, possibleParent);
         if (parent.level < level) {
             return parent;
@@ -552,7 +552,7 @@ class Damon {
      * @return {damonMap | damonArray}
      */
     _treeToMap(damonTree) {
-        let $ = this;
+        const $ = this;
         var treeItemIndex = 0;
         if (damonTree.content == '- {}') {
             let map = new Map();
@@ -631,7 +631,7 @@ class Damon {
                 treeItemIndex++;
                 if (tree.children[i].content.length == 0) {
                     // implicit value
-                    let errorType;
+                    let errorType = "";
                     if (tree.children[i].children.length > 0) {
                         errorType = "implicit map key";
                         jsonMap.set("", new Map());
@@ -721,7 +721,6 @@ class Damon {
                                         } else if (item === false) {
                                             return true;
                                         } else if (item === null) {
-                                            nullsCounter++;
                                             return true;
                                         } else if (typeof item == 'string') {
                                             return true;
@@ -1172,7 +1171,6 @@ class Damon {
                                         } else if (item === false) {
                                             return true;
                                         } else if (item === null) {
-                                            nullsCounter++;
                                             return true;
                                         } else if (typeof item == 'string') {
                                             return true;
@@ -1347,7 +1345,7 @@ class Damon {
      * @returns {string}
      */
     mapToDamon(jsonMap, pristine) {
-        let $ = this;
+        const $ = this;
         var list = ``;
         if (Array.isArray(jsonMap)) {
             list += '- []\n';
@@ -1544,7 +1542,7 @@ class Damon {
      * @returns {string}
      */
     mapToJSON(jsonMap) {
-        let $ = this;
+        const $ = this;
         var list = ``;
         if (Array.isArray(jsonMap)) {
             list += "[\r\n";
@@ -1681,7 +1679,7 @@ class Damon {
      * @returns {string}
      */
     implicitMapToSExpression(jsonMap) {
-        let $ = this;
+        const $ = this;
         var list = ``;
          if (
             typeof jsonMap === 'object'
@@ -1824,7 +1822,7 @@ class Damon {
      * @returns {Array<Array<number>>}
      */
     getRangeFromPath(damon, path) {
-        let $ = this;
+        const $ = this;
         let damonMap = $.damonToMap(damon),
             line = -1,
             found = false;
