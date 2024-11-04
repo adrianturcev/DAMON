@@ -58,6 +58,7 @@
     __propKey: () => __propKey,
     __read: () => __read,
     __rest: () => __rest,
+    __rewriteRelativeImportExtension: () => __rewriteRelativeImportExtension,
     __runInitializers: () => __runInitializers,
     __setFunctionName: () => __setFunctionName,
     __spread: () => __spread,
@@ -197,8 +198,8 @@
       if (t[0] & 1)
         throw t[1];
       return t[1];
-    }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() {
+    }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() {
       return this;
     }), g;
     function verb(n) {
@@ -339,16 +340,24 @@
     if (!Symbol.asyncIterator)
       throw new TypeError("Symbol.asyncIterator is not defined.");
     var g = generator.apply(thisArg, _arguments || []), i, q = [];
-    return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function() {
+    return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function() {
       return this;
     }, i;
-    function verb(n) {
-      if (g[n])
+    function awaitReturn(f) {
+      return function(v) {
+        return Promise.resolve(v).then(f, reject);
+      };
+    }
+    function verb(n, f) {
+      if (g[n]) {
         i[n] = function(v) {
           return new Promise(function(a, b) {
             q.push([n, v, a, b]) > 1 || resume(n, v);
           });
         };
+        if (f)
+          i[n] = f(i[n]);
+      }
     }
     function resume(n, v) {
       try {
@@ -417,9 +426,9 @@
       return mod;
     var result = {};
     if (mod != null) {
-      for (var k in mod)
-        if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k))
-          __createBinding(result, mod, k);
+      for (var k = ownKeys(mod), i = 0; i < k.length; i++)
+        if (k[i] !== "default")
+          __createBinding(result, mod, k[i]);
     }
     __setModuleDefault(result, mod);
     return result;
@@ -452,7 +461,7 @@
     if (value !== null && value !== void 0) {
       if (typeof value !== "object" && typeof value !== "function")
         throw new TypeError("Object expected.");
-      var dispose;
+      var dispose, inner;
       if (async) {
         if (!Symbol.asyncDispose)
           throw new TypeError("Symbol.asyncDispose is not defined.");
@@ -462,9 +471,19 @@
         if (!Symbol.dispose)
           throw new TypeError("Symbol.dispose is not defined.");
         dispose = value[Symbol.dispose];
+        if (async)
+          inner = dispose;
       }
       if (typeof dispose !== "function")
         throw new TypeError("Object not disposable.");
+      if (inner)
+        dispose = function() {
+          try {
+            inner.call(this);
+          } catch (e) {
+            return Promise.reject(e);
+          }
+        };
       env.stack.push({ value, dispose, async });
     } else if (async) {
       env.stack.push({ async: true });
@@ -476,26 +495,41 @@
       env.error = env.hasError ? new _SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
       env.hasError = true;
     }
+    var r, s = 0;
     function next() {
-      while (env.stack.length) {
-        var rec = env.stack.pop();
+      while (r = env.stack.pop()) {
         try {
-          var result = rec.dispose && rec.dispose.call(rec.value);
-          if (rec.async)
-            return Promise.resolve(result).then(next, function(e) {
-              fail(e);
-              return next();
-            });
+          if (!r.async && s === 1)
+            return s = 0, env.stack.push(r), Promise.resolve().then(next);
+          if (r.dispose) {
+            var result = r.dispose.call(r.value);
+            if (r.async)
+              return s |= 2, Promise.resolve(result).then(next, function(e) {
+                fail(e);
+                return next();
+              });
+          } else
+            s |= 1;
         } catch (e) {
           fail(e);
         }
       }
+      if (s === 1)
+        return env.hasError ? Promise.reject(env.error) : Promise.resolve();
       if (env.hasError)
         throw env.error;
     }
     return next();
   }
-  var extendStatics, __assign, __createBinding, __setModuleDefault, _SuppressedError, tslib_es6_default;
+  function __rewriteRelativeImportExtension(path, preserveJsx) {
+    if (typeof path === "string" && /^\.\.?\//.test(path)) {
+      return path.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function(m, tsx, d, ext, cm) {
+        return tsx ? preserveJsx ? ".jsx" : ".js" : d && (!ext || !cm) ? m : d + ext + "." + cm.toLowerCase() + "js";
+      });
+    }
+    return path;
+  }
+  var extendStatics, __assign, __createBinding, __setModuleDefault, ownKeys, _SuppressedError, tslib_es6_default;
   var init_tslib_es6 = __esm({
     "node_modules/tslib/tslib.es6.mjs"() {
       extendStatics = function(d, b) {
@@ -540,6 +574,16 @@
       } : function(o, v) {
         o["default"] = v;
       };
+      ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function(o2) {
+          var ar = [];
+          for (var k in o2)
+            if (Object.prototype.hasOwnProperty.call(o2, k))
+              ar[ar.length] = k;
+          return ar;
+        };
+        return ownKeys(o);
+      };
       _SuppressedError = typeof SuppressedError === "function" ? SuppressedError : function(error, suppressed, message) {
         var e = new Error(message);
         return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
@@ -550,6 +594,10 @@
         __rest,
         __decorate,
         __param,
+        __esDecorate,
+        __runInitializers,
+        __propKey,
+        __setFunctionName,
         __metadata,
         __awaiter,
         __generator,
@@ -571,7 +619,8 @@
         __classPrivateFieldSet,
         __classPrivateFieldIn,
         __addDisposableResource,
-        __disposeResources
+        __disposeResources,
+        __rewriteRelativeImportExtension
       };
     }
   });
@@ -1508,8 +1557,8 @@
         const mathMl$1 = freeze(["math", "menclose", "merror", "mfenced", "mfrac", "mglyph", "mi", "mlabeledtr", "mmultiscripts", "mn", "mo", "mover", "mpadded", "mphantom", "mroot", "mrow", "ms", "mspace", "msqrt", "mstyle", "msub", "msup", "msubsup", "mtable", "mtd", "mtext", "mtr", "munder", "munderover", "mprescripts"]);
         const mathMlDisallowed = freeze(["maction", "maligngroup", "malignmark", "mlongdiv", "mscarries", "mscarry", "msgroup", "mstack", "msline", "msrow", "semantics", "annotation", "annotation-xml", "mprescripts", "none"]);
         const text = freeze(["#text"]);
-        const html = freeze(["accept", "action", "align", "alt", "autocapitalize", "autocomplete", "autopictureinpicture", "autoplay", "background", "bgcolor", "border", "capture", "cellpadding", "cellspacing", "checked", "cite", "class", "clear", "color", "cols", "colspan", "controls", "controlslist", "coords", "crossorigin", "datetime", "decoding", "default", "dir", "disabled", "disablepictureinpicture", "disableremoteplayback", "download", "draggable", "enctype", "enterkeyhint", "face", "for", "headers", "height", "hidden", "high", "href", "hreflang", "id", "inputmode", "integrity", "ismap", "kind", "label", "lang", "list", "loading", "loop", "low", "max", "maxlength", "media", "method", "min", "minlength", "multiple", "muted", "name", "nonce", "noshade", "novalidate", "nowrap", "open", "optimum", "pattern", "placeholder", "playsinline", "poster", "preload", "pubdate", "radiogroup", "readonly", "rel", "required", "rev", "reversed", "role", "rows", "rowspan", "spellcheck", "scope", "selected", "shape", "size", "sizes", "span", "srclang", "start", "src", "srcset", "step", "style", "summary", "tabindex", "title", "translate", "type", "usemap", "valign", "value", "width", "xmlns", "slot"]);
-        const svg = freeze(["accent-height", "accumulate", "additive", "alignment-baseline", "ascent", "attributename", "attributetype", "azimuth", "basefrequency", "baseline-shift", "begin", "bias", "by", "class", "clip", "clippathunits", "clip-path", "clip-rule", "color", "color-interpolation", "color-interpolation-filters", "color-profile", "color-rendering", "cx", "cy", "d", "dx", "dy", "diffuseconstant", "direction", "display", "divisor", "dur", "edgemode", "elevation", "end", "fill", "fill-opacity", "fill-rule", "filter", "filterunits", "flood-color", "flood-opacity", "font-family", "font-size", "font-size-adjust", "font-stretch", "font-style", "font-variant", "font-weight", "fx", "fy", "g1", "g2", "glyph-name", "glyphref", "gradientunits", "gradienttransform", "height", "href", "id", "image-rendering", "in", "in2", "k", "k1", "k2", "k3", "k4", "kerning", "keypoints", "keysplines", "keytimes", "lang", "lengthadjust", "letter-spacing", "kernelmatrix", "kernelunitlength", "lighting-color", "local", "marker-end", "marker-mid", "marker-start", "markerheight", "markerunits", "markerwidth", "maskcontentunits", "maskunits", "max", "mask", "media", "method", "mode", "min", "name", "numoctaves", "offset", "operator", "opacity", "order", "orient", "orientation", "origin", "overflow", "paint-order", "path", "pathlength", "patterncontentunits", "patterntransform", "patternunits", "points", "preservealpha", "preserveaspectratio", "primitiveunits", "r", "rx", "ry", "radius", "refx", "refy", "repeatcount", "repeatdur", "restart", "result", "rotate", "scale", "seed", "shape-rendering", "specularconstant", "specularexponent", "spreadmethod", "startoffset", "stddeviation", "stitchtiles", "stop-color", "stop-opacity", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke", "stroke-width", "style", "surfacescale", "systemlanguage", "tabindex", "targetx", "targety", "transform", "transform-origin", "text-anchor", "text-decoration", "text-rendering", "textlength", "type", "u1", "u2", "unicode", "values", "viewbox", "visibility", "version", "vert-adv-y", "vert-origin-x", "vert-origin-y", "width", "word-spacing", "wrap", "writing-mode", "xchannelselector", "ychannelselector", "x", "x1", "x2", "xmlns", "y", "y1", "y2", "z", "zoomandpan"]);
+        const html = freeze(["accept", "action", "align", "alt", "autocapitalize", "autocomplete", "autopictureinpicture", "autoplay", "background", "bgcolor", "border", "capture", "cellpadding", "cellspacing", "checked", "cite", "class", "clear", "color", "cols", "colspan", "controls", "controlslist", "coords", "crossorigin", "datetime", "decoding", "default", "dir", "disabled", "disablepictureinpicture", "disableremoteplayback", "download", "draggable", "enctype", "enterkeyhint", "face", "for", "headers", "height", "hidden", "high", "href", "hreflang", "id", "inputmode", "integrity", "ismap", "kind", "label", "lang", "list", "loading", "loop", "low", "max", "maxlength", "media", "method", "min", "minlength", "multiple", "muted", "name", "nonce", "noshade", "novalidate", "nowrap", "open", "optimum", "pattern", "placeholder", "playsinline", "popover", "popovertarget", "popovertargetaction", "poster", "preload", "pubdate", "radiogroup", "readonly", "rel", "required", "rev", "reversed", "role", "rows", "rowspan", "spellcheck", "scope", "selected", "shape", "size", "sizes", "span", "srclang", "start", "src", "srcset", "step", "style", "summary", "tabindex", "title", "translate", "type", "usemap", "valign", "value", "width", "wrap", "xmlns", "slot"]);
+        const svg = freeze(["accent-height", "accumulate", "additive", "alignment-baseline", "amplitude", "ascent", "attributename", "attributetype", "azimuth", "basefrequency", "baseline-shift", "begin", "bias", "by", "class", "clip", "clippathunits", "clip-path", "clip-rule", "color", "color-interpolation", "color-interpolation-filters", "color-profile", "color-rendering", "cx", "cy", "d", "dx", "dy", "diffuseconstant", "direction", "display", "divisor", "dur", "edgemode", "elevation", "end", "exponent", "fill", "fill-opacity", "fill-rule", "filter", "filterunits", "flood-color", "flood-opacity", "font-family", "font-size", "font-size-adjust", "font-stretch", "font-style", "font-variant", "font-weight", "fx", "fy", "g1", "g2", "glyph-name", "glyphref", "gradientunits", "gradienttransform", "height", "href", "id", "image-rendering", "in", "in2", "intercept", "k", "k1", "k2", "k3", "k4", "kerning", "keypoints", "keysplines", "keytimes", "lang", "lengthadjust", "letter-spacing", "kernelmatrix", "kernelunitlength", "lighting-color", "local", "marker-end", "marker-mid", "marker-start", "markerheight", "markerunits", "markerwidth", "maskcontentunits", "maskunits", "max", "mask", "media", "method", "mode", "min", "name", "numoctaves", "offset", "operator", "opacity", "order", "orient", "orientation", "origin", "overflow", "paint-order", "path", "pathlength", "patterncontentunits", "patterntransform", "patternunits", "points", "preservealpha", "preserveaspectratio", "primitiveunits", "r", "rx", "ry", "radius", "refx", "refy", "repeatcount", "repeatdur", "restart", "result", "rotate", "scale", "seed", "shape-rendering", "slope", "specularconstant", "specularexponent", "spreadmethod", "startoffset", "stddeviation", "stitchtiles", "stop-color", "stop-opacity", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke", "stroke-width", "style", "surfacescale", "systemlanguage", "tabindex", "tablevalues", "targetx", "targety", "transform", "transform-origin", "text-anchor", "text-decoration", "text-rendering", "textlength", "type", "u1", "u2", "unicode", "values", "viewbox", "visibility", "version", "vert-adv-y", "vert-origin-x", "vert-origin-y", "width", "word-spacing", "wrap", "writing-mode", "xchannelselector", "ychannelselector", "x", "x1", "x2", "xmlns", "y", "y1", "y2", "z", "zoomandpan"]);
         const mathMl = freeze(["accent", "accentunder", "align", "bevelled", "close", "columnsalign", "columnlines", "columnspan", "denomalign", "depth", "dir", "display", "displaystyle", "encoding", "fence", "frame", "height", "href", "id", "largeop", "length", "linethickness", "lspace", "lquote", "mathbackground", "mathcolor", "mathsize", "mathvariant", "maxsize", "minsize", "movablelimits", "notation", "numalign", "open", "rowalign", "rowlines", "rowspacing", "rowspan", "rspace", "rquote", "scriptlevel", "scriptminsize", "scriptsizemultiplier", "selection", "separator", "separators", "stretchy", "subscriptshift", "supscriptshift", "symmetric", "voffset", "width", "xmlns"]);
         const xml = freeze(["xlink:href", "xml:id", "xlink:title", "xml:space", "xmlns:xlink"]);
         const MUSTACHE_EXPR = seal(/\{\{[\w\W]*|[\w\W]*\}\}/gm);
@@ -1541,6 +1590,23 @@
           DOCTYPE_NAME,
           CUSTOM_ELEMENT
         });
+        const NODE_TYPE = {
+          element: 1,
+          attribute: 2,
+          text: 3,
+          cdataSection: 4,
+          entityReference: 5,
+          // Deprecated
+          entityNode: 6,
+          // Deprecated
+          progressingInstruction: 7,
+          comment: 8,
+          document: 9,
+          documentType: 10,
+          documentFragment: 11,
+          notation: 12
+          // Deprecated
+        };
         const getGlobal = function getGlobal2() {
           return typeof window === "undefined" ? null : window;
         };
@@ -1571,9 +1637,9 @@
         function createDOMPurify() {
           let window2 = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : getGlobal();
           const DOMPurify = (root) => createDOMPurify(root);
-          DOMPurify.version = "3.0.11";
+          DOMPurify.version = "3.1.7";
           DOMPurify.removed = [];
-          if (!window2 || !window2.document || window2.document.nodeType !== 9) {
+          if (!window2 || !window2.document || window2.document.nodeType !== NODE_TYPE.document) {
             DOMPurify.isSupported = false;
             return DOMPurify;
           }
@@ -1595,6 +1661,7 @@
           } = window2;
           const ElementPrototype = Element.prototype;
           const cloneNode = lookupGetter(ElementPrototype, "cloneNode");
+          const remove = lookupGetter(ElementPrototype, "remove");
           const getNextSibling = lookupGetter(ElementPrototype, "nextSibling");
           const getChildNodes = lookupGetter(ElementPrototype, "childNodes");
           const getParentNode = lookupGetter(ElementPrototype, "parentNode");
@@ -1661,6 +1728,7 @@
           let ALLOW_UNKNOWN_PROTOCOLS = false;
           let ALLOW_SELF_CLOSE_IN_ATTR = true;
           let SAFE_FOR_TEMPLATES = false;
+          let SAFE_FOR_XML = true;
           let WHOLE_DOCUMENT = false;
           let SET_CONFIG = false;
           let FORCE_BODY = false;
@@ -1735,6 +1803,7 @@
             ALLOW_UNKNOWN_PROTOCOLS = cfg.ALLOW_UNKNOWN_PROTOCOLS || false;
             ALLOW_SELF_CLOSE_IN_ATTR = cfg.ALLOW_SELF_CLOSE_IN_ATTR !== false;
             SAFE_FOR_TEMPLATES = cfg.SAFE_FOR_TEMPLATES || false;
+            SAFE_FOR_XML = cfg.SAFE_FOR_XML !== false;
             WHOLE_DOCUMENT = cfg.WHOLE_DOCUMENT || false;
             RETURN_DOM = cfg.RETURN_DOM || false;
             RETURN_DOM_FRAGMENT = cfg.RETURN_DOM_FRAGMENT || false;
@@ -1839,7 +1908,7 @@
             CONFIG = cfg;
           };
           const MATHML_TEXT_INTEGRATION_POINTS = addToSet({}, ["mi", "mo", "mn", "ms", "mtext"]);
-          const HTML_INTEGRATION_POINTS = addToSet({}, ["foreignobject", "desc", "title", "annotation-xml"]);
+          const HTML_INTEGRATION_POINTS = addToSet({}, ["annotation-xml"]);
           const COMMON_SVG_AND_HTML_ELEMENTS = addToSet({}, ["title", "style", "font", "a", "script"]);
           const ALL_SVG_TAGS = addToSet({}, [...svg$1, ...svgFilters, ...svgDisallowed]);
           const ALL_MATHML_TAGS = addToSet({}, [...mathMl$1, ...mathMlDisallowed]);
@@ -1893,9 +1962,9 @@
               element: node
             });
             try {
-              node.parentNode.removeChild(node);
+              getParentNode(node).removeChild(node);
             } catch (_) {
-              node.remove();
+              remove(node);
             }
           };
           const _removeAttribute = function _removeAttribute2(name, node) {
@@ -1999,7 +2068,11 @@
               _forceRemove(currentNode);
               return true;
             }
-            if (currentNode.nodeType === 7) {
+            if (currentNode.nodeType === NODE_TYPE.progressingInstruction) {
+              _forceRemove(currentNode);
+              return true;
+            }
+            if (SAFE_FOR_XML && currentNode.nodeType === NODE_TYPE.comment && regExpTest(/<[/\w]/g, currentNode.data)) {
               _forceRemove(currentNode);
               return true;
             }
@@ -2018,7 +2091,9 @@
                 if (childNodes && parentNode) {
                   const childCount = childNodes.length;
                   for (let i = childCount - 1; i >= 0; --i) {
-                    parentNode.insertBefore(cloneNode(childNodes[i], true), getNextSibling(currentNode));
+                    const childClone = cloneNode(childNodes[i], true);
+                    childClone.__removalCount = (currentNode.__removalCount || 0) + 1;
+                    parentNode.insertBefore(childClone, getNextSibling(currentNode));
                   }
                 }
               }
@@ -2033,7 +2108,7 @@
               _forceRemove(currentNode);
               return true;
             }
-            if (SAFE_FOR_TEMPLATES && currentNode.nodeType === 3) {
+            if (SAFE_FOR_TEMPLATES && currentNode.nodeType === NODE_TYPE.text) {
               content = currentNode.textContent;
               arrayForEach([MUSTACHE_EXPR2, ERB_EXPR2, TMPLIT_EXPR2], (expr) => {
                 content = stringReplace(content, expr, " ");
@@ -2140,6 +2215,10 @@
                 _removeAttribute(name, currentNode);
                 value = SANITIZE_NAMED_PROPS_PREFIX + value;
               }
+              if (SAFE_FOR_XML && regExpTest(/((--!?|])>)|<\/(style|title)/i, value)) {
+                _removeAttribute(name, currentNode);
+                continue;
+              }
               if (trustedTypesPolicy && typeof trustedTypes === "object" && typeof trustedTypes.getAttributeType === "function") {
                 if (namespaceURI)
                   ;
@@ -2162,7 +2241,11 @@
                 } else {
                   currentNode.setAttribute(name, value);
                 }
-                arrayPop(DOMPurify.removed);
+                if (_isClobbered(currentNode)) {
+                  _forceRemove(currentNode);
+                } else {
+                  arrayPop(DOMPurify.removed);
+                }
               } catch (_) {
               }
             }
@@ -2224,7 +2307,7 @@
             } else if (dirty instanceof Node) {
               body = _initDocument("<!---->");
               importedNode = body.ownerDocument.importNode(dirty, true);
-              if (importedNode.nodeType === 1 && importedNode.nodeName === "BODY") {
+              if (importedNode.nodeType === NODE_TYPE.element && importedNode.nodeName === "BODY") {
                 body = importedNode;
               } else if (importedNode.nodeName === "HTML") {
                 body = importedNode;
@@ -2336,6 +2419,7 @@
         constructor(parentContext) {
           let $ = this;
           $.parentContext = parentContext;
+          $.websiteRegex = /^(https?:\/\/)?[-a-zA-Z0-9]*[a-zA-Z0-9]+(\.[-a-zA-Z0-9]*[a-zA-Z0-9]+)+/;
         }
         /**
          * @param {string} string
@@ -2373,7 +2457,7 @@
                 for (const [key, value] of jsonMap3) {
                   let newList = document.createElement("ul"), newDiv = document.createElement("code"), keySpan = document.createElement("span"), newListItem = document.createElement("li");
                   keySpan.className = "type-key";
-                  if (/^https?:\/\//.test(key)) {
+                  if ($.websiteRegex.test(key)) {
                     let keyLink = DOMPurify.sanitize(`<a href="${key}">${key}</a>`);
                     keySpan.innerHTML = keyLink;
                   } else {
@@ -2405,13 +2489,13 @@
                             childValueSpan.className = "type-number";
                           } else {
                             if (safeHTML) {
-                              if (/^https?:\/\//.test(childValue)) {
+                              if ($.websiteRegex.test(childValue)) {
                                 childValueSpan.innerHTML = DOMPurify.sanitize(`<a href="${childValue}">"${childValue}"</a>`);
                               } else {
                                 childValueSpan.innerHTML = `"${childValue}"`;
                               }
                             } else {
-                              if (/^https?:\/\//.test(childValue)) {
+                              if ($.websiteRegex.test(childValue)) {
                                 childValueSpan.innerHTML = DOMPurify.sanitize(`<a href="${childValue}">"${childValue}"</a>`);
                               } else {
                                 childValueSpan.textContent = `"${childValue}"`;
@@ -2465,13 +2549,13 @@
                       valueSpan.className = "type-number";
                     } else {
                       if (safeHTML) {
-                        if (/^https?:\/\//.test(childText)) {
+                        if ($.websiteRegex.test(childText)) {
                           valueSpan.innerHTML = DOMPurify.sanitize(`<a href="${childText}">"${childText}"</a>`);
                         } else {
                           valueSpan.innerHTML = `"${childText}"`;
                         }
                       } else {
-                        if (/^https?:\/\//.test(childText)) {
+                        if ($.websiteRegex.test(childText)) {
                           valueSpan.innerHTML = DOMPurify.sanitize(`<a href="${childText}">"${childText}"</a>`);
                         } else {
                           valueSpan.textContent = `"${childText}"`;
@@ -2512,13 +2596,13 @@
                           valueSpan.className = "type-number";
                         } else {
                           if (safeHTML) {
-                            if (/^https?:\/\//.test(value)) {
+                            if ($.websiteRegex.test(value)) {
                               valueSpan.innerHTML = DOMPurify.sanitize(`<a href="${value}">"${value}"</a>`);
                             } else {
                               valueSpan.innerHTML = `"${value}"`;
                             }
                           } else {
-                            if (/^https?:\/\//.test(value)) {
+                            if ($.websiteRegex.test(value)) {
                               valueSpan.innerHTML = DOMPurify.sanitize(`<a href="${value}">"${value}"</a>`);
                             } else {
                               valueSpan.textContent = `"${value}"`;
@@ -2566,13 +2650,13 @@
                     newDiv.className = "type-number";
                   } else {
                     if (safeHTML) {
-                      if (/^https?:\/\//.test(childText)) {
+                      if ($.websiteRegex.test(childText)) {
                         newDiv.innerHTML = DOMPurify.sanitize(`<a href="${childText}">"${childText}"</a>`);
                       } else {
                         newDiv.innerHTML = `"${childText}"`;
                       }
                     } else {
-                      if (/^https?:\/\//.test(childText)) {
+                      if ($.websiteRegex.test(childText)) {
                         newDiv.innerHTML = DOMPurify.sanitize(`<a href="${childText}">"${childText}"</a>`);
                       } else {
                         newDiv.textContent = `"${childText}"`;
@@ -2614,13 +2698,13 @@
                   if (childValue === null) {
                     let headerCell = document.createElement("th");
                     if (safeHTML) {
-                      if (/^https?:\/\//.test(childKey)) {
+                      if ($.websiteRegex.test(childKey)) {
                         headerCell.innerHTML = DOMPurify.sanitize(`<a href="${childKey}">${childKey}</a>`);
                       } else {
                         headerCell.innerHTML = `${childKey}`;
                       }
                     } else {
-                      if (/^https?:\/\//.test(childKey)) {
+                      if ($.websiteRegex.test(childKey)) {
                         headerCell.innerHTML = DOMPurify.sanitize(`<a href="${childKey}">${childKey}</a>`);
                       } else {
                         headerCell.textContent = `${childKey}`;
@@ -2644,13 +2728,13 @@
                   if (childValue === null) {
                     let dataCell = document.createElement("td");
                     if (safeHTML) {
-                      if (/^https?:\/\//.test(childKey)) {
+                      if ($.websiteRegex.test(childKey)) {
                         dataCell.innerHTML = DOMPurify.sanitize(`<a href="${childKey}">${childKey}</a>`);
                       } else {
                         dataCell.innerHTML = `${childKey}`;
                       }
                     } else {
-                      if (/^https?:\/\//.test(childKey)) {
+                      if ($.websiteRegex.test(childKey)) {
                         dataCell.innerHTML = DOMPurify.sanitize(`<a href="${childKey}">${childKey}</a>`);
                       } else {
                         dataCell.textContent = `${childKey}`;
@@ -2986,13 +3070,13 @@
               for (const [key, value] of jsonMap2) {
                 if (typeof value === "object" && value !== null) {
                   if (Array.isArray(value)) {
-                    let nullsCounter2 = 0, arrayOfPrimitives = value.filter(function(item) {
+                    let nullsCounter = 0, arrayOfPrimitives = value.filter(function(item) {
                       if (item === true) {
                         return true;
                       } else if (item === false) {
                         return true;
                       } else if (item === null) {
-                        nullsCounter2++;
+                        nullsCounter++;
                         return true;
                       } else if (typeof item == "string") {
                         return true;
@@ -3002,7 +3086,7 @@
                         return false;
                       }
                     });
-                    if (value.length == arrayOfPrimitives.length && level * 4 + 2 + value.join(", ").length + nullsCounter2 * 4 <= 80) {
+                    if (value.length == arrayOfPrimitives.length && level * 4 + 2 + value.join(", ").length + nullsCounter * 4 <= 80) {
                       let line = "[" + value.map((x) => JSON.stringify(x)).join(", ") + "]";
                       list += "    ".repeat(level) + "- " + JSON.stringify(key).slice(1, -1) + ": " + line + "\n";
                     } else {
@@ -3033,13 +3117,13 @@
               for (var i = 0, c = jsonMap2.length; i < c; i++) {
                 if (typeof jsonMap2[i] === "object" && jsonMap2[i] !== null) {
                   if (Array.isArray(jsonMap2[i])) {
-                    let nullsCounter2 = 0, arrayOfPrimitives = jsonMap2[i].filter(function(item) {
+                    let nullsCounter = 0, arrayOfPrimitives = jsonMap2[i].filter(function(item) {
                       if (item === true) {
                         return true;
                       } else if (item === false) {
                         return true;
                       } else if (item === null) {
-                        nullsCounter2++;
+                        nullsCounter++;
                         return true;
                       } else if (typeof item == "string") {
                         return true;
@@ -3049,7 +3133,7 @@
                         return false;
                       }
                     });
-                    if (jsonMap2[i].length == arrayOfPrimitives.length && level * 4 + 2 + jsonMap2[i].join(", ").length + nullsCounter2 * 4 <= 80) {
+                    if (jsonMap2[i].length == arrayOfPrimitives.length && level * 4 + 2 + jsonMap2[i].join(", ").length + nullsCounter * 4 <= 80) {
                       let line = "[" + jsonMap2[i].map((x) => JSON.stringify(x)).join(", ") + "]";
                       list += "    ".repeat(level) + "- " + line + "\n";
                     } else {
@@ -3089,11 +3173,11 @@
       var DamonUtils = require_Utils();
       module.exports = class Damon {
         /**
-         *Creates an instance of Damon.
+         * Creates an instance of Damon.
          * @param {Boolean} pedantic
          */
         constructor(pedantic = false) {
-          let $ = this;
+          const $ = this;
           this.indentation = 4;
           if ([true, false, void 0].indexOf(pedantic) == -1) {
             throw new Error("@param {Boolean} pedantic");
@@ -3104,10 +3188,10 @@
         /**
          * Object-like ordered dictionaries declarations in js
          * @param {TemplateStringsArray} strings
-         * @returns {Map<string, any>|Array<any>|boolean|null|string|number}
+         * @returns {damonValue}
          */
         template(strings) {
-          let $ = this;
+          const $ = this;
           var result = strings.raw[0];
           for (let i = 1; i < strings.raw.length; i++) {
             if (typeof arguments[i] == "string") {
@@ -3122,10 +3206,13 @@
         }
         /**
          * @param {string} damon
-         * @returns {Map<string, any>|Array<any>|boolean|null|string|number}
+         * @typedef {Map<string, damonValue>} damonMap
+         * @typedef {Array<damonValue>} damonArray
+         * @typedef {damonMap|damonArray|string|number|boolean|null} damonValue
+         * @returns damonValue
          */
         damonToMap(damon) {
-          let $ = this;
+          const $ = this;
           let treeOrPrimitive = $._damonToTree(damon);
           if (treeOrPrimitive === true || treeOrPrimitive === false || treeOrPrimitive === null || typeof treeOrPrimitive === "string" || typeof treeOrPrimitive === "number") {
             return treeOrPrimitive;
@@ -3137,7 +3224,7 @@
          * @returns {string}
          */
         damonToJSON(damon) {
-          let $ = this;
+          const $ = this;
           return $.mapToJSON($.damonToMap(damon));
         }
         /**
@@ -3145,7 +3232,7 @@
          * @returns {string}
          */
         damonToSExpression(damon) {
-          let $ = this;
+          const $ = this;
           return $.implicitMapToSExpression($.damonToMap(damon));
         }
         /**
@@ -3153,15 +3240,15 @@
          * @returns {string}
          */
         jsonToDamon(json) {
-          let $ = this;
+          const $ = this;
           return $.mapToDamon($.jsonToMap(json), false);
         }
         /**
          * @param {string} json
-         * @returns {Map<string, any>|Array<any>|boolean|null|string|number}
+         * @returns {damonValue}
          */
         jsonToMap(json) {
-          let $ = this;
+          const $ = this;
           var jsonLines = $._getLines(json, "JSON");
           jsonLines = jsonLines.filter((x) => !/^ *\/\//.test(x));
           jsonLines = jsonLines.filter((x) => x != "");
@@ -3262,10 +3349,20 @@
         /**
          * Offside-rule parsing
          * @param {string} damon
-         * @returns {object|boolean|null|string|number}
+         * @typedef {{
+         *     content: string,
+         *     level: number,
+         *     id: string,
+         *     children: Array<treeNode>
+         * }} treeNode
+         * @typedef {{
+         *     headless: boolean,
+         *     damonOriginalLinesMapping: Array<number|null>
+         * } & treeNode} treeRoot
+         * @returns {treeRoot}
          */
         _damonToTree(damon) {
-          let $ = this;
+          const $ = this;
           let damonLines = $._getLines(damon), damonOriginalLines = damonLines.slice(0);
           damonLines = damonLines.filter((x) => !/^ *\/\//.test(x));
           damonLines = damonLines.filter((x) => x != "");
@@ -3467,7 +3564,7 @@
          * @return {object|string} DOM
          */
         _findListItemCommonDirectParent(listItem, possibleParent) {
-          let $ = this;
+          const $ = this;
           if (possibleParent.children.indexOf(listItem) > -1) {
             return possibleParent;
           } else {
@@ -3487,7 +3584,7 @@
          * @return {object|string} DOM
          */
         _findListItemCommonAncestor(listItem, possibleParent, level) {
-          let $ = this;
+          const $ = this;
           var parent = $._findListItemCommonDirectParent(listItem, possibleParent);
           if (parent.level < level) {
             return parent;
@@ -3497,11 +3594,11 @@
         }
         /**
          * JSON primitives wrapping
-         * @param {Object} damonTree
-         * @return {Map<string, any> | Array<any>}
+         * @param {treeRoot} damonTree
+         * @return {damonMap | damonArray}
          */
         _treeToMap(damonTree) {
-          let $ = this;
+          const $ = this;
           var treeItemIndex = 0;
           if (damonTree.content == "- {}") {
             let map = /* @__PURE__ */ new Map();
@@ -3548,7 +3645,7 @@
             for (let i = 0, c = tree2.children.length; i < c; i++) {
               treeItemIndex++;
               if (tree2.children[i].content.length == 0) {
-                let errorType;
+                let errorType = "";
                 if (tree2.children[i].children.length > 0) {
                   errorType = "implicit map key";
                   jsonMap2.set("", /* @__PURE__ */ new Map());
@@ -3611,7 +3708,6 @@
                         } else if (item === false) {
                           return true;
                         } else if (item === null) {
-                          nullsCounter++;
                           return true;
                         } else if (typeof item == "string") {
                           return true;
@@ -3893,7 +3989,6 @@
                       } else if (item === false) {
                         return true;
                       } else if (item === null) {
-                        nullsCounter++;
                         return true;
                       } else if (typeof item == "string") {
                         return true;
@@ -4004,12 +4099,12 @@
           }
         }
         /**
-         * @param {Map<string, any>|Array<any>|boolean|null|string|number} jsonMap
+         * @param {damonValue} jsonMap
          * @param {boolean} pristine
          * @returns {string}
          */
         mapToDamon(jsonMap2, pristine) {
-          let $ = this;
+          const $ = this;
           var list = ``;
           if (Array.isArray(jsonMap2)) {
             list += "- []\n";
@@ -4030,13 +4125,13 @@
               for (const [key, value] of jsonMap3) {
                 if (typeof value === "object" && value !== null) {
                   if (Array.isArray(value)) {
-                    let nullsCounter2 = 0, arrayOfPrimitives = value.filter(function(item) {
+                    let nullsCounter = 0, arrayOfPrimitives = value.filter(function(item) {
                       if (item === true) {
                         return true;
                       } else if (item === false) {
                         return true;
                       } else if (item === null) {
-                        nullsCounter2++;
+                        nullsCounter++;
                         return true;
                       } else if (typeof item == "string") {
                         return true;
@@ -4048,7 +4143,7 @@
                     });
                     if (
                       // No nesting, fits on an archivable line
-                      value.length == arrayOfPrimitives.length && level * 4 + 2 + value.join(", ").length + nullsCounter2 * 4 <= 80 || // Inlining specified from parsing
+                      value.length == arrayOfPrimitives.length && level * 4 + 2 + value.join(", ").length + nullsCounter * 4 <= 80 || // Inlining specified from parsing
                       pristine && jsonMap3.damonInlineArrays !== void 0 && jsonMap3.damonInlineArrays.indexOf(key) > -1
                     ) {
                       let line = "[" + value.map(function(x) {
@@ -4085,13 +4180,13 @@
               for (var i = 0, c = jsonMap3.length; i < c; i++) {
                 if (typeof jsonMap3[i] === "object" && jsonMap3[i] !== null) {
                   if (Array.isArray(jsonMap3[i])) {
-                    let nullsCounter2 = 0, arrayOfPrimitives = jsonMap3[i].filter(function(item) {
+                    let nullsCounter = 0, arrayOfPrimitives = jsonMap3[i].filter(function(item) {
                       if (item === true) {
                         return true;
                       } else if (item === false) {
                         return true;
                       } else if (item === null) {
-                        nullsCounter2++;
+                        nullsCounter++;
                         return true;
                       } else if (typeof item == "string") {
                         return true;
@@ -4101,7 +4196,7 @@
                         return false;
                       }
                     });
-                    if (jsonMap3[i].length == arrayOfPrimitives.length && level * 4 + 2 + jsonMap3[i].join(", ").length + nullsCounter2 * 4 <= 80 || pristine && jsonMap3.damonInlineArrays !== void 0 && jsonMap3.damonInlineArrays.indexOf(i) > -1) {
+                    if (jsonMap3[i].length == arrayOfPrimitives.length && level * 4 + 2 + jsonMap3[i].join(", ").length + nullsCounter * 4 <= 80 || pristine && jsonMap3.damonInlineArrays !== void 0 && jsonMap3.damonInlineArrays.indexOf(i) > -1) {
                       let line = "[" + jsonMap3[i].map(function(x) {
                         if (typeof x == "string") {
                           x = JSON.stringify(x);
@@ -4135,11 +4230,11 @@
           }
         }
         /**
-         * @param {Map<string, any>|Array<any>|boolean|null|string|number} jsonMap
+         * @param {damonValue} jsonMap
          * @returns {string}
          */
         mapToJSON(jsonMap2) {
-          let $ = this;
+          const $ = this;
           var list = ``;
           if (Array.isArray(jsonMap2)) {
             list += "[\r\n";
@@ -4247,11 +4342,11 @@
           }
         }
         /**
-         * @param {Map<string, any>|Array<any>|boolean|null|string|number} jsonMap
+         * @param {damonMap} jsonMap
          * @returns {string}
          */
         implicitMapToSExpression(jsonMap2) {
-          let $ = this;
+          const $ = this;
           var list = ``;
           if (typeof jsonMap2 === "object" && jsonMap2 !== null && jsonMap2 instanceof Map && jsonMap2.constructor === Map) {
             list += "[\r\n";
@@ -4369,7 +4464,7 @@
          * @returns {Array<Array<number>>}
          */
         getRangeFromPath(damon, path) {
-          let $ = this;
+          const $ = this;
           let damonMap = $.damonToMap(damon), line = -1, found = false;
           _incrementLineUntilReaching(damonMap, path);
           if (damonMap.headless)
@@ -4491,6 +4586,6 @@
 /*! Bundled license information:
 
 dompurify/dist/purify.js:
-  (*! @license DOMPurify 3.0.11 | (c) Cure53 and other contributors | Released under the Apache license 2.0 and Mozilla Public License 2.0 | github.com/cure53/DOMPurify/blob/3.0.11/LICENSE *)
+  (*! @license DOMPurify 3.1.7 | (c) Cure53 and other contributors | Released under the Apache license 2.0 and Mozilla Public License 2.0 | github.com/cure53/DOMPurify/blob/3.1.7/LICENSE *)
 */
 //# sourceMappingURL=out.js.map

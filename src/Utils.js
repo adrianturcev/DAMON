@@ -7,7 +7,7 @@ class Utils {
     constructor(parentContext) {
         let $ = this;
         $.parentContext = parentContext;
-
+        $.websiteRegex = /^(https?:\/\/)?[-a-zA-Z0-9]*[a-zA-Z0-9]+(\.[-a-zA-Z0-9]*[a-zA-Z0-9]+)+/;
     }
 
     /**
@@ -73,7 +73,7 @@ class Utils {
                             keySpan = document.createElement('span'),
                             newListItem = document.createElement('li');
                         keySpan.className = "type-key";
-                        if (/^https?:\/\//.test(key)) {
+                        if ($.websiteRegex.test(key)) {
                             let keyLink = DOMPurify.sanitize(`<a href="${ key }">${ key }</a>`);
                             keySpan.innerHTML = keyLink;
                         } else {
@@ -119,14 +119,14 @@ class Utils {
                                             childValueSpan.className = "type-number";
                                         } else {
                                             if (safeHTML) {
-                                                if (/^https?:\/\//.test(childValue)) {
+                                                if ($.websiteRegex.test(childValue)) {
                                                     childValueSpan.innerHTML =
                                                         DOMPurify.sanitize(`<a href="${ childValue }">"${ childValue }"</a>`);
                                                 } else {
                                                     childValueSpan.innerHTML = `"${childValue}"`;
                                                 }
                                             } else {
-                                                if (/^https?:\/\//.test(childValue)) {
+                                                if ($.websiteRegex.test(childValue)) {
                                                     childValueSpan.innerHTML =
                                                         DOMPurify.sanitize(`<a href="${ childValue }">"${ childValue }"</a>`);
                                                 } else {
@@ -187,14 +187,14 @@ class Utils {
                                 valueSpan.className = "type-number";
                             } else {
                                 if (safeHTML) {
-                                    if (/^https?:\/\//.test(childText)) {
+                                    if ($.websiteRegex.test(childText)) {
                                         valueSpan.innerHTML =
                                             DOMPurify.sanitize(`<a href="${ childText }">"${ childText }"</a>`);
                                     } else {
                                         valueSpan.innerHTML = `"${childText}"`;
                                     }
                                 } else {
-                                    if (/^https?:\/\//.test(childText)) {
+                                    if ($.websiteRegex.test(childText)) {
                                         valueSpan.innerHTML =
                                             DOMPurify.sanitize(`<a href="${ childText }">"${ childText }"</a>`);
                                     } else {
@@ -251,14 +251,14 @@ class Utils {
                                         valueSpan.className = "type-number";
                                     } else {
                                         if (safeHTML) {
-                                            if (/^https?:\/\//.test(value)) {
+                                            if ($.websiteRegex.test(value)) {
                                                 valueSpan.innerHTML =
                                                     DOMPurify.sanitize(`<a href="${ value }">"${ value }"</a>`);
                                             } else {
                                                 valueSpan.innerHTML = `"${value}"`;
                                             }
                                         } else {
-                                            if (/^https?:\/\//.test(value)) {
+                                            if ($.websiteRegex.test(value)) {
                                                 valueSpan.innerHTML =
                                                     DOMPurify.sanitize(`<a href="${ value }">"${ value }"</a>`);
                                             } else {
@@ -310,14 +310,14 @@ class Utils {
                             newDiv.className = "type-number";
                         } else {
                             if (safeHTML) {
-                                if (/^https?:\/\//.test(childText)) {
+                                if ($.websiteRegex.test(childText)) {
                                     newDiv.innerHTML =
                                         DOMPurify.sanitize(`<a href="${ childText }">"${ childText }"</a>`);
                                 } else {
                                     newDiv.innerHTML = `"${childText}"`;
                                 }
                             } else {
-                                if (/^https?:\/\//.test(childText)) {
+                                if ($.websiteRegex.test(childText)) {
                                     newDiv.innerHTML =
                                         DOMPurify.sanitize(`<a href="${ childText }">"${ childText }"</a>`);
                                 } else {
@@ -346,7 +346,7 @@ class Utils {
         try {
             $.parentContext.mapToJSON(jsonMap);
         } catch (error) {
-            throw new Error("Provided map value doesn't passes JSON.parse()")
+            throw new Error("Provided map value doesn't passes JSON.parse()");
         }
         var jsonItemIndex = 0,
             table = document.createElement('table'),
@@ -383,14 +383,14 @@ class Utils {
                         if (childValue === null) {
                             let headerCell = document.createElement('th');
                             if (safeHTML) {
-                                if (/^https?:\/\//.test(childKey)) {
+                                if ($.websiteRegex.test(childKey)) {
                                     headerCell.innerHTML =
                                         DOMPurify.sanitize(`<a href="${ childKey }">${ childKey }</a>`);
                                 } else {
                                     headerCell.innerHTML = `${childKey}`;
                                 }
                             } else {
-                                if (/^https?:\/\//.test(childKey)) {
+                                if ($.websiteRegex.test(childKey)) {
                                     headerCell.innerHTML =
                                         DOMPurify.sanitize(`<a href="${ childKey }">${ childKey }</a>`);
                                 } else {
@@ -416,14 +416,14 @@ class Utils {
                         if (childValue === null) {
                             let dataCell = document.createElement('td');
                             if (safeHTML) {
-                                if (/^https?:\/\//.test(childKey)) {
+                                if ($.websiteRegex.test(childKey)) {
                                     dataCell.innerHTML =
                                         DOMPurify.sanitize(`<a href="${ childKey }">${ childKey }</a>`);
                                 } else {
                                     dataCell.innerHTML = `${childKey}`;
                                 }
                             } else {
-                                if (/^https?:\/\//.test(childKey)) {
+                                if ($.websiteRegex.test(childKey)) {
                                     dataCell.innerHTML =
                                         DOMPurify.sanitize(`<a href="${ childKey }">${ childKey }</a>`);
                                 } else {
