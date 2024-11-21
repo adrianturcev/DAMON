@@ -4519,6 +4519,117 @@
             }
           }
         }
+        /**
+         *
+         * @param {string} damon
+         * @param {Array<number} coordinates
+         * @returns {Array<Array<number>>}
+         */
+        getTokenFromCoordinates(damon, coordinates) {
+          const $ = this;
+          let token = {};
+          let damonLines = $._getLines(damon).slice(0, coordinates[0]);
+          if (damonLines[coordinates[0] - 1] == "") {
+            token.type = "newline";
+            token.path = null;
+            token.range = [coordinates, coordinates];
+            return token;
+          }
+          if (/^[ \t]+$/.test(damonLines[coordinates[0] - 1])) {
+            token.type = "indentation";
+            token.path = null;
+            token.range = [[coordinates[0], 1], [coordinates[0], damonLines[damonLines.length - 1].length]];
+            return token;
+          }
+          if (/^[ \t]+/.test(damonLines[coordinates[0] - 1].slice(0, coordinates[1] - 1))) {
+            token.type = "indentation";
+            token.range = [
+              [coordinates[0], 1],
+              [coordinates[0], damonLines[coordinates[0] - 1].match(/^[ \t]+/)[0].length]
+            ];
+          }
+          if (/^ *\/\//.test(damonLines[coordinates[0] - 1])) {
+            if (token.type == "indentation") {
+              token.path = null;
+              return token;
+            }
+            token.type = "comment";
+            token.path = null;
+            token.range = [
+              [[coordinates[0], damonLines[coordinates[0] - 1].split("//")[0].length]],
+              [[coordinates[0], damonLines[coordinates[0] - 1].length]]
+            ];
+            return token;
+          }
+          if (damonLines.length == 1) {
+            try {
+              let jsonValue = JSON.parse(damon);
+              if (jsonValue === true || jsonValue === false || jsonValue === null || typeof jsonValue === "string" || typeof jsonValue === "number") {
+                let leftPadding = damon.match(/^ */)[0].length, rightPadding = damon.match(/ *$/)[0].length;
+                token.type = "null";
+                if (typeof jsonValue !== "object")
+                  token.type = typeof jsonValue;
+                token.path = null;
+                token.range = [[0, leftPadding], [0, damon.length - rightPadding]];
+                return token;
+              }
+            } catch (error) {
+            }
+          }
+          let damonMap = $.damonToMap(damonLines.join("\n")), currentLevelKeys = Array.from(damonMap.keys()), path = [];
+          while (currentLevelKeys.length) {
+            let key = currentLevelKeys[currentLevelKeys.length - 1];
+            path.push(key);
+            if (typeof damonMap === "object" && damonMap !== null && !Array.isArray(damonMap) && damonMap instanceof Map && damonMap.constructor === Map) {
+              damonMap = damonMap.get(key);
+            } else if (Array.isArray(damonMap)) {
+              damonMap = damonMap[key];
+            }
+            if (damonMap === true || damonMap === false || damonMap === null || typeof damonMap === "string" || typeof damonMap === "number") {
+              break;
+            }
+            currentLevelKeys = Array.from(damonMap.keys());
+          }
+          token.path = path;
+          let valueRange = $.getRangeFromPath(damon, path);
+          if (typeof path[path.length - 1] == "string") {
+            if (coordinates[1] < valueRange[0][1]) {
+              let propertyEndRange = damonLines[coordinates[0] - 1].slice(0, -1 * (valueRange[1][1] - valueRange[0][1]) - 1).length;
+              if (coordinates[1] < propertyEndRange) {
+                let propertyStartRange = damonLines[coordinates[0] - 1].match(/^[ \t]+/)[0].length + 3;
+                if (coordinates[1] >= propertyStartRange) {
+                  token.type = "property";
+                  token.range = [[coordinates[0], propertyStartRange], [coordinates[0], propertyEndRange]];
+                } else {
+                  token.type = "hyphen";
+                  token.range = [
+                    [coordinates[0], propertyStartRange - 2],
+                    [coordinates[0], propertyStartRange - 1]
+                  ];
+                }
+              } else {
+                token.type = "separator";
+                token.range = [[coordinates[0], propertyEndRange + 1], [coordinates[0], valueRange[0][1] - 1]];
+              }
+            } else {
+              token.type = "?";
+              token.range = valueRange;
+            }
+          } else {
+            if (coordinates[1] < valueRange[0][1]) {
+              token.type = "hyphen";
+              let hyphenStartRange = damonLines[coordinates[0] - 1].match(/^[ \t]+/)[0].length + 1;
+              token.range = [
+                [coordinates[0], hyphenStartRange],
+                [coordinates[0], hyphenStartRange + 1]
+              ];
+            } else {
+              token.type = "?";
+              token.range = valueRange;
+            }
+          }
+          return token;
+        }
       };
     }
   });

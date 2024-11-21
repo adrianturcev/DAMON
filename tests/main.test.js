@@ -89,11 +89,19 @@ describe('# DAMON', function () {
     });
 
     describe('## RANGE', function () {
-        it('Gets selection range for array path coordinates.', function () {
-            console.log(damon.getRangeFromPath(list, ["More_complex_case", "key"]));
+        it('Gets selection range from array path.', function () {
+            assert.equal(
+                JSON.stringify(damon.getRangeFromPath(list, ["key0"])),
+                JSON.stringify([[1, 12], [1, 16]])
+            );
+        });
+        it('Gets selection token from text coordinates.', function () {
+            assert.equal(
+                JSON.stringify(damon.getTokenFromCoordinates(list, [2, 6]).path),
+                JSON.stringify(['key0'])
+            );
         });
     });
-
     // TODO
     // # Utils tests
     // console.log(damon.utils.mapToHtmlList(damon.damonToMap(list)));
