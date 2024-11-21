@@ -2429,11 +2429,15 @@
           return string.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
         /**
-         * @param {map|array} jsonMap
+         * @typedef {Map<string, damonValue>} damonMap
+         * @typedef {Array<damonValue>} damonArray
+         * @typedef {damonMap|damonArray|string|number|boolean|null} damonValue
+         * @param {damonValue} jsonMap
          * @param {boolean} safeHTML
+         * @param {string} jsonContext
          * @returns {object} DOM
          */
-        mapToHtmlList(jsonMap2, safeHTML = false, jsonSchema = void 0) {
+        mapToHtmlList(jsonMap2, safeHTML = false, jsonContext = void 0) {
           let $ = this;
           try {
             $.parentContext.mapToJSON(jsonMap2);
@@ -2442,8 +2446,8 @@
             throw new Error("Provided map value doesn't passes JSON.parse()");
           }
           var jsonItemIndex = 0, list = document.createElement("ul"), schema;
-          if (jsonSchema !== void 0) {
-            schema = JSON.parse(jsonSchema);
+          if (jsonContext !== void 0) {
+            schema = JSON.parse(jsonContext);
           }
           list.className = "DAMON-List";
           recurse(jsonMap2, list);
@@ -2461,7 +2465,7 @@
                     let keyLink = DOMPurify.sanitize(`<a href="${key}">${key}</a>`);
                     keySpan.innerHTML = keyLink;
                   } else {
-                    if (jsonSchema !== void 0 && key in schema["@context"]) {
+                    if (jsonContext !== void 0 && key in schema["@context"]) {
                       keySpan.innerHTML = DOMPurify.sanitize(
                         `<a href="${schema["@context"][key]["@id"]}">${key}</a>`
                       );
@@ -2673,7 +2677,7 @@
           }
         }
         /**
-         * @param {map|array} jsonMap
+         * @param {damonValue} jsonMap
          * @param {boolean} [safeHTML=false]
          * @returns {object} DOM
          */
@@ -2768,7 +2772,7 @@
         }
         // Expects a complete tree (all terminal leaves at the same level)
         /**
-         * @param {map|array} jsonMap
+         * @param {damonValue} jsonMap
          * @param {boolean} [safeHTML=false]
          * @returns {object} DOM
          */
@@ -2908,7 +2912,7 @@
         }
         /**
          * @param {object} list DOM
-         * @return {map|array}
+         * @return {string}
          */
         htmlToJSON(list) {
           let $ = this;
@@ -3044,8 +3048,8 @@
           }
         }
         /**
-         * @param {map|array} firstMap
-         * @param {map|array} secondMap
+         * @param {damonValue} firstMap
+         * @param {damonValue} secondMap
         */
         mapsDiff(firstMap, secondMap) {
           let $ = this;
@@ -3268,13 +3272,10 @@
               }
             } else if (isFinite(jsonLines[0]) && !isNaN(parseFloat(jsonLines[0])) && Number.isFinite(jsonLines[0] * 1) && !Number.isNaN(jsonLines[0] * 1)) {
               if (jsonLines[0].indexOf(0) == 0 && jsonLines[0].length > 1 && jsonLines[0].indexOf(".") !== 1) {
-                throw new Error(
-                  "Error line number 1: leading 0",
-                  {
-                    line: 1,
-                    language: "DAMON"
-                  }
-                );
+                let error = new Error("Error line number 1: leading 0");
+                error.line = 1;
+                error.language = "DAMON";
+                throw error;
               }
               try {
                 return JSON.parse(jsonLines[0] * 1);
@@ -3312,34 +3313,25 @@
             throw new Error("Bad language argument, expected 'DAMON' or 'JSON'");
           }
           if (damon === "") {
-            throw new Error(
-              "Error line 1: empty string",
-              {
-                line: 1,
-                language
-              }
-            );
+            let error = new Error("Error line 1: empty string");
+            error.line = 1;
+            error.language = language;
+            throw error;
           }
           if (/[\s]/.test(damon) && damon.match(new RegExp(/[\s]/))[0].length == damon.length) {
-            throw new Error(
-              "Error line 1: string only contains whitespace",
-              {
-                line: 1,
-                language
-              }
-            );
+            let error = new Error("Error line 1: string only contains whitespace");
+            error.line = 1;
+            error.language = language;
+            throw error;
           }
           var delimiter = /\r\n/.test(damon) ? "\r\n" : "\n", damonLines = damon.split(delimiter);
           if (/\\*\n/.test(damon) && delimiter == "\n") {
             if (/[^\\]\\(\\\\)*\n/.test(damon)) {
               let errorLine = damon.split(/[^\\]\\(\\\\)*\n/)[0].split("\n").length;
-              throw new Error(
-                "Error line " + errorLine + ": oddly escaped newline",
-                {
-                  line: errorLine,
-                  language
-                }
-              );
+              let error = new Error("Error line " + errorLine + ": oddly escaped newline");
+              error.line = errorLine;
+              error.language = language;
+              throw error;
             }
             let reversedDamon = damon.split("").reverse().join(""), reversedDamonLines = reversedDamon.split(/\n/);
             damonLines = reversedDamonLines.map((x) => x.split("").reverse().join("")).reverse();
@@ -3382,13 +3374,10 @@
               }
             } else if (isFinite(damonLines[0]) && !isNaN(parseFloat(damonLines[0])) && Number.isFinite(damonLines[0] * 1) && !Number.isNaN(damonLines[0] * 1)) {
               if (damonLines[0].indexOf(0) == 0 && damonLines[0].length > 1 && damonLines[0].indexOf(".") !== 1) {
-                throw new Error(
-                  "Error line number 1: leading 0",
-                  {
-                    line: 1,
-                    language: "DAMON"
-                  }
-                );
+                let error = new Error("Error line number 1: leading 0");
+                error.line = 1;
+                error.language = "DAMON";
+                throw error;
               }
               try {
                 return JSON.parse(damonLines[0] * 1);
@@ -3428,13 +3417,12 @@
               }
             }
             if (!/^ *- $/.test(damonLines[i]) && /[ \t]+$/.test(damonLines[i])) {
-              throw new Error(
-                "Error line " + (damonOriginalLinesMapping.indexOf(i) + 1) + ": trailing whitespace",
-                {
-                  line: damonOriginalLinesMapping.indexOf(i) + 1,
-                  language: "DAMON"
-                }
+              let error = new Error(
+                "Error line " + (damonOriginalLinesMapping.indexOf(i) + 1) + ": trailing whitespace"
               );
+              error.line = damonOriginalLinesMapping.indexOf(i) + 1;
+              error.language = "DAMON";
+              throw error;
             }
           }
           let indentationMatchingRegex = new RegExp("^(" + " ".repeat($.indentation) + ")+");
@@ -3448,13 +3436,10 @@
               }
             }
             if (!trimmable) {
-              throw new Error(
-                "Error line 1: bad formatting",
-                {
-                  line: 1,
-                  language: "DAMON"
-                }
-              );
+              let error = new Error("Error line 1: bad formatting");
+              error.line = 1;
+              error.language = "DAMON";
+              throw error;
             }
           } else if (indentationMatchingRegex.test(damonLines[1]) && damonLines[1].match(indentationMatchingRegex)[0].length > $.indentation) {
             let initialPadding = damonLines[1].match(indentationMatchingRegex)[0].length - $.indentation, trimmable = true;
@@ -3466,13 +3451,10 @@
               }
             }
             if (!trimmable) {
-              throw new Error(
-                "Error line 2: bad formatting",
-                {
-                  line: 2,
-                  language: "DAMON"
-                }
-              );
+              let error = new Error("Error line 2: bad formatting");
+              error.line = 2;
+              error.language = "DAMON";
+              throw error;
             }
           }
           let headless = false;
@@ -3502,25 +3484,21 @@
           };
           var previousListItem = treeRoot;
           if (!/^- /.test(damonLines[0].trimStart()) || /^ +/.test(damonLines[0]) && (damonLines[0].match(/^ +/)[0].length % $.indentation != 0 || damonLines[0].match(/^ +/)[0].length != $.indentation)) {
-            throw new Error(
-              "Error line " + (headless * 1 + 1) + ": bad formatting",
-              {
-                line: headless * 1 + 1,
-                language: "DAMON"
-              }
-            );
+            let error = new Error("Error line " + (headless * 1 + 1) + ": bad formatting");
+            error.line = headless * 1 + 1;
+            error.language = "DAMON";
+            throw error;
           }
           damonLines.shift();
           for (let i = 0, c = damonLines.length; i < c; i++) {
             if (!/^- /.test(damonLines[i].trimStart()) || /^ +/.test(damonLines[i]) && (damonLines[i].match(/^ +/)[0].length % $.indentation != 0 || i == 0 && damonLines[i].match(/^ +/)[0].length != $.indentation || i != 0 && /^- /.test(damonLines[i - 1]) && damonLines[i].match(/^ +/)[0].length != $.indentation || i != 0 && !/^- /.test(damonLines[i - 1]) && damonLines[i].match(/^ +/)[0].length > damonLines[i - 1].match(/^ +/)[0].length + $.indentation)) {
               console.log(damonLines[i]);
-              throw new Error(
-                "Error line " + (damonOriginalLinesMapping.indexOf(i) + 1) + ": bad formatting",
-                {
-                  line: damonOriginalLinesMapping.indexOf(i) + 1,
-                  language: "DAMON"
-                }
+              let error = new Error(
+                "Error line " + (damonOriginalLinesMapping.indexOf(i) + 1) + ": bad formatting"
               );
+              error.line = damonOriginalLinesMapping.indexOf(i) + 1;
+              error.language = "DAMON";
+              throw error;
             }
             let listItem = {
               content: damonLines[i].trimStart().slice(2),
@@ -3618,26 +3596,22 @@
           }
           function _recurse(tree2, jsonMap2) {
             if (typeof tree2 !== "object" || tree2 == null || Array.isArray(tree2)) {
-              throw new Error(
-                "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2) + ": @param { {} } tree",
-                {
-                  line: damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2,
-                  language: "DAMON"
-                }
-              );
+              let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
+              let error = new Error("Error line number " + errorLine + ": @param { {} } tree");
+              error.line = errorLine;
+              error.language = "DAMON";
+              throw error;
             }
             if (typeof jsonMap2 === "object" && jsonMap2 !== null && !Array.isArray(jsonMap2) && jsonMap2 instanceof Map && jsonMap2.constructor === Map) {
               _mapHandler(tree2, jsonMap2);
             } else if (Array.isArray(jsonMap2)) {
               _listHandler(tree2, jsonMap2);
             } else {
-              throw new Error(
-                "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2) + ": @param { {} | [] } jsonMap",
-                {
-                  line: damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2,
-                  language: "DAMON"
-                }
-              );
+              let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
+              let error = new Error("Error line number " + errorLine + ": @param { {} | [] } jsonMap");
+              error.line = errorLine;
+              error.language = "DAMON";
+              throw error;
             }
             return jsonMap2;
           }
@@ -3692,13 +3666,13 @@
                           }
                         } catch (error) {
                           if (j == k - 2) {
-                            throw new Error(
-                              "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2) + ": invalid inline list",
-                              {
-                                line: damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2,
-                                language: "DAMON"
-                              }
+                            let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
+                            let error2 = new Error(
+                              "Error line number " + errorLine + ": invalid inline list"
                             );
+                            error2.line = errorLine;
+                            error2.language = "DAMON";
+                            throw error2;
                           }
                         }
                       }
@@ -3724,22 +3698,22 @@
                         }
                         jsonMap2.damonInlineArrays.push(shortestPossibleKey);
                       } else {
-                        throw new Error(
-                          "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2) + ": no nesting in inline lists",
-                          {
-                            line: damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2,
-                            language: "DAMON"
-                          }
+                        let errorLine = +(damonTree.headless * -1) + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
+                        let error = new Error(
+                          "Error line number " + errorLine + ": no nesting in inline lists"
                         );
+                        error.line = errorLine;
+                        error.language = "DAMON";
+                        throw error;
                       }
                       if (tree2.children[i].children.length > 0) {
-                        throw new Error(
-                          "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 3) + ": inline lists can't have children",
-                          {
-                            line: damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 3,
-                            language: "DAMON"
-                          }
+                        let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 3;
+                        let error = new Error(
+                          "Error line number " + errorLine + ": inline lists can't have children"
                         );
+                        error.line = errorLine;
+                        error.language = "DAMON";
+                        throw error;
                       }
                     }
                   } else if (/: +\{ *\}$/.test(text)) {
@@ -3750,13 +3724,13 @@
                     _recurse(tree2.children[i], jsonMap2.get(key));
                   } else {
                     let implicitProperty = false;
-                    if (text.split(new RegExp(/: +/))[text.split(new RegExp(/: +/)).length - 1] === "true") {
+                    if (/^.*: /.test(text) && text.split(new RegExp(/: +/))[text.split(new RegExp(/: +/)).length - 1] === "true") {
                       let lastTextMatch = text.match(new RegExp(/: +/g))[text.match(new RegExp(/: +/g)).length - 1], key = JSON.parse(`["${text.slice(0, -1 * lastTextMatch.length - 4)}"]`)[0];
                       jsonMap2.set(key, true);
-                    } else if (text.split(new RegExp(/: +/))[text.split(new RegExp(/: +/)).length - 1] === "false") {
+                    } else if (/^.*: /.test(text) && text.split(new RegExp(/: +/))[text.split(new RegExp(/: +/)).length - 1] === "false") {
                       let lastTextMatch = text.match(new RegExp(/: +/g))[text.match(new RegExp(/: +/g)).length - 1], key = JSON.parse(`["${text.slice(0, -1 * lastTextMatch.length - 5)}"]`)[0];
                       jsonMap2.set(key, false);
-                    } else if (text.split(new RegExp(/: +/))[text.split(new RegExp(/: +/)).length - 1] == "null") {
+                    } else if (/^.*: /.test(text) && text.split(new RegExp(/: +/))[text.split(new RegExp(/: +/)).length - 1] === "null") {
                       let lastTextMatch = text.match(new RegExp(/: +/g))[text.match(new RegExp(/: +/g)).length - 1], key = JSON.parse(`["${text.slice(0, -1 * lastTextMatch.length - 4)}"]`)[0];
                       jsonMap2.set(key, null);
                     } else if (/^.*: +"/.test(text) && text[text.length - 1] == '"') {
@@ -3780,26 +3754,24 @@
                         )[0];
                         jsonMap2.set(key, childText);
                       } else {
-                        throw new Error(
-                          "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2) + ": unescaped double quote",
-                          {
-                            line: damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2,
-                            language: "DAMON"
-                          }
+                        let errorLine = +(damonTree.headless * -1) + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
+                        let error = new Error(
+                          "Error line number " + errorLine + ": unescaped double quote"
                         );
+                        error.line = errorLine;
+                        error.language = "DAMON";
+                        throw error;
                       }
                     } else if (/^.*: /.test(text) && isFinite(text.split(": ")[text.split(": ").length - 1]) && !isNaN(parseFloat(text.split(": ")[text.split(": ").length - 1])) && Number.isFinite(text.split(": ")[text.split(": ").length - 1] * 1) && !Number.isNaN(text.split(": ")[text.split(": ").length - 1] * 1)) {
                       let key = JSON.parse(`["${text.split(": ").slice(0, -1).join(": ")}"]`)[0];
                       errorType = "number";
                       let separatorMatches = text.match(new RegExp(/: +/g)), lastSeparatorMatch = separatorMatches[separatorMatches.length - 1], value = text.split(lastSeparatorMatch)[text.split(lastSeparatorMatch).length - 1];
                       if (value.indexOf(0) == 0 && value.length > 1 && value.indexOf(".") !== 1) {
-                        throw new Error(
-                          "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2) + ": leading 0",
-                          {
-                            line: damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2,
-                            language: "DAMON"
-                          }
-                        );
+                        let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
+                        let error = new Error("Error line number " + errorLine + ": leading 0");
+                        error.line = errorLine;
+                        error.language = "DAMON";
+                        throw error;
                       }
                       let number = JSON.parse(`[${text.split(": ")[text.split(": ").length - 1] * 1}]`)[0];
                       jsonMap2.set(key, number);
@@ -3849,69 +3821,56 @@
                         }
                       }
                       if (validValue) {
-                        let string = JSON.parse(`["${text.slice(0, -1 * valueLength)}"]`)[0];
+                        JSON.parse(`["${text.slice(0, -1 * valueLength)}"]`)[0];
                         if ($.pedantic) {
-                          throw new Error(
-                            "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex)) + ": missing separator",
-                            {
-                              line: damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex),
-                              language: "DAMON",
-                              errorType: "pedantic"
-                            }
+                          let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex);
+                          let error = new Error(
+                            "Error line number " + errorLine + ": missing separator"
                           );
+                          error.line = errorLine;
+                          error.language = "DAMON";
+                          error.errorType = "pedantic";
+                          throw error;
                         } else {
-                          if (!/: +$/.test(string)) {
-                            throw new Error(
-                              "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex)) + ": missing separator",
-                              {
-                                line: damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex),
-                                language: "DAMON",
-                                errorType: "pedantic"
-                              }
-                            );
-                          } else {
-                            implicitProperty = true;
-                            if (tree2.children[i].children.length > 0) {
-                              errorType = "implicit map key";
-                              let key = JSON.parse(`["${text}"]`)[0];
-                              jsonMap2.set(key, /* @__PURE__ */ new Map());
-                              if (jsonMap2.implicitMaps === void 0) {
-                                jsonMap2.implicitMaps = [];
-                              }
-                              jsonMap2.implicitMaps.push(key);
-                              _recurse(tree2.children[i], jsonMap2.get(key));
-                            } else {
-                              errorType = "implicit null key";
-                              let key = JSON.parse(`["${text}"]`)[0];
-                              jsonMap2.set(key, null);
-                              if (jsonMap2.implicitNulls === void 0) {
-                                jsonMap2.implicitNulls = [];
-                              }
-                              jsonMap2.implicitNulls.push(key);
+                          implicitProperty = true;
+                          if (tree2.children[i].children.length > 0) {
+                            errorType = "implicit map key";
+                            let key = JSON.parse(`["${text}"]`)[0];
+                            jsonMap2.set(key, /* @__PURE__ */ new Map());
+                            if (jsonMap2.implicitMaps === void 0) {
+                              jsonMap2.implicitMaps = [];
                             }
+                            jsonMap2.implicitMaps.push(key);
+                            _recurse(tree2.children[i], jsonMap2.get(key));
+                          } else {
+                            errorType = "implicit null key";
+                            let key = JSON.parse(`["${text}"]`)[0];
+                            jsonMap2.set(key, null);
+                            if (jsonMap2.implicitNulls === void 0) {
+                              jsonMap2.implicitNulls = [];
+                            }
+                            jsonMap2.implicitNulls.push(key);
                           }
                         }
                       } else {
                         let string = JSON.parse(`["${text.slice(0, -1 * valueLength)}"]`)[0];
                         if ($.pedantic) {
                           if (/: +$/.test(string)) {
-                            throw new Error(
-                              "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 3) + ": bad value",
-                              {
-                                line: damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex),
-                                language: "DAMON",
-                                errorType: "pedantic"
-                              }
-                            );
+                            let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex);
+                            let error = new Error("Error line number " + errorLine + ": bad value");
+                            error.line = errorLine;
+                            error.language = "DAMON";
+                            error.errorType = "pedantic";
+                            throw error;
                           } else {
-                            throw new Error(
-                              "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex)) + ": missing separator",
-                              {
-                                line: damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex),
-                                language: "DAMON",
-                                errorType: "pedantic"
-                              }
+                            let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex);
+                            let error = new Error(
+                              "Error line number " + errorLine + ": missing separator"
                             );
+                            error.line = errorLine;
+                            error.language = "DAMON";
+                            error.errorType = "pedantic";
+                            throw error;
                           }
                         } else {
                           implicitProperty = true;
@@ -3937,21 +3896,22 @@
                       }
                     }
                     if (!implicitProperty && tree2.children[i].children.length > 0) {
-                      throw new Error(
-                        "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 3) + ": missing container or excess indentation",
-                        {
-                          line: damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 3,
-                          language: "DAMON"
-                        }
+                      let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 3;
+                      let error = new Error(
+                        "Error line number " + errorLine + ": missing container or excess indentation"
                       );
+                      error.line = errorLine;
+                      error.language = "DAMON";
+                      throw error;
                     }
                   }
                 } catch (error) {
                   if (error.language === void 0) {
+                    let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
                     console.error(
-                      "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2) + ": not JSON-compliant, detailed error follows"
+                      "Error line number " + errorLine + ": not JSON-compliant, detailed error follows"
                     );
-                    error.line = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
+                    error.line = errorLine;
                     error.language = "JSON";
                     error.type = errorType;
                   }
@@ -3974,14 +3934,14 @@
                     try {
                       inlineArray = JSON.parse(text);
                     } catch (error) {
-                      throw new Error(
-                        "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2) + ": invalid inline lists",
-                        {
-                          line: damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2,
-                          language: "JSON",
-                          type: "list"
-                        }
+                      let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
+                      let err = new Error(
+                        "Error line number " + errorLine + ": invalid inline lists"
                       );
+                      err.line = errorLine;
+                      err.language = "JSON";
+                      err.type = "list";
+                      throw err;
                     }
                     let arrayOfPrimitives = inlineArray.every(function(item) {
                       if (item === true) {
@@ -4005,22 +3965,22 @@
                       }
                       jsonMap2.damonInlineArrays.push(i);
                     } else {
-                      throw new Error(
-                        "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2) + ": no nesting in inline lists",
-                        {
-                          line: damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2,
-                          language: "DAMON"
-                        }
+                      let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
+                      let error = new Error(
+                        "Error line number " + errorLine + ": no nesting in inline lists"
                       );
+                      error.line = errorLine;
+                      error.language = "DAMON";
+                      throw error;
                     }
                     if (tree2.children[i].children.length > 0) {
-                      throw new Error(
-                        "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 3) + ": inline lists can't have children",
-                        {
-                          line: damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 3,
-                          language: "DAMON"
-                        }
+                      let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 3;
+                      let error = new Error(
+                        "Error line number " + errorLine + ": inline lists can't have children"
                       );
+                      error.line = errorLine;
+                      error.language = "DAMON";
+                      throw error;
                     }
                   }
                 } else if (/^[ \t]*\{\}$/.test(text)) {
@@ -4036,31 +3996,31 @@
                   try {
                     jsonMap2.push(JSON.parse(`[${text.trimStart()}]`)[0]);
                   } catch (error) {
+                    let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
                     console.error(
-                      "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2) + ": not JSON-compliant, detailed error follows"
+                      "Error line number " + errorLine + ": not JSON-compliant, detailed error follows"
                     );
-                    error.line = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
+                    error.line = errorLine;
                     error.language = "JSON";
                     error.type = "string";
                     throw error;
                   }
                 } else if (isFinite(text) && !isNaN(parseFloat(text)) && Number.isFinite(text * 1) && !Number.isNaN(text * 1)) {
                   if (text.indexOf(0) == 0 && text.length > 1 && text.indexOf(".") !== 1) {
-                    throw new Error(
-                      "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2) + ": leading 0",
-                      {
-                        line: damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2,
-                        language: "DAMON"
-                      }
-                    );
+                    let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
+                    let error = new Error("Error line number " + errorLine + ": leading 0");
+                    error.line = errorLine;
+                    error.language = "DAMON";
+                    throw error;
                   }
                   try {
                     jsonMap2.push(JSON.parse(`[${text * 1}]`)[0]);
                   } catch (error) {
+                    let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
                     console.error(
-                      "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2) + ": not JSON-compliant, detailed error follows"
+                      "Error line number " + errorLine + ": not JSON-compliant, detailed error follows"
                     );
-                    error.line = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
+                    error.line = errorLine;
                     error.language = "JSON";
                     error.type = "number";
                     throw error;
@@ -4069,31 +4029,28 @@
                   try {
                     JSON.parse(text * 1);
                   } catch (error) {
+                    let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
                     console.error(
-                      "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2) + ": not JSON-compliant, detailed error follows"
+                      "Error line number " + errorLine + ": not JSON-compliant, detailed error follows"
                     );
-                    error.line = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
+                    error.line = errorLine;
                     error.language = "JSON";
                     error.type = "infinity";
                     throw error;
                   }
                 } else {
-                  throw new Error(
-                    "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2) + ": list items can't have a key",
-                    {
-                      line: damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2,
-                      language: "DAMON"
-                    }
-                  );
+                  let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
+                  let error = new Error("Error line number " + errorLine + ": list items can't have a key");
+                  error.line = errorLine;
+                  error.language = "DAMON";
+                  throw error;
                 }
               } else {
-                throw new Error(
-                  "Error line number " + (damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2) + ": empty list node",
-                  {
-                    line: damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2,
-                    language: "DAMON"
-                  }
-                );
+                let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
+                let error = new Error("Error line number " + errorLine + ": empty list node");
+                error.line = errorLine;
+                error.language = "DAMON";
+                throw error;
               }
             }
           }
@@ -4532,43 +4489,31 @@
             if (typeof map === "object" && map !== null && !Array.isArray(map) && map instanceof Map && map.constructor === Map) {
               for (const [key, value] of map) {
                 line += 1;
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && value instanceof Map && value.constructor === Map) {
-                  if (JSON.stringify(targetPath) === JSON.stringify(currentPath.concat([key]))) {
-                    found = true;
-                    return;
-                  } else if (Array.from(value.keys()).length) {
-                    line -= 1;
-                    _incrementLineUntilReaching(value, targetPath, currentPath.concat([key]));
-                  }
-                } else if (Array.isArray(value)) {
-                  if (JSON.stringify(targetPath) === JSON.stringify(currentPath.concat([key]))) {
-                    found = true;
-                    return;
-                  } else if ((map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(key) === -1) && value.length) {
-                    line -= 1;
-                    _incrementLineUntilReaching(value, targetPath, currentPath.concat([key]));
-                  }
+                if (JSON.stringify(targetPath) === JSON.stringify(currentPath.concat([key]))) {
+                  found = true;
+                  return;
+                }
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && value instanceof Map && value.constructor === Map && Array.from(value.keys()).length) {
+                  line -= 1;
+                  _incrementLineUntilReaching(value, targetPath, currentPath.concat([key]));
+                } else if (Array.isArray(value) && (map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(key) === -1) && value.length) {
+                  line -= 1;
+                  _incrementLineUntilReaching(value, targetPath, currentPath.concat([key]));
                 }
               }
             } else {
               for (let i = 0, c = map.length; i < c; i++) {
                 line += 1;
-                if (typeof map[i] === "object" && map[i] !== null && !Array.isArray(map[i]) && map[i] instanceof Map && map[i].constructor === Map) {
-                  if (JSON.stringify(targetPath) === JSON.stringify(currentPath.concat([i]))) {
-                    found = true;
-                    return;
-                  } else if (Array.from(map[i].keys()).length) {
-                    line -= 1;
-                    _incrementLineUntilReaching(map[i], targetPath, currentPath.concat([i]));
-                  }
-                } else if (Array.isArray(map[i])) {
-                  if (JSON.stringify(targetPath) === JSON.stringify(currentPath.concat([i]))) {
-                    found = true;
-                    return;
-                  } else if ((map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(i) === -1) && map[i].length) {
-                    line -= 1;
-                    _incrementLineUntilReaching(map[i], targetPath, currentPath.concat([i]));
-                  }
+                if (JSON.stringify(targetPath) === JSON.stringify(currentPath.concat([i]))) {
+                  found = true;
+                  return;
+                }
+                if (typeof map[i] === "object" && map[i] !== null && !Array.isArray(map[i]) && map[i] instanceof Map && map[i].constructor === Map && Array.from(map[i].keys()).length) {
+                  line -= 1;
+                  _incrementLineUntilReaching(map[i], targetPath, currentPath.concat([i]));
+                } else if (Array.isArray(map[i]) && (map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(i) === -1) && map[i].length) {
+                  line -= 1;
+                  _incrementLineUntilReaching(map[i], targetPath, currentPath.concat([i]));
                 }
               }
             }
