@@ -24,30 +24,34 @@ class Utils {
     }
 
     /**
-     * @param {map|array} jsonMap
+     * @typedef {Map<string, damonValue>} damonMap
+     * @typedef {Array<damonValue>} damonArray
+     * @typedef {damonMap|damonArray|string|number|boolean|null} damonValue
+     * @param {damonValue} jsonMap
      * @param {boolean} safeHTML
+     * @param {string} jsonContext
      * @returns {object} DOM
      */
-    mapToHtmlList(jsonMap, safeHTML = false, jsonSchema = undefined) {
+    mapToHtmlList(jsonMap, safeHTML = false, jsonContext = undefined) {
         let $ = this;
         // Parsing check
         try {
             $.parentContext.mapToJSON(jsonMap);
         } catch (error) {
             console.log(error)
-            throw new Error("Provided map value doesn't passes JSON.parse()")
+            throw new Error("Provided map value doesn't passes JSON.parse()");
         }
         var jsonItemIndex = 0,
             list = document.createElement('ul'),
             schema;
-        if (jsonSchema !== undefined) {
-            schema = JSON.parse(jsonSchema);
+        if (jsonContext !== undefined) {
+            schema = JSON.parse(jsonContext);
         }
         list.className = 'DAMON-List';
         recurse(jsonMap, list);
         return list;
         /**
-         * @param {map|array} jsonMap
+         * @param {damonValue} jsonMap
          * @param {object} listItem
          * @returns {object} DOM
          */
@@ -78,7 +82,7 @@ class Utils {
                             keySpan.innerHTML = keyLink;
                         } else {
                             if (
-                                jsonSchema !== undefined
+                                jsonContext !== undefined
                                 && key in schema['@context']
                             ) {
                                 keySpan.innerHTML =
@@ -336,7 +340,7 @@ class Utils {
     }
 
     /**
-     * @param {map|array} jsonMap
+     * @param {damonValue} jsonMap
      * @param {boolean} [safeHTML=false]
      * @returns {object} DOM
      */
@@ -462,7 +466,7 @@ class Utils {
 
     // Expects a complete tree (all terminal leaves at the same level)
     /**
-     * @param {map|array} jsonMap
+     * @param {damonValue} jsonMap
      * @param {boolean} [safeHTML=false]
      * @returns {object} DOM
      */
@@ -536,7 +540,7 @@ class Utils {
         table.appendChild(tBody);
         return table;
         /**
-         * @param {map|array} jsonMap
+         * @param {damonValue} jsonMap
          * @param {object} tableSubContainer
          * @param {number} [level=0]
          * @param {array} [line=[]]
@@ -653,7 +657,7 @@ class Utils {
 
     /**
      * @param {object} list DOM
-     * @return {map|array}
+     * @return {string}
      */
     htmlToJSON(list) {
         let $ = this;
@@ -665,8 +669,8 @@ class Utils {
         }
         /**
          * @param {object} list DOM
-         * @param {map|array} jsonMap
-         * @returns {map|array}
+         * @param {damonValue} jsonMap
+         * @returns {damonValue}
          */
         function recurse(list, jsonMap) {
             if (
@@ -853,8 +857,8 @@ class Utils {
     }
 
     /**
-     * @param {map|array} firstMap
-     * @param {map|array} secondMap
+     * @param {damonValue} firstMap
+     * @param {damonValue} secondMap
     */
     mapsDiff(firstMap, secondMap) {
         let $ = this;
@@ -878,7 +882,7 @@ class Utils {
         _recurse(jsonMap);
         return list.slice(0, -1); // last linefeed
         /**
-         * @param {map|array} jsonMap
+         * @param {damonValue} jsonMap
          * @param {number} [level=1]
          * @returns {string}
          */
