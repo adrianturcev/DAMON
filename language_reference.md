@@ -138,6 +138,8 @@ Use case: facilitating list conversion
 - You may ommit null terminators
 - You may not leave trailing-spaces
 
+( ! ) Value-like keys get value syntax-highlighting
+
 ( ! ) Value-terminating keys still get parsed!
 
 This:
@@ -259,3 +261,4 @@ Array.from(map.keys()).join('\n');
 // S-Expression conversion
 // See [Typedown]()
 // For more, see json-lisp
+```
