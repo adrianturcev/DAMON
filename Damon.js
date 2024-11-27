@@ -16,7 +16,7 @@ class Damon {
             throw new Error("@param {Boolean} pedantic");
         }
         this.pedantic = pedantic;
-        this.utils = new DamonUtils(this);
+        this.utils = new DamonUtils($);
     }
     /**
      * Object-like ordered dictionaries declarations in js
@@ -28,7 +28,7 @@ class Damon {
         var result = strings.raw[0];
         for (let i = 1; i < strings.raw.length; i++) {
             if (typeof arguments[i] == 'string') {
-                result += '\"' + arguments[i] + '\"';
+                result += '"' + arguments[i] + '"';
             } else {
                 result += arguments[i];
             }
@@ -289,7 +289,7 @@ class Damon {
                 damonOriginalLinesMapping[i] = null;
             }
         }
-        let tabsMatchingRegex = new RegExp('^(\t)+');
+        let tabsMatchingRegex = new RegExp('^(\\t)+');
         for (let i = 0, c = damonLines.length; i < c; i++) {
             // - Replacing leading tabs
             if (tabsMatchingRegex.test(damonLines[i])) {
@@ -728,7 +728,7 @@ class Damon {
                                         + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1)
                                         + 3;
                                     let error = new Error(
-                                        "Error line number " + errorLine + ": inline lists can\'t have children"
+                                        "Error line number " + errorLine + ": inline lists can't have children"
                                     );
                                     error.line = errorLine;
                                     error.language = "DAMON";
@@ -1135,7 +1135,7 @@ class Damon {
                                     + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1)
                                     + 3;
                                 let error = new Error(
-                                    "Error line number " + errorLine + ": inline lists can\'t have children"
+                                    "Error line number " + errorLine + ": inline lists can't have children"
                                 );
                                 error.line = errorLine;
                                 error.language = "DAMON";
@@ -1225,7 +1225,7 @@ class Damon {
                             (damonTree.headless * -1)
                             + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1)
                             + 2;
-                        let error = new Error("Error line number " + errorLine + ": list items can\'t have a key");
+                        let error = new Error("Error line number " + errorLine + ": list items can't have a key");
                         error.line = errorLine;
                         error.language = "DAMON";
                         throw error;
@@ -2027,6 +2027,83 @@ class Damon {
                 token.range = valueRange;
             }
         }
-        return token
+        return token;
+    }
+
+    /**
+     * @param {string} damon
+     * @returns {Array<Array<string|number>>} pathsList
+     */
+    getPathsList(damon) {
+        const $ = this;
+        let damonMap = $.damonToMap(damon),
+            pathsList = [];
+        _walkAndPushPaths(damonMap);
+        return pathsList;
+
+        /**
+         * @param {Map<string, any>|Array<any>} map
+         * @param {Array<string|number>} targetPath
+         * @param {Array<string|number>} [currentPath=[]]
+        */
+        function _walkAndPushPaths(map, currentPath = []) {
+            if (
+                typeof map === 'object'
+                && map !== null
+                && !Array.isArray(map)
+                && map instanceof Map
+                && map.constructor === Map
+            ) {
+                for (const [key, value] of map) {
+                    if (
+                        typeof value === 'object'
+                        && value !== null
+                        && !Array.isArray(value)
+                        && value instanceof Map
+                        && value.constructor === Map
+                        && Array.from(value.keys()).length
+                    ) {
+                        pathsList.push(currentPath.concat(key));
+                        _walkAndPushPaths(value, currentPath.concat([key]));
+                    } else if (
+                        Array.isArray(value)
+                        && (
+                            map.damonInlineArrays == undefined
+                            || map.damonInlineArrays.indexOf(key) === -1
+                        ) && value.length
+                    ) {
+                        pathsList.push(currentPath.concat(key));
+                        _walkAndPushPaths(value, currentPath.concat([key]));
+                    } else {
+                        pathsList.push(currentPath.concat(key).concat(value));
+                    }
+                }
+            } else {
+                for (let i = 0, c = map.length; i < c; i++) {
+                    if (
+                        typeof map[i] === 'object'
+                        && map[i] !== null
+                        && !Array.isArray(map[i])
+                        && map[i] instanceof Map
+                        && map[i].constructor === Map
+                        && Array.from(map[i].keys()).length
+                    ) {
+                        pathsList.push(currentPath.concat(i));
+                        _walkAndPushPaths(map[i], currentPath.concat([i]));
+                    } else if (
+                        Array.isArray(map[i])
+                        && (
+                            map.damonInlineArrays == undefined
+                            || map.damonInlineArrays.indexOf(i) === -1
+                        ) && map[i].length
+                    ) {
+                        pathsList.push(currentPath.concat(i));
+                        _walkAndPushPaths(map[i], currentPath.concat([i]));
+                    } else {
+                        pathsList.push(currentPath.concat(map[i]));
+                    }
+                }
+            }
+        }
     }
 };

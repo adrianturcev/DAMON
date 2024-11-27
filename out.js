@@ -2437,10 +2437,10 @@
          * @param {string} jsonContext
          * @returns {object} DOM
          */
-        mapToHtmlList(jsonMap2, safeHTML = false, jsonContext = void 0) {
+        mapToHtmlList(jsonMap, safeHTML = false, jsonContext = void 0) {
           let $ = this;
           try {
-            $.parentContext.mapToJSON(jsonMap2);
+            $.parentContext.mapToJSON(jsonMap);
           } catch (error) {
             console.log(error);
             throw new Error("Provided map value doesn't passes JSON.parse()");
@@ -2450,15 +2450,15 @@
             schema = JSON.parse(jsonContext);
           }
           list.className = "DAMON-List";
-          recurse(jsonMap2, list);
+          recurse(jsonMap, list);
           return list;
-          function recurse(jsonMap3, listItem) {
+          function recurse(jsonMap2, listItem) {
             if (typeof listItem !== "object" || listItem == null || Array.isArray(listItem)) {
               throw new Error("Error List Item number " + jsonItemIndex + ": @param { {} } list");
             }
-            if (typeof jsonMap3 === "object" && jsonMap3 !== null && !Array.isArray(jsonMap3) && jsonMap3 instanceof Map && jsonMap3.constructor === Map) {
+            if (typeof jsonMap2 === "object" && jsonMap2 !== null && !Array.isArray(jsonMap2) && jsonMap2 instanceof Map && jsonMap2.constructor === Map) {
               if (listItem.tagName == "UL") {
-                for (const [key, value] of jsonMap3) {
+                for (const [key, value] of jsonMap2) {
                   let newList = document.createElement("ul"), newDiv = document.createElement("code"), keySpan = document.createElement("span"), newListItem = document.createElement("li");
                   keySpan.className = "type-key";
                   if ($.websiteRegex.test(key)) {
@@ -2475,7 +2475,7 @@
                   }
                   if (typeof value === "object" && value !== null) {
                     if (Array.isArray(value)) {
-                      if (jsonMap3.damonInlineArrays !== void 0 && jsonMap3.damonInlineArrays.indexOf(key) > -1) {
+                      if (jsonMap2.damonInlineArrays !== void 0 && jsonMap2.damonInlineArrays.indexOf(key) > -1) {
                         newDiv.innerHTML = keySpan.outerHTML + ": [";
                         for (let j = 0, k = value.length; j < k; j++) {
                           let childValueSpan = document.createElement("span"), childValue = value[j];
@@ -2524,7 +2524,7 @@
                         recurse(value, newList);
                       }
                     } else {
-                      if (jsonMap3.implicitMaps !== void 0 && jsonMap3.implicitMaps.indexOf(key) > -1) {
+                      if (jsonMap2.implicitMaps !== void 0 && jsonMap2.implicitMaps.indexOf(key) > -1) {
                         newDiv.innerHTML = keySpan.outerHTML;
                       } else {
                         newDiv.innerHTML = keySpan.outerHTML + ": {}";
@@ -2567,7 +2567,7 @@
                       }
                       valueSpan.className = "type-string";
                     }
-                    if (jsonMap3.implicitNulls === void 0 || jsonMap3.implicitNulls.indexOf(key) == -1) {
+                    if (jsonMap2.implicitNulls === void 0 || jsonMap2.implicitNulls.indexOf(key) == -1) {
                       newDiv.appendChild(valueSpan);
                     } else {
                       newDiv.innerHTML = newDiv.innerHTML.slice(0, -2);
@@ -2577,15 +2577,15 @@
                   }
                 }
               }
-            } else if (Array.isArray(jsonMap3)) {
-              for (var i = 0, c = jsonMap3.length; i < c; i++) {
+            } else if (Array.isArray(jsonMap2)) {
+              for (var i = 0, c = jsonMap2.length; i < c; i++) {
                 let newList = document.createElement("ul"), newDiv = document.createElement("code"), newListItem = document.createElement("li");
-                if (typeof jsonMap3[i] === "object" && jsonMap3[i] !== null) {
-                  if (Array.isArray(jsonMap3[i])) {
-                    if (jsonMap3.damonInlineArrays !== void 0 && jsonMap3.damonInlineArrays.indexOf(i) > -1) {
+                if (typeof jsonMap2[i] === "object" && jsonMap2[i] !== null) {
+                  if (Array.isArray(jsonMap2[i])) {
+                    if (jsonMap2.damonInlineArrays !== void 0 && jsonMap2.damonInlineArrays.indexOf(i) > -1) {
                       newDiv.innerHTML += "[";
-                      for (let j = 0, k = jsonMap3[i].length; j < k; j++) {
-                        let valueSpan = document.createElement("span"), value = jsonMap3[i][j];
+                      for (let j = 0, k = jsonMap2[i].length; j < k; j++) {
+                        let valueSpan = document.createElement("span"), value = jsonMap2[i][j];
                         if (value === true) {
                           valueSpan.textContent = "true";
                           valueSpan.className = "type-boolean";
@@ -2628,18 +2628,18 @@
                       newListItem.appendChild(newDiv);
                       newListItem.appendChild(newList);
                       listItem.appendChild(newListItem);
-                      recurse(jsonMap3[i], newList);
+                      recurse(jsonMap2[i], newList);
                     }
                   } else {
                     newDiv.textContent = "{}";
                     newListItem.appendChild(newDiv);
                     newListItem.appendChild(newList);
                     listItem.appendChild(newListItem);
-                    recurse(jsonMap3[i], newList);
+                    recurse(jsonMap2[i], newList);
                   }
                 } else {
                   jsonItemIndex++;
-                  let childText = jsonMap3[i];
+                  let childText = jsonMap2[i];
                   if (childText === true) {
                     newDiv.textContent = "true";
                     newDiv.className = "type-boolean";
@@ -2681,19 +2681,19 @@
          * @param {boolean} [safeHTML=false]
          * @returns {object} DOM
          */
-        mapToHtmlTable(jsonMap2, safeHTML = false) {
+        mapToHtmlTable(jsonMap, safeHTML = false) {
           let $ = this;
           try {
-            $.parentContext.mapToJSON(jsonMap2);
+            $.parentContext.mapToJSON(jsonMap);
           } catch (error) {
             throw new Error("Provided map value doesn't passes JSON.parse()");
           }
           var jsonItemIndex = 0, table = document.createElement("table"), tHead = document.createElement("thead"), tBody = document.createElement("tbody"), headingsEncountered = false, columnsLength = 0;
           table.className = "DAMON-Table";
-          if (typeof jsonMap2 !== "object" || jsonMap2 == null || Array.isArray(jsonMap2) || !(jsonMap2 instanceof Map) || jsonMap2.constructor !== Map) {
+          if (typeof jsonMap !== "object" || jsonMap == null || Array.isArray(jsonMap) || !(jsonMap instanceof Map) || jsonMap.constructor !== Map) {
             throw new Error("Error List Item number " + jsonItemIndex + ": @param { {} } list");
           }
-          for (const [key, value] of jsonMap2) {
+          for (const [key, value] of jsonMap) {
             if (typeof value === "object" && value !== null && !Array.isArray(value) && value instanceof Map && value.constructor === Map) {
               if (key == "0" && !headingsEncountered) {
                 let row = document.createElement("tr");
@@ -2776,19 +2776,19 @@
          * @param {boolean} [safeHTML=false]
          * @returns {object} DOM
          */
-        mapTreeLeavesToHtmlTable(jsonMap2, safeHTML = false) {
+        mapTreeLeavesToHtmlTable(jsonMap, safeHTML = false) {
           let $ = this;
           try {
-            $.parentContext.mapToJSON(jsonMap2);
+            $.parentContext.mapToJSON(jsonMap);
           } catch (error) {
             throw new Error("Provided map value doesn't passes JSON.parse()");
           }
           var jsonItemIndex = 0, expectedDepth = 0, table = document.createElement("table"), tHead = document.createElement("thead"), tBody = document.createElement("tbody"), headingsEncountered = false;
           table.className = "DAMON-LeavesToTable";
-          if (typeof jsonMap2 !== "object" || jsonMap2 == null || Array.isArray(jsonMap2) || !(jsonMap2 instanceof Map) || jsonMap2.constructor !== Map) {
+          if (typeof jsonMap !== "object" || jsonMap == null || Array.isArray(jsonMap) || !(jsonMap instanceof Map) || jsonMap.constructor !== Map) {
             throw new Error("Error List Item number " + jsonItemIndex + ": @param { {} } list");
           }
-          for (const [key, value] of jsonMap2) {
+          for (const [key, value] of jsonMap) {
             if (typeof value === "object" && !Array.isArray(value)) {
               if (key == "head" && !headingsEncountered) {
                 try {
@@ -2822,20 +2822,20 @@
           }
           table.appendChild(tBody);
           return table;
-          function recurse(jsonMap3, tableSubContainer, level = 0, line = []) {
+          function recurse(jsonMap2, tableSubContainer, level = 0, line = []) {
             if (typeof tableSubContainer !== "object" || tableSubContainer == null) {
               throw new Error("Error List Item number " + jsonItemIndex + ": @param { {} } list");
             }
-            if (typeof jsonMap3 === "object" && jsonMap3 !== null && !Array.isArray(jsonMap3) && jsonMap3 instanceof Map && jsonMap3.constructor === Map) {
+            if (typeof jsonMap2 === "object" && jsonMap2 !== null && !Array.isArray(jsonMap2) && jsonMap2 instanceof Map && jsonMap2.constructor === Map) {
               if (tableSubContainer.tagName == "THEAD") {
-                if (Array.from(jsonMap3.keys()).length == 1) {
-                  if (typeof jsonMap3.get(Array.from(jsonMap3.keys())[0]) === "object" && jsonMap3.get(Array.from(jsonMap3.keys())[0]) !== null) {
+                if (Array.from(jsonMap2.keys()).length == 1) {
+                  if (typeof jsonMap2.get(Array.from(jsonMap2.keys())[0]) === "object" && jsonMap2.get(Array.from(jsonMap2.keys())[0]) !== null) {
                     jsonItemIndex++;
                     recurse(
-                      jsonMap3.get(Array.from(jsonMap3.keys())[0]),
+                      jsonMap2.get(Array.from(jsonMap2.keys())[0]),
                       tableSubContainer,
                       level + 1,
-                      line.concat([Array.from(jsonMap3.keys())[0]])
+                      line.concat([Array.from(jsonMap2.keys())[0]])
                     );
                   } else {
                     throw new Error("Error List Item number " + jsonItemIndex + ": @param { {} } list");
@@ -2844,10 +2844,10 @@
                   throw new Error("Error List Item number " + jsonItemIndex + ": @param { {} } list");
                 }
               } else if (tableSubContainer.tagName == "TBODY") {
-                if (Array.from(jsonMap3.keys()).length == 0) {
+                if (Array.from(jsonMap2.keys()).length == 0) {
                   throw new Error("Error List Item number " + jsonItemIndex + ": @param { {} } list");
                 }
-                for (const [key, value] of jsonMap3) {
+                for (const [key, value] of jsonMap2) {
                   if (typeof value === "object" && value !== null) {
                     jsonItemIndex++;
                     recurse(value, tableSubContainer, level + 1, line.concat([key]));
@@ -2856,13 +2856,13 @@
                   }
                 }
               }
-            } else if (Array.isArray(jsonMap3)) {
+            } else if (Array.isArray(jsonMap2)) {
               if (tableSubContainer.tagName == "THEAD") {
-                if (jsonMap3.length == 1) {
+                if (jsonMap2.length == 1) {
                   jsonItemIndex++;
                   expectedDepth = level;
                   let tableRow = document.createElement("tr");
-                  line.push(jsonMap3[0]);
+                  line.push(jsonMap2[0]);
                   for (let i = 0, c = line.length; i < c; i++) {
                     let headerCell = document.createElement("th");
                     if (safeHTML) {
@@ -2878,10 +2878,10 @@
                 }
               } else if (tableSubContainer.tagName == "TBODY") {
                 if (level == expectedDepth) {
-                  if (jsonMap3.length == 0) {
+                  if (jsonMap2.length == 0) {
                     throw new Error("Error List Item number " + jsonItemIndex + ": @param { {} } list");
                   }
-                  for (let i = 0, c = jsonMap3.length; i < c; i++) {
+                  for (let i = 0, c = jsonMap2.length; i < c; i++) {
                     jsonItemIndex++;
                     let tableRow = document.createElement("tr");
                     for (let z = 0, x = line.length; z < x; z++) {
@@ -2895,11 +2895,11 @@
                     }
                     let dataCell = document.createElement("td");
                     if (safeHTML) {
-                      dataCell.innerHTML = jsonMap3[i];
+                      dataCell.innerHTML = jsonMap2[i];
                     } else {
-                      dataCell.textContent = jsonMap3[i];
+                      dataCell.textContent = jsonMap2[i];
                     }
-                    dataCell.textContent = jsonMap3[i];
+                    dataCell.textContent = jsonMap2[i];
                     tableRow.appendChild(dataCell);
                     tableSubContainer.appendChild(tableRow);
                   }
@@ -2918,15 +2918,15 @@
           let $ = this;
           var listItemIndex = 0;
           if (list.firstElementChild.textContent == "{}") {
-            return $._mapToJSON(recurse(tree, /* @__PURE__ */ new Map()));
+            return $._mapToJSON(recurse(list, /* @__PURE__ */ new Map()));
           } else if (list.firstElementChild.textContent == "[]") {
-            return $._mapToJSON(recurse(tree, []));
+            return $._mapToJSON(recurse(list, []));
           }
-          function recurse(list2, jsonMap2) {
+          function recurse(list2, jsonMap) {
             if (typeof list2 !== "object" || list2 == null || Array.isArray(list2)) {
               throw new Error("Error List Item number " + listItemIndex + ": @param { {} } list");
             }
-            if (typeof jsonMap2 === "object" && jsonMap2 !== null && !Array.isArray(jsonMap2) && jsonMap2 instanceof Map && jsonMap2.constructor === Map) {
+            if (typeof jsonMap === "object" && jsonMap !== null && !Array.isArray(jsonMap) && jsonMap instanceof Map && jsonMap.constructor === Map) {
               for (let i = 0, c = list2.children.length; i < c; i++) {
                 listItemIndex++;
                 if (list2.children[i].tagName == "LI") {
@@ -2939,15 +2939,15 @@
                           listItemIndex++;
                           let childText = secondGrandChild.firstElementChild.firstElementChild.textContent.trim();
                           if (childText == "true") {
-                            jsonMap2.set(text.slice(0, -1), true);
+                            jsonMap.set(text.slice(0, -1), true);
                           } else if (childText == "false") {
-                            jsonMap2.set(text.slice(0, -1), false);
+                            jsonMap.set(text.slice(0, -1), false);
                           } else if (childText == "null") {
-                            jsonMap2.set(text.slice(0, -1), null);
+                            jsonMap.set(text.slice(0, -1), null);
                           } else if (isFinite(childText) && !isNaN(parseFloat(childText))) {
-                            jsonMap2.set(text.slice(0, -1), childText * 1);
+                            jsonMap.set(text.slice(0, -1), childText * 1);
                           } else {
-                            jsonMap2.set(text.slice(0, -1), childText);
+                            jsonMap.set(text.slice(0, -1), childText);
                           }
                         } else {
                           throw new Error(
@@ -2956,18 +2956,18 @@
                         }
                       } else if (text[text.length - 4] == ":" && text.length > 4) {
                         if (text.slice(-3) == " []") {
-                          jsonMap2.set(text.slice(0, -4), []);
+                          jsonMap.set(text.slice(0, -4), []);
                           if (list2.children[i].children[1].tagName == "UL") {
-                            recurse(list2.children[i].children[1], jsonMap2.get(text.slice(0, -4)));
+                            recurse(list2.children[i].children[1], jsonMap.get(text.slice(0, -4)));
                           } else {
                             throw new Error(
                               "Error List Item number " + listItemIndex + ": not DAMON-compliant."
                             );
                           }
                         } else if (text.slice(-3) == " {}") {
-                          jsonMap2.set(text.slice(0, -4), /* @__PURE__ */ new Map());
+                          jsonMap.set(text.slice(0, -4), /* @__PURE__ */ new Map());
                           if (list2.children[i].children[1].tagName == "UL") {
-                            recurse(list2.children[i].children[1], jsonMap2.get(text.slice(0, -4)));
+                            recurse(list2.children[i].children[1], jsonMap.get(text.slice(0, -4)));
                           } else {
                             throw new Error(
                               "Error List Item number " + listItemIndex + ": not DAMON-compliant."
@@ -2987,7 +2987,7 @@
                   }
                 }
               }
-            } else if (Array.isArray(jsonMap2)) {
+            } else if (Array.isArray(jsonMap)) {
               for (let i = 0, c = list2.children.length; i < c; i++) {
                 listItemIndex++;
                 if (list2.children[i].tagName == "LI") {
@@ -3004,33 +3004,33 @@
                         );
                       } else {
                         if (text == "[]") {
-                          jsonMap2.push([]);
+                          jsonMap.push([]);
                           if (list2.children[i].children[1] && list2.children[i].children[1].tagName == "UL") {
-                            recurse(list2.children[i].children[1], jsonMap2[jsonMap2.length - 1]);
+                            recurse(list2.children[i].children[1], jsonMap[jsonMap.length - 1]);
                           } else {
                             throw new Error(
                               "Error List Item number " + listItemIndex + ": not DAMON-compliant."
                             );
                           }
                         } else if (text == "{}") {
-                          jsonMap2.push({});
+                          jsonMap.push({});
                           if (list2.children[i].children[1] && list2.children[i].children[1].tagName == "UL") {
-                            recurse(list2.children[i].children[1], jsonMap2[jsonMap2.length - 1]);
+                            recurse(list2.children[i].children[1], jsonMap[jsonMap.length - 1]);
                           } else {
                             throw new Error(
                               "Error List Item number " + listItemIndex + ": not DAMON-compliant."
                             );
                           }
                         } else if (text == "true") {
-                          jsonMap2.push(true);
+                          jsonMap.push(true);
                         } else if (text == "false") {
-                          jsonMap2.push(false);
+                          jsonMap.push(false);
                         } else if (text == "null") {
-                          jsonMap2.push(null);
+                          jsonMap.push(null);
                         } else if (isFinite(text) && !isNaN(parseFloat(text))) {
-                          jsonMap2.push(text * 1);
+                          jsonMap.push(text * 1);
                         } else {
-                          jsonMap2.push(text);
+                          jsonMap.push(text);
                         }
                       }
                     } else {
@@ -3044,7 +3044,7 @@
             } else {
               throw new Error("Error List Item number " + listItemIndex + ": @param { {} | [] } jsonMap");
             }
-            return jsonMap2;
+            return jsonMap;
           }
         }
         /**
@@ -3060,18 +3060,19 @@
             throw new Error("Provided map value doesn't passes JSON.parse()");
           }
           if (typeof firstMap !== typeof secondMap) {
+            let me = "go";
           }
           var list = ``;
-          if (Array.isArray(jsonMap)) {
+          if (Array.isArray(firstMap)) {
             list += "- []\n";
           } else {
             list += "- {}\n";
           }
-          _recurse(jsonMap);
+          _recurse(firstMap);
           return list.slice(0, -1);
-          function _recurse(jsonMap2, level = 1) {
-            if (typeof jsonMap2 === "object" && jsonMap2 !== null && !Array.isArray(jsonMap2) && jsonMap2 instanceof Map && jsonMap2.constructor === Map) {
-              for (const [key, value] of jsonMap2) {
+          function _recurse(jsonMap, level = 1) {
+            if (typeof jsonMap === "object" && jsonMap !== null && !Array.isArray(jsonMap) && jsonMap instanceof Map && jsonMap.constructor === Map) {
+              for (const [key, value] of jsonMap) {
                 if (typeof value === "object" && value !== null) {
                   if (Array.isArray(value)) {
                     let nullsCounter = 0, arrayOfPrimitives = value.filter(function(item) {
@@ -3117,11 +3118,11 @@
                   }
                 }
               }
-            } else if (Array.isArray(jsonMap2)) {
-              for (var i = 0, c = jsonMap2.length; i < c; i++) {
-                if (typeof jsonMap2[i] === "object" && jsonMap2[i] !== null) {
-                  if (Array.isArray(jsonMap2[i])) {
-                    let nullsCounter = 0, arrayOfPrimitives = jsonMap2[i].filter(function(item) {
+            } else if (Array.isArray(jsonMap)) {
+              for (var i = 0, c = jsonMap.length; i < c; i++) {
+                if (typeof jsonMap[i] === "object" && jsonMap[i] !== null) {
+                  if (Array.isArray(jsonMap[i])) {
+                    let nullsCounter = 0, arrayOfPrimitives = jsonMap[i].filter(function(item) {
                       if (item === true) {
                         return true;
                       } else if (item === false) {
@@ -3137,28 +3138,28 @@
                         return false;
                       }
                     });
-                    if (jsonMap2[i].length == arrayOfPrimitives.length && level * 4 + 2 + jsonMap2[i].join(", ").length + nullsCounter * 4 <= 80) {
-                      let line = "[" + jsonMap2[i].map((x) => JSON.stringify(x)).join(", ") + "]";
+                    if (jsonMap[i].length == arrayOfPrimitives.length && level * 4 + 2 + jsonMap[i].join(", ").length + nullsCounter * 4 <= 80) {
+                      let line = "[" + jsonMap[i].map((x) => JSON.stringify(x)).join(", ") + "]";
                       list += "    ".repeat(level) + "- " + line + "\n";
                     } else {
                       list += "    ".repeat(level) + "- []\n";
-                      _recurse(jsonMap2[i], level + 1);
+                      _recurse(jsonMap[i], level + 1);
                     }
                   } else {
                     list += "    ".repeat(level) + "- {}\n";
-                    _recurse(jsonMap2[i], level + 1);
+                    _recurse(jsonMap[i], level + 1);
                   }
                 } else {
-                  if (jsonMap2[i] === true) {
+                  if (jsonMap[i] === true) {
                     list += "    ".repeat(level) + "- true\n";
-                  } else if (jsonMap2[i] === false) {
+                  } else if (jsonMap[i] === false) {
                     list += "    ".repeat(level) + "- false\n";
-                  } else if (jsonMap2[i] === null) {
+                  } else if (jsonMap[i] === null) {
                     list += "    ".repeat(level) + "- null\n";
-                  } else if (Number.isFinite(jsonMap2[i]) && !Number.isNaN(jsonMap2[i])) {
-                    list += "    ".repeat(level) + "- " + jsonMap2[i] + "\n";
+                  } else if (Number.isFinite(jsonMap[i]) && !Number.isNaN(jsonMap[i])) {
+                    list += "    ".repeat(level) + "- " + jsonMap[i] + "\n";
                   } else {
-                    list += "    ".repeat(level) + `- ${JSON.stringify(jsonMap2[i])}
+                    list += "    ".repeat(level) + `- ${JSON.stringify(jsonMap[i])}
 `;
                   }
                 }
@@ -3187,7 +3188,7 @@
             throw new Error("@param {Boolean} pedantic");
           }
           this.pedantic = pedantic;
-          this.utils = new DamonUtils(this);
+          this.utils = new DamonUtils($);
         }
         /**
          * Object-like ordered dictionaries declarations in js
@@ -3408,7 +3409,7 @@
               damonOriginalLinesMapping[i] = null;
             }
           }
-          let tabsMatchingRegex = new RegExp("^(	)+");
+          let tabsMatchingRegex = new RegExp("^(\\t)+");
           for (let i = 0, c = damonLines.length; i < c; i++) {
             if (tabsMatchingRegex.test(damonLines[i])) {
               const tabsPaddingLength = damonLines[i].match(tabsMatchingRegex)[0].length;
@@ -3594,18 +3595,18 @@
             }
             return _recurse(damonTree, map);
           }
-          function _recurse(tree2, jsonMap2) {
-            if (typeof tree2 !== "object" || tree2 == null || Array.isArray(tree2)) {
+          function _recurse(tree, jsonMap) {
+            if (typeof tree !== "object" || tree == null || Array.isArray(tree)) {
               let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
               let error = new Error("Error line number " + errorLine + ": @param { {} } tree");
               error.line = errorLine;
               error.language = "DAMON";
               throw error;
             }
-            if (typeof jsonMap2 === "object" && jsonMap2 !== null && !Array.isArray(jsonMap2) && jsonMap2 instanceof Map && jsonMap2.constructor === Map) {
-              _mapHandler(tree2, jsonMap2);
-            } else if (Array.isArray(jsonMap2)) {
-              _listHandler(tree2, jsonMap2);
+            if (typeof jsonMap === "object" && jsonMap !== null && !Array.isArray(jsonMap) && jsonMap instanceof Map && jsonMap.constructor === Map) {
+              _mapHandler(tree, jsonMap);
+            } else if (Array.isArray(jsonMap)) {
+              _listHandler(tree, jsonMap);
             } else {
               let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
               let error = new Error("Error line number " + errorLine + ": @param { {} | [] } jsonMap");
@@ -3613,40 +3614,40 @@
               error.language = "DAMON";
               throw error;
             }
-            return jsonMap2;
+            return jsonMap;
           }
-          function _mapHandler(tree2, jsonMap2) {
-            for (let i = 0, c = tree2.children.length; i < c; i++) {
+          function _mapHandler(tree, jsonMap) {
+            for (let i = 0, c = tree.children.length; i < c; i++) {
               treeItemIndex++;
-              if (tree2.children[i].content.length == 0) {
+              if (tree.children[i].content.length == 0) {
                 let errorType = "";
-                if (tree2.children[i].children.length > 0) {
+                if (tree.children[i].children.length > 0) {
                   errorType = "implicit map key";
-                  jsonMap2.set("", /* @__PURE__ */ new Map());
-                  if (jsonMap2.implicitMaps === void 0) {
-                    jsonMap2.implicitMaps = [];
+                  jsonMap.set("", /* @__PURE__ */ new Map());
+                  if (jsonMap.implicitMaps === void 0) {
+                    jsonMap.implicitMaps = [];
                   }
-                  jsonMap2.implicitMaps.push("");
-                  _recurse(tree2.children[i], jsonMap2.get(""));
+                  jsonMap.implicitMaps.push("");
+                  _recurse(tree.children[i], jsonMap.get(""));
                 } else {
                   errorType = "implicit null key";
-                  jsonMap2.set("", null);
-                  if (jsonMap2.implicitNulls === void 0) {
-                    jsonMap2.implicitNulls = [];
+                  jsonMap.set("", null);
+                  if (jsonMap.implicitNulls === void 0) {
+                    jsonMap.implicitNulls = [];
                   }
-                  jsonMap2.implicitNulls.push("");
+                  jsonMap.implicitNulls.push("");
                 }
               } else {
-                let text = tree2.children[i].content, errorType = "key";
+                let text = tree.children[i].content, errorType = "key";
                 try {
                   if (/^.*: +\[/.test(text) && text[text.length - 1] == "]") {
                     if (/: +\[ *\]$/.test(text)) {
                       let key = JSON.parse(
                         `["${text.slice(0, -1 * text.match(/: +\[ *\]$/)[0].length)}"]`
                       )[0];
-                      jsonMap2.set(key, []);
-                      if (tree2.children[i].children.length > 0) {
-                        _recurse(tree2.children[i], jsonMap2.get(key));
+                      jsonMap.set(key, []);
+                      if (tree.children[i].children.length > 0) {
+                        _recurse(tree.children[i], jsonMap.get(key));
                       }
                     } else {
                       let redundantWhitespaceMatchingRegex = new RegExp(/: +\[/g), splitString = text.slice(0, -1).split(redundantWhitespaceMatchingRegex), textMatchesPlusOne = text.match(redundantWhitespaceMatchingRegex).concat([""]), splitStringWithMatches = splitString.map((x, i2) => x + textMatchesPlusOne[i2]), shortestPossibleKey = "", longestPossibleArray = [];
@@ -3692,11 +3693,11 @@
                         }
                       });
                       if (arrayOfPrimitives) {
-                        jsonMap2.set(shortestPossibleKey, longestPossibleArray);
-                        if (jsonMap2.damonInlineArrays === void 0) {
-                          jsonMap2.damonInlineArrays = [];
+                        jsonMap.set(shortestPossibleKey, longestPossibleArray);
+                        if (jsonMap.damonInlineArrays === void 0) {
+                          jsonMap.damonInlineArrays = [];
                         }
-                        jsonMap2.damonInlineArrays.push(shortestPossibleKey);
+                        jsonMap.damonInlineArrays.push(shortestPossibleKey);
                       } else {
                         let errorLine = +(damonTree.headless * -1) + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
                         let error = new Error(
@@ -3706,7 +3707,7 @@
                         error.language = "DAMON";
                         throw error;
                       }
-                      if (tree2.children[i].children.length > 0) {
+                      if (tree.children[i].children.length > 0) {
                         let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 3;
                         let error = new Error(
                           "Error line number " + errorLine + ": inline lists can't have children"
@@ -3720,19 +3721,19 @@
                     let key = JSON.parse(
                       `["${text.slice(0, -1 * text.match(/: +\{ *\}$/)[0].length)}"]`
                     )[0];
-                    jsonMap2.set(key, /* @__PURE__ */ new Map());
-                    _recurse(tree2.children[i], jsonMap2.get(key));
+                    jsonMap.set(key, /* @__PURE__ */ new Map());
+                    _recurse(tree.children[i], jsonMap.get(key));
                   } else {
                     let implicitProperty = false;
                     if (/^.*: /.test(text) && text.split(new RegExp(/: +/))[text.split(new RegExp(/: +/)).length - 1] === "true") {
                       let lastTextMatch = text.match(new RegExp(/: +/g))[text.match(new RegExp(/: +/g)).length - 1], key = JSON.parse(`["${text.slice(0, -1 * lastTextMatch.length - 4)}"]`)[0];
-                      jsonMap2.set(key, true);
+                      jsonMap.set(key, true);
                     } else if (/^.*: /.test(text) && text.split(new RegExp(/: +/))[text.split(new RegExp(/: +/)).length - 1] === "false") {
                       let lastTextMatch = text.match(new RegExp(/: +/g))[text.match(new RegExp(/: +/g)).length - 1], key = JSON.parse(`["${text.slice(0, -1 * lastTextMatch.length - 5)}"]`)[0];
-                      jsonMap2.set(key, false);
+                      jsonMap.set(key, false);
                     } else if (/^.*: /.test(text) && text.split(new RegExp(/: +/))[text.split(new RegExp(/: +/)).length - 1] === "null") {
                       let lastTextMatch = text.match(new RegExp(/: +/g))[text.match(new RegExp(/: +/g)).length - 1], key = JSON.parse(`["${text.slice(0, -1 * lastTextMatch.length - 4)}"]`)[0];
-                      jsonMap2.set(key, null);
+                      jsonMap.set(key, null);
                     } else if (/^.*: +"/.test(text) && text[text.length - 1] == '"') {
                       let separatorMatches = text.match(new RegExp(/: +"/g));
                       if (separatorMatches.length == 1) {
@@ -3743,7 +3744,7 @@
                         let childText = JSON.parse(
                           `["${text.split(separatorMatches[0]).slice(1).join("").slice(0, -1)}"]`
                         )[0];
-                        jsonMap2.set(key, childText);
+                        jsonMap.set(key, childText);
                       } else if (separatorMatches.length == 2 && /: +"$/.test(text)) {
                         let key = JSON.parse(
                           `["${text.split(separatorMatches[0])[0]}"]`
@@ -3752,7 +3753,7 @@
                         let childText = JSON.parse(
                           `["${text.split(separatorMatches[0]).slice(1).join("") + ": "}"]`
                         )[0];
-                        jsonMap2.set(key, childText);
+                        jsonMap.set(key, childText);
                       } else {
                         let errorLine = +(damonTree.headless * -1) + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
                         let error = new Error(
@@ -3774,7 +3775,7 @@
                         throw error;
                       }
                       let number = JSON.parse(`[${text.split(": ")[text.split(": ").length - 1] * 1}]`)[0];
-                      jsonMap2.set(key, number);
+                      jsonMap.set(key, number);
                     } else if (/^.*: /.test(text) && text.split(new RegExp(/: +/))[text.split(new RegExp(/: +/)).length - 1] * 1 === Infinity) {
                       let key = JSON.parse(`["${text.split(": ").slice(0, -1).join(": ")}"]`)[0];
                       errorType = "infinity";
@@ -3833,23 +3834,23 @@
                           throw error;
                         } else {
                           implicitProperty = true;
-                          if (tree2.children[i].children.length > 0) {
+                          if (tree.children[i].children.length > 0) {
                             errorType = "implicit map key";
                             let key = JSON.parse(`["${text}"]`)[0];
-                            jsonMap2.set(key, /* @__PURE__ */ new Map());
-                            if (jsonMap2.implicitMaps === void 0) {
-                              jsonMap2.implicitMaps = [];
+                            jsonMap.set(key, /* @__PURE__ */ new Map());
+                            if (jsonMap.implicitMaps === void 0) {
+                              jsonMap.implicitMaps = [];
                             }
-                            jsonMap2.implicitMaps.push(key);
-                            _recurse(tree2.children[i], jsonMap2.get(key));
+                            jsonMap.implicitMaps.push(key);
+                            _recurse(tree.children[i], jsonMap.get(key));
                           } else {
                             errorType = "implicit null key";
                             let key = JSON.parse(`["${text}"]`)[0];
-                            jsonMap2.set(key, null);
-                            if (jsonMap2.implicitNulls === void 0) {
-                              jsonMap2.implicitNulls = [];
+                            jsonMap.set(key, null);
+                            if (jsonMap.implicitNulls === void 0) {
+                              jsonMap.implicitNulls = [];
                             }
-                            jsonMap2.implicitNulls.push(key);
+                            jsonMap.implicitNulls.push(key);
                           }
                         }
                       } else {
@@ -3874,28 +3875,28 @@
                           }
                         } else {
                           implicitProperty = true;
-                          if (tree2.children[i].children.length > 0) {
+                          if (tree.children[i].children.length > 0) {
                             errorType = "implicit map key";
                             let key = JSON.parse(`["${text}"]`)[0];
-                            jsonMap2.set(key, /* @__PURE__ */ new Map());
-                            if (jsonMap2.implicitMaps === void 0) {
-                              jsonMap2.implicitMaps = [];
+                            jsonMap.set(key, /* @__PURE__ */ new Map());
+                            if (jsonMap.implicitMaps === void 0) {
+                              jsonMap.implicitMaps = [];
                             }
-                            jsonMap2.implicitMaps.push(key);
-                            _recurse(tree2.children[i], jsonMap2.get(key));
+                            jsonMap.implicitMaps.push(key);
+                            _recurse(tree.children[i], jsonMap.get(key));
                           } else {
                             errorType = "implicit null key";
                             let key = JSON.parse(`["${text}"]`)[0];
-                            jsonMap2.set(key, null);
-                            if (jsonMap2.implicitNulls === void 0) {
-                              jsonMap2.implicitNulls = [];
+                            jsonMap.set(key, null);
+                            if (jsonMap.implicitNulls === void 0) {
+                              jsonMap.implicitNulls = [];
                             }
-                            jsonMap2.implicitNulls.push(key);
+                            jsonMap.implicitNulls.push(key);
                           }
                         }
                       }
                     }
-                    if (!implicitProperty && tree2.children[i].children.length > 0) {
+                    if (!implicitProperty && tree.children[i].children.length > 0) {
                       let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 3;
                       let error = new Error(
                         "Error line number " + errorLine + ": missing container or excess indentation"
@@ -3920,15 +3921,15 @@
               }
             }
           }
-          function _listHandler(tree2, jsonMap2) {
-            for (let i = 0, c = tree2.children.length; i < c; i++) {
+          function _listHandler(tree, jsonMap) {
+            for (let i = 0, c = tree.children.length; i < c; i++) {
               treeItemIndex++;
-              if (tree2.children[i].content.length) {
-                let text = tree2.children[i].content;
+              if (tree.children[i].content.length) {
+                let text = tree.children[i].content;
                 if (/^[ \t]*\[/.test(text) && text[text.length - 1] == "]") {
                   if (/^[ \t]*\[ *\]$/.test(text)) {
-                    jsonMap2.push([]);
-                    _recurse(tree2.children[i], jsonMap2[jsonMap2.length - 1]);
+                    jsonMap.push([]);
+                    _recurse(tree.children[i], jsonMap[jsonMap.length - 1]);
                   } else {
                     let inlineArray;
                     try {
@@ -3959,11 +3960,11 @@
                       }
                     });
                     if (arrayOfPrimitives) {
-                      jsonMap2.push(inlineArray);
-                      if (jsonMap2.damonInlineArrays === void 0) {
-                        jsonMap2.damonInlineArrays = [];
+                      jsonMap.push(inlineArray);
+                      if (jsonMap.damonInlineArrays === void 0) {
+                        jsonMap.damonInlineArrays = [];
                       }
-                      jsonMap2.damonInlineArrays.push(i);
+                      jsonMap.damonInlineArrays.push(i);
                     } else {
                       let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
                       let error = new Error(
@@ -3973,7 +3974,7 @@
                       error.language = "DAMON";
                       throw error;
                     }
-                    if (tree2.children[i].children.length > 0) {
+                    if (tree.children[i].children.length > 0) {
                       let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 3;
                       let error = new Error(
                         "Error line number " + errorLine + ": inline lists can't have children"
@@ -3984,17 +3985,17 @@
                     }
                   }
                 } else if (/^[ \t]*\{\}$/.test(text)) {
-                  jsonMap2.push(/* @__PURE__ */ new Map());
-                  _recurse(tree2.children[i], jsonMap2[jsonMap2.length - 1]);
+                  jsonMap.push(/* @__PURE__ */ new Map());
+                  _recurse(tree.children[i], jsonMap[jsonMap.length - 1]);
                 } else if (/^[ \t]*true$/.test(text)) {
-                  jsonMap2.push(true);
+                  jsonMap.push(true);
                 } else if (/^[ \t]*false$/.test(text)) {
-                  jsonMap2.push(false);
+                  jsonMap.push(false);
                 } else if (/^[ \t]*null$/.test(text)) {
-                  jsonMap2.push(null);
+                  jsonMap.push(null);
                 } else if (/^[ \t]*".*"$/.test(text)) {
                   try {
-                    jsonMap2.push(JSON.parse(`[${text.trimStart()}]`)[0]);
+                    jsonMap.push(JSON.parse(`[${text.trimStart()}]`)[0]);
                   } catch (error) {
                     let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
                     console.error(
@@ -4014,7 +4015,7 @@
                     throw error;
                   }
                   try {
-                    jsonMap2.push(JSON.parse(`[${text * 1}]`)[0]);
+                    jsonMap.push(JSON.parse(`[${text * 1}]`)[0]);
                   } catch (error) {
                     let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
                     console.error(
@@ -4060,26 +4061,26 @@
          * @param {boolean} pristine
          * @returns {string}
          */
-        mapToDamon(jsonMap2, pristine) {
+        mapToDamon(jsonMap, pristine) {
           const $ = this;
           var list = ``;
-          if (Array.isArray(jsonMap2)) {
+          if (Array.isArray(jsonMap)) {
             list += "- []\n";
-          } else if (typeof jsonMap2 === "object" && jsonMap2 !== null && jsonMap2 instanceof Map && jsonMap2.constructor === Map) {
+          } else if (typeof jsonMap === "object" && jsonMap !== null && jsonMap instanceof Map && jsonMap.constructor === Map) {
             list += "- {}\n";
           } else {
-            if (typeof jsonMap2 == "string") {
-              jsonMap2 = '"' + jsonMap2 + '"';
+            if (typeof jsonMap == "string") {
+              jsonMap = '"' + jsonMap + '"';
             }
-            JSON.parse(jsonMap2);
-            return jsonMap2;
+            JSON.parse(jsonMap);
+            return jsonMap;
           }
-          _recurse(jsonMap2);
+          _recurse(jsonMap);
           $.damonToMap(list.slice(0, -1));
           return list.slice(0, -1);
-          function _recurse(jsonMap3, level = 1) {
-            if (typeof jsonMap3 === "object" && jsonMap3 !== null && !Array.isArray(jsonMap3) && jsonMap3 instanceof Map && jsonMap3.constructor === Map) {
-              for (const [key, value] of jsonMap3) {
+          function _recurse(jsonMap2, level = 1) {
+            if (typeof jsonMap2 === "object" && jsonMap2 !== null && !Array.isArray(jsonMap2) && jsonMap2 instanceof Map && jsonMap2.constructor === Map) {
+              for (const [key, value] of jsonMap2) {
                 if (typeof value === "object" && value !== null) {
                   if (Array.isArray(value)) {
                     let nullsCounter = 0, arrayOfPrimitives = value.filter(function(item) {
@@ -4101,7 +4102,7 @@
                     if (
                       // No nesting, fits on an archivable line
                       value.length == arrayOfPrimitives.length && level * 4 + 2 + value.join(", ").length + nullsCounter * 4 <= 80 || // Inlining specified from parsing
-                      pristine && jsonMap3.damonInlineArrays !== void 0 && jsonMap3.damonInlineArrays.indexOf(key) > -1
+                      pristine && jsonMap2.damonInlineArrays !== void 0 && jsonMap2.damonInlineArrays.indexOf(key) > -1
                     ) {
                       let line = "[" + value.map(function(x) {
                         if (typeof x == "string") {
@@ -4133,11 +4134,11 @@
                   }
                 }
               }
-            } else if (Array.isArray(jsonMap3)) {
-              for (var i = 0, c = jsonMap3.length; i < c; i++) {
-                if (typeof jsonMap3[i] === "object" && jsonMap3[i] !== null) {
-                  if (Array.isArray(jsonMap3[i])) {
-                    let nullsCounter = 0, arrayOfPrimitives = jsonMap3[i].filter(function(item) {
+            } else if (Array.isArray(jsonMap2)) {
+              for (var i = 0, c = jsonMap2.length; i < c; i++) {
+                if (typeof jsonMap2[i] === "object" && jsonMap2[i] !== null) {
+                  if (Array.isArray(jsonMap2[i])) {
+                    let nullsCounter = 0, arrayOfPrimitives = jsonMap2[i].filter(function(item) {
                       if (item === true) {
                         return true;
                       } else if (item === false) {
@@ -4153,8 +4154,8 @@
                         return false;
                       }
                     });
-                    if (jsonMap3[i].length == arrayOfPrimitives.length && level * 4 + 2 + jsonMap3[i].join(", ").length + nullsCounter * 4 <= 80 || pristine && jsonMap3.damonInlineArrays !== void 0 && jsonMap3.damonInlineArrays.indexOf(i) > -1) {
-                      let line = "[" + jsonMap3[i].map(function(x) {
+                    if (jsonMap2[i].length == arrayOfPrimitives.length && level * 4 + 2 + jsonMap2[i].join(", ").length + nullsCounter * 4 <= 80 || pristine && jsonMap2.damonInlineArrays !== void 0 && jsonMap2.damonInlineArrays.indexOf(i) > -1) {
+                      let line = "[" + jsonMap2[i].map(function(x) {
                         if (typeof x == "string") {
                           x = JSON.stringify(x);
                         }
@@ -4163,23 +4164,23 @@
                       list += "    ".repeat(level) + "- " + line + "\n";
                     } else {
                       list += "    ".repeat(level) + "- []\n";
-                      _recurse(jsonMap3[i], level + 1);
+                      _recurse(jsonMap2[i], level + 1);
                     }
                   } else {
                     list += "    ".repeat(level) + "- {}\n";
-                    _recurse(jsonMap3[i], level + 1);
+                    _recurse(jsonMap2[i], level + 1);
                   }
                 } else {
-                  if (jsonMap3[i] === true) {
+                  if (jsonMap2[i] === true) {
                     list += "    ".repeat(level) + "- true\n";
-                  } else if (jsonMap3[i] === false) {
+                  } else if (jsonMap2[i] === false) {
                     list += "    ".repeat(level) + "- false\n";
-                  } else if (jsonMap3[i] === null) {
+                  } else if (jsonMap2[i] === null) {
                     list += "    ".repeat(level) + "- null\n";
-                  } else if (Number.isFinite(jsonMap3[i]) && !Number.isNaN(jsonMap3[i])) {
-                    list += "    ".repeat(level) + "- " + jsonMap3[i] + "\n";
+                  } else if (Number.isFinite(jsonMap2[i]) && !Number.isNaN(jsonMap2[i])) {
+                    list += "    ".repeat(level) + "- " + jsonMap2[i] + "\n";
                   } else {
-                    list += "    ".repeat(level) + "- " + JSON.stringify(jsonMap3[i]) + "\n";
+                    list += "    ".repeat(level) + "- " + JSON.stringify(jsonMap2[i]) + "\n";
                   }
                 }
               }
@@ -4190,31 +4191,31 @@
          * @param {damonValue} jsonMap
          * @returns {string}
          */
-        mapToJSON(jsonMap2) {
+        mapToJSON(jsonMap) {
           const $ = this;
           var list = ``;
-          if (Array.isArray(jsonMap2)) {
+          if (Array.isArray(jsonMap)) {
             list += "[\r\n";
-            _recurse(jsonMap2);
+            _recurse(jsonMap);
             list += "]";
             JSON.parse(list);
             return list;
-          } else if (typeof jsonMap2 === "object" && jsonMap2 !== null && jsonMap2 instanceof Map && jsonMap2.constructor === Map) {
+          } else if (typeof jsonMap === "object" && jsonMap !== null && jsonMap instanceof Map && jsonMap.constructor === Map) {
             list += "{\r\n";
-            _recurse(jsonMap2);
+            _recurse(jsonMap);
             list += "}";
             JSON.parse(list);
             return list;
           } else {
-            if (typeof jsonMap2 == "string") {
-              jsonMap2 = JSON.stringify(jsonMap2);
+            if (typeof jsonMap == "string") {
+              jsonMap = JSON.stringify(jsonMap);
             }
-            JSON.parse(jsonMap2);
-            return jsonMap2;
+            JSON.parse(jsonMap);
+            return jsonMap;
           }
-          function _recurse(jsonMap3, level = 1) {
-            if (typeof jsonMap3 === "object" && jsonMap3 !== null && !Array.isArray(jsonMap3) && jsonMap3 instanceof Map && jsonMap3.constructor === Map) {
-              for (const [key, value] of jsonMap3) {
+          function _recurse(jsonMap2, level = 1) {
+            if (typeof jsonMap2 === "object" && jsonMap2 !== null && !Array.isArray(jsonMap2) && jsonMap2 instanceof Map && jsonMap2.constructor === Map) {
+              for (const [key, value] of jsonMap2) {
                 if (typeof value === "object" && value !== null) {
                   if (Array.isArray(value)) {
                     if (value.length > 0) {
@@ -4248,45 +4249,45 @@
                     list += "    ".repeat(level) + `${JSON.stringify(key)}: ` + JSON.stringify(value);
                   }
                 }
-                if (key != Array.from(jsonMap3.keys())[Array.from(jsonMap3.keys()).length - 1]) {
+                if (key != Array.from(jsonMap2.keys())[Array.from(jsonMap2.keys()).length - 1]) {
                   list += ",\r\n";
                 } else {
                   list += "\r\n";
                 }
               }
-            } else if (Array.isArray(jsonMap3)) {
-              for (var i = 0, c = jsonMap3.length; i < c; i++) {
-                if (typeof jsonMap3[i] === "object" && jsonMap3[i] !== null) {
-                  if (Array.isArray(jsonMap3[i])) {
-                    if (jsonMap3[i].length > 0) {
+            } else if (Array.isArray(jsonMap2)) {
+              for (var i = 0, c = jsonMap2.length; i < c; i++) {
+                if (typeof jsonMap2[i] === "object" && jsonMap2[i] !== null) {
+                  if (Array.isArray(jsonMap2[i])) {
+                    if (jsonMap2[i].length > 0) {
                       list += "    ".repeat(level) + `[\r
 `;
-                      _recurse(jsonMap3[i], level + 1);
+                      _recurse(jsonMap2[i], level + 1);
                       list += "    ".repeat(level) + `]`;
                     } else {
                       list += "    ".repeat(level) + `[]`;
                     }
                   } else {
-                    if (Array.from(jsonMap3[i].keys()).length > 0) {
+                    if (Array.from(jsonMap2[i].keys()).length > 0) {
                       list += "    ".repeat(level) + `{\r
 `;
-                      _recurse(jsonMap3[i], level + 1);
+                      _recurse(jsonMap2[i], level + 1);
                       list += "    ".repeat(level) + `}`;
                     } else {
                       list += "    ".repeat(level) + `{}`;
                     }
                   }
                 } else {
-                  if (jsonMap3[i] === true) {
+                  if (jsonMap2[i] === true) {
                     list += "    ".repeat(level) + "true";
-                  } else if (jsonMap3[i] === false) {
+                  } else if (jsonMap2[i] === false) {
                     list += "    ".repeat(level) + "false";
-                  } else if (jsonMap3[i] === null) {
+                  } else if (jsonMap2[i] === null) {
                     list += "    ".repeat(level) + "null";
-                  } else if (Number.isFinite(jsonMap3[i]) && !Number.isNaN(jsonMap3[i])) {
-                    list += "    ".repeat(level) + jsonMap3[i];
+                  } else if (Number.isFinite(jsonMap2[i]) && !Number.isNaN(jsonMap2[i])) {
+                    list += "    ".repeat(level) + jsonMap2[i];
                   } else {
-                    list += "    ".repeat(level) + JSON.stringify(jsonMap3[i]);
+                    list += "    ".repeat(level) + JSON.stringify(jsonMap2[i]);
                   }
                 }
                 if (i != c - 1) {
@@ -4302,26 +4303,26 @@
          * @param {damonMap} jsonMap
          * @returns {string}
          */
-        implicitMapToSExpression(jsonMap2) {
+        implicitMapToSExpression(jsonMap) {
           const $ = this;
           var list = ``;
-          if (typeof jsonMap2 === "object" && jsonMap2 !== null && jsonMap2 instanceof Map && jsonMap2.constructor === Map) {
+          if (typeof jsonMap === "object" && jsonMap !== null && jsonMap instanceof Map && jsonMap.constructor === Map) {
             list += "[\r\n";
-            _recurse(jsonMap2);
+            _recurse(jsonMap);
             list += "]";
             JSON.parse(list);
             return list;
           } else {
-            if (typeof jsonMap2 == "string") {
-              jsonMap2 = '"' + jsonMap2 + '"';
+            if (typeof jsonMap == "string") {
+              jsonMap = '"' + jsonMap + '"';
             }
-            JSON.parse(jsonMap2);
-            return jsonMap2;
+            JSON.parse(jsonMap);
+            return jsonMap;
           }
-          function _recurse(jsonMap3, level = 1) {
-            if (typeof jsonMap3 === "object" && jsonMap3 !== null && !Array.isArray(jsonMap3) && jsonMap3 instanceof Map && jsonMap3.constructor === Map) {
+          function _recurse(jsonMap2, level = 1) {
+            if (typeof jsonMap2 === "object" && jsonMap2 !== null && !Array.isArray(jsonMap2) && jsonMap2 instanceof Map && jsonMap2.constructor === Map) {
               let i2 = -1;
-              for (const [key, value] of jsonMap3) {
+              for (const [key, value] of jsonMap2) {
                 i2++;
                 if (typeof value === "object" && value !== null) {
                   if (Array.isArray(value)) {
@@ -4365,45 +4366,45 @@
                     list += "    ".repeat(level) + `${JSON.stringify(key)}, "${value}"`;
                   }
                 }
-                if (key != Array.from(jsonMap3.keys())[Array.from(jsonMap3.keys()).length - 1]) {
+                if (key != Array.from(jsonMap2.keys())[Array.from(jsonMap2.keys()).length - 1]) {
                   list += ",\r\n";
                 } else {
                   list += "\r\n";
                 }
               }
-            } else if (Array.isArray(jsonMap3)) {
-              for (var i = 0, c = jsonMap3.length; i < c; i++) {
-                if (typeof jsonMap3[i] === "object" && jsonMap3[i] !== null) {
-                  if (Array.isArray(jsonMap3[i])) {
-                    if (jsonMap3[i].length > 0) {
+            } else if (Array.isArray(jsonMap2)) {
+              for (var i = 0, c = jsonMap2.length; i < c; i++) {
+                if (typeof jsonMap2[i] === "object" && jsonMap2[i] !== null) {
+                  if (Array.isArray(jsonMap2[i])) {
+                    if (jsonMap2[i].length > 0) {
                       list += "    ".repeat(level) + `[\r
 `;
-                      _recurse(jsonMap3[i], level + 1);
+                      _recurse(jsonMap2[i], level + 1);
                       list += "    ".repeat(level) + `]`;
                     } else {
                       list += "    ".repeat(level) + `[]`;
                     }
                   } else {
-                    if (Array.from(jsonMap3[i].keys()).length > 0) {
+                    if (Array.from(jsonMap2[i].keys()).length > 0) {
                       list += "    ".repeat(level) + `[\r
 `;
-                      _recurse(jsonMap3[i], level + 1);
+                      _recurse(jsonMap2[i], level + 1);
                       list += "    ".repeat(level) + `]`;
                     } else {
                       list += "    ".repeat(level) + `[]`;
                     }
                   }
                 } else {
-                  if (jsonMap3[i] === true) {
+                  if (jsonMap2[i] === true) {
                     throw new Error("Booleans require quotes");
-                  } else if (jsonMap3[i] === false) {
+                  } else if (jsonMap2[i] === false) {
                     throw new Error("Booleans require quotes");
-                  } else if (jsonMap3[i] === null) {
+                  } else if (jsonMap2[i] === null) {
                     throw new Error("Array-nulls require quotes");
-                  } else if (Number.isFinite(jsonMap3[i]) && !Number.isNaN(jsonMap3[i])) {
-                    list += "    ".repeat(level) + jsonMap3[i];
+                  } else if (Number.isFinite(jsonMap2[i]) && !Number.isNaN(jsonMap2[i])) {
+                    list += "    ".repeat(level) + jsonMap2[i];
                   } else {
-                    list += "    ".repeat(level) + JSON.stringify(jsonMap3[i]);
+                    list += "    ".repeat(level) + JSON.stringify(jsonMap2[i]);
                   }
                 }
                 if (i != c - 1) {
@@ -4629,6 +4630,43 @@
             }
           }
           return token;
+        }
+        /**
+         * @param {string} damon
+         * @returns {Array<Array<string|number>>} pathsList
+         */
+        getPathsList(damon) {
+          const $ = this;
+          let damonMap = $.damonToMap(damon), pathsList = [];
+          _walkAndPushPaths(damonMap);
+          return pathsList;
+          function _walkAndPushPaths(map, currentPath = []) {
+            if (typeof map === "object" && map !== null && !Array.isArray(map) && map instanceof Map && map.constructor === Map) {
+              for (const [key, value] of map) {
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && value instanceof Map && value.constructor === Map && Array.from(value.keys()).length) {
+                  pathsList.push(currentPath.concat(key));
+                  _walkAndPushPaths(value, currentPath.concat([key]));
+                } else if (Array.isArray(value) && (map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(key) === -1) && value.length) {
+                  pathsList.push(currentPath.concat(key));
+                  _walkAndPushPaths(value, currentPath.concat([key]));
+                } else {
+                  pathsList.push(currentPath.concat(key).concat(value));
+                }
+              }
+            } else {
+              for (let i = 0, c = map.length; i < c; i++) {
+                if (typeof map[i] === "object" && map[i] !== null && !Array.isArray(map[i]) && map[i] instanceof Map && map[i].constructor === Map && Array.from(map[i].keys()).length) {
+                  pathsList.push(currentPath.concat(i));
+                  _walkAndPushPaths(map[i], currentPath.concat([i]));
+                } else if (Array.isArray(map[i]) && (map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(i) === -1) && map[i].length) {
+                  pathsList.push(currentPath.concat(i));
+                  _walkAndPushPaths(map[i], currentPath.concat([i]));
+                } else {
+                  pathsList.push(currentPath.concat(map[i]));
+                }
+              }
+            }
+          }
         }
       };
     }

@@ -663,9 +663,9 @@ class Utils {
         let $ = this;
         var listItemIndex = 0;
         if (list.firstElementChild.textContent == '{}') {
-            return $._mapToJSON(recurse(tree, new Map()));
+            return $._mapToJSON(recurse(list, new Map()));
         } else if (list.firstElementChild.textContent == '[]') {
-            return $._mapToJSON(recurse(tree, []));
+            return $._mapToJSON(recurse(list, []));
         }
         /**
          * @param {object} list DOM
@@ -867,20 +867,22 @@ class Utils {
             $.parentContext.mapToJSON(firstMap);
             $.parentContext.mapToJSON(secondMap);
         } catch (error) {
-            throw new Error("Provided map value doesn't passes JSON.parse()")
+            throw new Error("Provided map value doesn't passes JSON.parse()");
         }
         if (typeof firstMap !== typeof secondMap) {
-
+            let me = "go";
         }
+        // keep track of firstMap lines
         // Intersection, Substraction, Addition
         var list = ``;
-        if (Array.isArray(jsonMap)) {
+        if (Array.isArray(firstMap)) {
             list += '- []\n';
         } else {
             list += '- {}\n';
         }
-        _recurse(jsonMap);
+        _recurse(firstMap);
         return list.slice(0, -1); // last linefeed
+
         /**
          * @param {damonValue} jsonMap
          * @param {number} [level=1]
