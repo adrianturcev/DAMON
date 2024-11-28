@@ -2106,4 +2106,148 @@ class Damon {
             }
         }
     }
+
+    /**
+     * Arrays of inline-arrays produce array-parameters
+     * @param {string} damon
+     * @return {string} mathJs
+     */
+    damonToMathJs(damon) {
+        const $ = this;
+        let mathJs = '',
+            damonMap = $.damonToMap(damon);
+        if (Array.isArray(damonMap)) {
+            mathJs += "(\r\n";
+            _recurse(damonMap);
+            mathJs += ")";
+            return mathJs;
+        } else if (
+            typeof damonMap === 'object'
+            && damonMap !== null
+            && damonMap instanceof Map
+            && damonMap.constructor === Map
+        ) {
+            mathJs += "(\r\n";
+            _recurse(damonMap);
+            mathJs += ")";
+            return mathJs;
+        } else {
+            if (typeof damonMap == 'string') {
+                damonMap = JSON.stringify(damonMap);
+            }
+            JSON.parse(damonMap);
+            return damonMap;
+        }
+        /**
+         * @param {Map<string, any>|Array<any>} damonMap
+         * @param {number} [level=1]
+         * @returns {string}
+         */
+        function _recurse(damonMap, level = 1) {
+            if (
+                typeof damonMap === 'object'
+                && damonMap !== null
+                && !Array.isArray(damonMap)
+                && damonMap instanceof Map
+                && damonMap.constructor === Map
+            ) {
+                for (const [key, value] of damonMap) {
+                    if (
+                        typeof value === 'object'
+                        && value !== null
+                    ) {
+                        if (Array.isArray(value)) {
+                            if (value.length > 0) {
+                                mathJs += '    '.repeat(level) + `${JSON.stringify(key)}(\r\n`;
+                                _recurse(value, level + 1);
+                                mathJs += '    '.repeat(level) + `)`;
+                            } else {
+                                mathJs += '    '.repeat(level) + `${JSON.stringify(key)}()`;
+                            }
+                        } else {
+                            if (Array.from(value.keys()).length > 0) {
+                                mathJs += '    '.repeat(level) + `${JSON.stringify(key)}(\r\n`;
+                                _recurse(value, level + 1);
+                                mathJs += '    '.repeat(level) + `)`;
+                            } else {
+                                mathJs += '    '.repeat(level) + `${JSON.stringify(key)}()`;
+                            }
+                        }
+                    } else {
+                        if (value === true) {
+                            mathJs += '    '.repeat(level) + `${JSON.stringify(key)}` + "(true)";
+                        } else if (value === false) {
+                            mathJs += '    '.repeat(level) + `${JSON.stringify(key)}` + "(false)";
+                        } else if (value === null) {
+                            mathJs += '    '.repeat(level) + `${JSON.stringify(key)}` + "(null)";
+                        } else if (
+                            Number.isFinite(value)
+                            && !Number.isNaN(value)
+                        ) {
+                            mathJs += '    '.repeat(level) + `${JSON.stringify(key)}` + '(' + value + ')';
+                        } else {
+                            mathJs += '    '.repeat(level) + `${JSON.stringify(key)}` + '(' + JSON.stringify(value) + ')';
+                        }
+                    }
+                    if (key != Array.from(damonMap.keys())[Array.from(damonMap.keys()).length - 1]) {
+                        mathJs += ",\r\n";
+                    } else {
+                        mathJs += "\r\n";
+                    }
+                }
+            } else if (Array.isArray(damonMap)) {
+                for (var i = 0, c = damonMap.length; i < c; i++) {
+                    if (
+                        typeof damonMap[i] === 'object'
+                        && damonMap[i] !== null
+                    ) {
+                        if (Array.isArray(damonMap[i])) {
+                            if (damonMap[i].length > 0) {
+                                if (
+                                    damonMap.damonInlineArrays !== undefined
+                                    && damonMap.damonInlineArrays.indexOf(i) > -1
+                                ) {
+                                    mathJs += '    '.repeat(level) + JSON.stringify(damonMap[i]);
+                                } else {
+                                    mathJs += '    '.repeat(level) + `(\r\n`;
+                                    _recurse(damonMap[i], level + 1);
+                                    mathJs += '    '.repeat(level) + `)`;
+                                }
+                            } else {
+                                mathJs += '    '.repeat(level) + `()`;
+                            }
+                        } else {
+                            if (Array.from(damonMap[i].keys()).length > 0) {
+                                mathJs += '    '.repeat(level) + `(\r\n`;
+                                _recurse(damonMap[i], level + 1);
+                                mathJs += '    '.repeat(level) + `)`;
+                            } else {
+                                mathJs += '    '.repeat(level) + `()`;
+                            }
+                        }
+                    } else {
+                        if (damonMap[i] === true) {
+                            mathJs += '    '.repeat(level) + "true";
+                        } else if (damonMap[i] === false) {
+                            mathJs += '    '.repeat(level) + "false";
+                        } else if (damonMap[i] === null) {
+                            mathJs += '    '.repeat(level) + "null";
+                        } else if (
+                            Number.isFinite(damonMap[i])
+                            && !Number.isNaN(damonMap[i])
+                        ) {
+                            mathJs += '    '.repeat(level) + damonMap[i];
+                        } else {
+                            mathJs += '    '.repeat(level) + JSON.stringify(damonMap[i]);
+                        }
+                    }
+                    if (i != c - 1) {
+                        mathJs += ",\r\n";
+                    } else {
+                        mathJs += "\r\n";
+                    }
+                }
+            }
+        }
+    }
 };
