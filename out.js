@@ -2422,6 +2422,14 @@
           $.websiteRegex = /^(https?:\/\/)?[-a-zA-Z0-9]*[a-zA-Z0-9]+(\.[-a-zA-Z0-9]*[a-zA-Z0-9]+)+/;
         }
         /**
+         * @param {string} damon
+         * @returns {string}
+         */
+        damonToSExpression(damon) {
+          const $ = this;
+          return $.implicitMapToSExpression($.parentContext.damonToMap(damon));
+        }
+        /**
          * @param {string} string
          * @returns {string}
          */
@@ -3048,6 +3056,275 @@
           }
         }
         /**
+         * @param {damonMap} jsonMap
+         * @returns {string}
+         */
+        implicitMapToSExpression(jsonMap) {
+          const $ = this;
+          var list = ``;
+          if (typeof jsonMap === "object" && jsonMap !== null && jsonMap instanceof Map && jsonMap.constructor === Map) {
+            list += "[\r\n";
+            _recurse(jsonMap);
+            list += "]";
+            JSON.parse(list);
+            return list;
+          } else {
+            if (typeof jsonMap == "string") {
+              jsonMap = '"' + jsonMap + '"';
+            }
+            JSON.parse(jsonMap);
+            return jsonMap;
+          }
+          function _recurse(jsonMap2, level = 1) {
+            if (typeof jsonMap2 === "object" && jsonMap2 !== null && !Array.isArray(jsonMap2) && jsonMap2 instanceof Map && jsonMap2.constructor === Map) {
+              let i2 = -1;
+              for (const [key, value] of jsonMap2) {
+                i2++;
+                if (typeof value === "object" && value !== null) {
+                  if (Array.isArray(value)) {
+                    if (value.length > 0) {
+                      list += "    ".repeat(level) + `${JSON.stringify(key)}, [\r
+`;
+                      _recurse(value, level + 1);
+                      list += "    ".repeat(level) + `]`;
+                    } else {
+                      list += "    ".repeat(level) + `${JSON.stringify(key)}, []`;
+                    }
+                  } else {
+                    if (Array.from(value.keys()).length > 0) {
+                      if (level == 1) {
+                        if (i2 == 0) {
+                          list = "";
+                        } else {
+                          throw new Error("Multiple S-Expression roots");
+                        }
+                      }
+                      list += "    ".repeat(level) + `[${JSON.stringify(key)}, \r
+`;
+                      _recurse(value, level + 1);
+                      if (level != 1) {
+                        list += "    ".repeat(level) + `]`;
+                      }
+                    } else {
+                      list += "    ".repeat(level) + `${JSON.stringify(key)}, []`;
+                    }
+                  }
+                } else {
+                  if (value === true) {
+                    throw new Error("Booleans require quotes");
+                  } else if (value === false) {
+                    throw new Error("Booleans require quotes");
+                  } else if (value === null) {
+                    list += "    ".repeat(level) + `${JSON.stringify(key)}`;
+                  } else if (Number.isFinite(value) && !Number.isNaN(value)) {
+                    list += "    ".repeat(level) + `${JSON.stringify(key)}, ` + value;
+                  } else {
+                    list += "    ".repeat(level) + `${JSON.stringify(key)}, "${value}"`;
+                  }
+                }
+                if (key != Array.from(jsonMap2.keys())[Array.from(jsonMap2.keys()).length - 1]) {
+                  list += ",\r\n";
+                } else {
+                  list += "\r\n";
+                }
+              }
+            } else if (Array.isArray(jsonMap2)) {
+              for (var i = 0, c = jsonMap2.length; i < c; i++) {
+                if (typeof jsonMap2[i] === "object" && jsonMap2[i] !== null) {
+                  if (Array.isArray(jsonMap2[i])) {
+                    if (jsonMap2[i].length > 0) {
+                      list += "    ".repeat(level) + `[\r
+`;
+                      _recurse(jsonMap2[i], level + 1);
+                      list += "    ".repeat(level) + `]`;
+                    } else {
+                      list += "    ".repeat(level) + `[]`;
+                    }
+                  } else {
+                    if (Array.from(jsonMap2[i].keys()).length > 0) {
+                      list += "    ".repeat(level) + `[\r
+`;
+                      _recurse(jsonMap2[i], level + 1);
+                      list += "    ".repeat(level) + `]`;
+                    } else {
+                      list += "    ".repeat(level) + `[]`;
+                    }
+                  }
+                } else {
+                  if (jsonMap2[i] === true) {
+                    throw new Error("Booleans require quotes");
+                  } else if (jsonMap2[i] === false) {
+                    throw new Error("Booleans require quotes");
+                  } else if (jsonMap2[i] === null) {
+                    throw new Error("Array-nulls require quotes");
+                  } else if (Number.isFinite(jsonMap2[i]) && !Number.isNaN(jsonMap2[i])) {
+                    list += "    ".repeat(level) + jsonMap2[i];
+                  } else {
+                    list += "    ".repeat(level) + JSON.stringify(jsonMap2[i]);
+                  }
+                }
+                if (i != c - 1) {
+                  list += ",\r\n";
+                } else {
+                  list += "\r\n";
+                }
+              }
+            }
+          }
+        }
+        /**
+         * @param {string} damon
+         * @returns {Array<Array<string|number>>} pathsList
+         */
+        getPathsList(damon) {
+          const $ = this;
+          let damonMap = $.parentContext.damonToMap(damon), pathsList = [];
+          _walkAndPushPaths(damonMap);
+          return pathsList;
+          function _walkAndPushPaths(map, currentPath = []) {
+            if (typeof map === "object" && map !== null && !Array.isArray(map) && map instanceof Map && map.constructor === Map) {
+              for (const [key, value] of map) {
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && value instanceof Map && value.constructor === Map && Array.from(value.keys()).length) {
+                  pathsList.push(currentPath.concat(key));
+                  _walkAndPushPaths(value, currentPath.concat([key]));
+                } else if (Array.isArray(value) && (map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(key) === -1) && value.length) {
+                  pathsList.push(currentPath.concat(key));
+                  _walkAndPushPaths(value, currentPath.concat([key]));
+                } else {
+                  pathsList.push(currentPath.concat(key).concat(value));
+                }
+              }
+            } else {
+              for (let i = 0, c = map.length; i < c; i++) {
+                if (typeof map[i] === "object" && map[i] !== null && !Array.isArray(map[i]) && map[i] instanceof Map && map[i].constructor === Map && Array.from(map[i].keys()).length) {
+                  pathsList.push(currentPath.concat(i));
+                  _walkAndPushPaths(map[i], currentPath.concat([i]));
+                } else if (Array.isArray(map[i]) && (map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(i) === -1) && map[i].length) {
+                  pathsList.push(currentPath.concat(i));
+                  _walkAndPushPaths(map[i], currentPath.concat([i]));
+                } else {
+                  pathsList.push(currentPath.concat(map[i]));
+                }
+              }
+            }
+          }
+        }
+        /**
+         * Arrays of inline-arrays produce array-parameters
+         * @param {string} damon
+         * @return {string} mathJs
+         */
+        damonToMathJs(damon) {
+          const $ = this;
+          let mathJs = "", damonMap = $.parentContext.damonToMap(damon);
+          if (Array.isArray(damonMap)) {
+            mathJs += "(\r\n";
+            _recurse(damonMap);
+            mathJs += ")";
+            return mathJs;
+          } else if (typeof damonMap === "object" && damonMap !== null && damonMap instanceof Map && damonMap.constructor === Map) {
+            mathJs += "(\r\n";
+            _recurse(damonMap);
+            mathJs += ")";
+            return mathJs;
+          } else {
+            if (typeof damonMap == "string") {
+              damonMap = JSON.stringify(damonMap);
+            }
+            JSON.parse(damonMap);
+            return damonMap;
+          }
+          function _recurse(damonMap2, level = 1) {
+            if (typeof damonMap2 === "object" && damonMap2 !== null && !Array.isArray(damonMap2) && damonMap2 instanceof Map && damonMap2.constructor === Map) {
+              for (const [key, value] of damonMap2) {
+                if (typeof value === "object" && value !== null) {
+                  if (Array.isArray(value)) {
+                    if (value.length > 0) {
+                      mathJs += "    ".repeat(level) + `${JSON.stringify(key)}(\r
+`;
+                      _recurse(value, level + 1);
+                      mathJs += "    ".repeat(level) + `)`;
+                    } else {
+                      mathJs += "    ".repeat(level) + `${JSON.stringify(key)}()`;
+                    }
+                  } else {
+                    if (Array.from(value.keys()).length > 0) {
+                      mathJs += "    ".repeat(level) + `${JSON.stringify(key)}(\r
+`;
+                      _recurse(value, level + 1);
+                      mathJs += "    ".repeat(level) + `)`;
+                    } else {
+                      mathJs += "    ".repeat(level) + `${JSON.stringify(key)}()`;
+                    }
+                  }
+                } else {
+                  if (value === true) {
+                    mathJs += "    ".repeat(level) + `${JSON.stringify(key)}(true)`;
+                  } else if (value === false) {
+                    mathJs += "    ".repeat(level) + `${JSON.stringify(key)}(false)`;
+                  } else if (value === null) {
+                    mathJs += "    ".repeat(level) + `${JSON.stringify(key)}(null)`;
+                  } else if (Number.isFinite(value) && !Number.isNaN(value)) {
+                    mathJs += "    ".repeat(level) + `${JSON.stringify(key)}(` + value + ")";
+                  } else {
+                    mathJs += "    ".repeat(level) + `${JSON.stringify(key)}(` + JSON.stringify(value) + ")";
+                  }
+                }
+                if (key != Array.from(damonMap2.keys())[Array.from(damonMap2.keys()).length - 1]) {
+                  mathJs += ",\r\n";
+                } else {
+                  mathJs += "\r\n";
+                }
+              }
+            } else if (Array.isArray(damonMap2)) {
+              for (var i = 0, c = damonMap2.length; i < c; i++) {
+                if (typeof damonMap2[i] === "object" && damonMap2[i] !== null) {
+                  if (Array.isArray(damonMap2[i])) {
+                    if (damonMap2[i].length > 0) {
+                      if (damonMap2.damonInlineArrays !== void 0 && damonMap2.damonInlineArrays.indexOf(i) > -1) {
+                        mathJs += "    ".repeat(level) + JSON.stringify(damonMap2[i]);
+                      } else {
+                        mathJs += "    ".repeat(level) + `(\r
+`;
+                        _recurse(damonMap2[i], level + 1);
+                        mathJs += "    ".repeat(level) + `)`;
+                      }
+                    } else {
+                      mathJs += "    ".repeat(level) + `()`;
+                    }
+                  } else {
+                    if (Array.from(damonMap2[i].keys()).length > 0) {
+                      mathJs += "    ".repeat(level) + `(\r
+`;
+                      _recurse(damonMap2[i], level + 1);
+                      mathJs += "    ".repeat(level) + `)`;
+                    } else {
+                      mathJs += "    ".repeat(level) + `()`;
+                    }
+                  }
+                } else {
+                  if (damonMap2[i] === true) {
+                    mathJs += "    ".repeat(level) + "true";
+                  } else if (damonMap2[i] === false) {
+                    mathJs += "    ".repeat(level) + "false";
+                  } else if (damonMap2[i] === null) {
+                    mathJs += "    ".repeat(level) + "null";
+                  } else if (Number.isFinite(damonMap2[i]) && !Number.isNaN(damonMap2[i])) {
+                    mathJs += "    ".repeat(level) + damonMap2[i];
+                  } else {
+                    mathJs += "    ".repeat(level) + JSON.stringify(damonMap2[i]);
+                  }
+                }
+                if (i != c - 1) {
+                  mathJs += ",\r\n";
+                } else {
+                  mathJs += "\r\n";
+                }
+              }
+            }
+          }
+        }
+        /**
          * @param {damonValue} firstMap
          * @param {damonValue} secondMap
         */
@@ -3231,14 +3508,6 @@
         damonToJSON(damon) {
           const $ = this;
           return $.mapToJSON($.damonToMap(damon));
-        }
-        /**
-         * @param {string} damon
-         * @returns {string}
-         */
-        damonToSExpression(damon) {
-          const $ = this;
-          return $.implicitMapToSExpression($.damonToMap(damon));
         }
         /**
          * @param {string} json
@@ -4300,123 +4569,6 @@
           }
         }
         /**
-         * @param {damonMap} jsonMap
-         * @returns {string}
-         */
-        implicitMapToSExpression(jsonMap) {
-          const $ = this;
-          var list = ``;
-          if (typeof jsonMap === "object" && jsonMap !== null && jsonMap instanceof Map && jsonMap.constructor === Map) {
-            list += "[\r\n";
-            _recurse(jsonMap);
-            list += "]";
-            JSON.parse(list);
-            return list;
-          } else {
-            if (typeof jsonMap == "string") {
-              jsonMap = '"' + jsonMap + '"';
-            }
-            JSON.parse(jsonMap);
-            return jsonMap;
-          }
-          function _recurse(jsonMap2, level = 1) {
-            if (typeof jsonMap2 === "object" && jsonMap2 !== null && !Array.isArray(jsonMap2) && jsonMap2 instanceof Map && jsonMap2.constructor === Map) {
-              let i2 = -1;
-              for (const [key, value] of jsonMap2) {
-                i2++;
-                if (typeof value === "object" && value !== null) {
-                  if (Array.isArray(value)) {
-                    if (value.length > 0) {
-                      list += "    ".repeat(level) + `${JSON.stringify(key)}, [\r
-`;
-                      _recurse(value, level + 1);
-                      list += "    ".repeat(level) + `]`;
-                    } else {
-                      list += "    ".repeat(level) + `${JSON.stringify(key)}, []`;
-                    }
-                  } else {
-                    if (Array.from(value.keys()).length > 0) {
-                      if (level == 1) {
-                        if (i2 == 0) {
-                          list = "";
-                        } else {
-                          throw new Error("Multiple S-Expression roots");
-                        }
-                      }
-                      list += "    ".repeat(level) + `[${JSON.stringify(key)}, \r
-`;
-                      _recurse(value, level + 1);
-                      if (level != 1) {
-                        list += "    ".repeat(level) + `]`;
-                      }
-                    } else {
-                      list += "    ".repeat(level) + `${JSON.stringify(key)}, []`;
-                    }
-                  }
-                } else {
-                  if (value === true) {
-                    throw new Error("Booleans require quotes");
-                  } else if (value === false) {
-                    throw new Error("Booleans require quotes");
-                  } else if (value === null) {
-                    list += "    ".repeat(level) + `${JSON.stringify(key)}`;
-                  } else if (Number.isFinite(value) && !Number.isNaN(value)) {
-                    list += "    ".repeat(level) + `${JSON.stringify(key)}, ` + value;
-                  } else {
-                    list += "    ".repeat(level) + `${JSON.stringify(key)}, "${value}"`;
-                  }
-                }
-                if (key != Array.from(jsonMap2.keys())[Array.from(jsonMap2.keys()).length - 1]) {
-                  list += ",\r\n";
-                } else {
-                  list += "\r\n";
-                }
-              }
-            } else if (Array.isArray(jsonMap2)) {
-              for (var i = 0, c = jsonMap2.length; i < c; i++) {
-                if (typeof jsonMap2[i] === "object" && jsonMap2[i] !== null) {
-                  if (Array.isArray(jsonMap2[i])) {
-                    if (jsonMap2[i].length > 0) {
-                      list += "    ".repeat(level) + `[\r
-`;
-                      _recurse(jsonMap2[i], level + 1);
-                      list += "    ".repeat(level) + `]`;
-                    } else {
-                      list += "    ".repeat(level) + `[]`;
-                    }
-                  } else {
-                    if (Array.from(jsonMap2[i].keys()).length > 0) {
-                      list += "    ".repeat(level) + `[\r
-`;
-                      _recurse(jsonMap2[i], level + 1);
-                      list += "    ".repeat(level) + `]`;
-                    } else {
-                      list += "    ".repeat(level) + `[]`;
-                    }
-                  }
-                } else {
-                  if (jsonMap2[i] === true) {
-                    throw new Error("Booleans require quotes");
-                  } else if (jsonMap2[i] === false) {
-                    throw new Error("Booleans require quotes");
-                  } else if (jsonMap2[i] === null) {
-                    throw new Error("Array-nulls require quotes");
-                  } else if (Number.isFinite(jsonMap2[i]) && !Number.isNaN(jsonMap2[i])) {
-                    list += "    ".repeat(level) + jsonMap2[i];
-                  } else {
-                    list += "    ".repeat(level) + JSON.stringify(jsonMap2[i]);
-                  }
-                }
-                if (i != c - 1) {
-                  list += ",\r\n";
-                } else {
-                  list += "\r\n";
-                }
-              }
-            }
-          }
-        }
-        /**
          * @param {string} damon
          * @param {Array<string|number>} path
          * @returns {Array<Array<number>>}
@@ -4630,158 +4782,6 @@
             }
           }
           return token;
-        }
-        /**
-         * @param {string} damon
-         * @returns {Array<Array<string|number>>} pathsList
-         */
-        getPathsList(damon) {
-          const $ = this;
-          let damonMap = $.damonToMap(damon), pathsList = [];
-          _walkAndPushPaths(damonMap);
-          return pathsList;
-          function _walkAndPushPaths(map, currentPath = []) {
-            if (typeof map === "object" && map !== null && !Array.isArray(map) && map instanceof Map && map.constructor === Map) {
-              for (const [key, value] of map) {
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && value instanceof Map && value.constructor === Map && Array.from(value.keys()).length) {
-                  pathsList.push(currentPath.concat(key));
-                  _walkAndPushPaths(value, currentPath.concat([key]));
-                } else if (Array.isArray(value) && (map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(key) === -1) && value.length) {
-                  pathsList.push(currentPath.concat(key));
-                  _walkAndPushPaths(value, currentPath.concat([key]));
-                } else {
-                  pathsList.push(currentPath.concat(key).concat(value));
-                }
-              }
-            } else {
-              for (let i = 0, c = map.length; i < c; i++) {
-                if (typeof map[i] === "object" && map[i] !== null && !Array.isArray(map[i]) && map[i] instanceof Map && map[i].constructor === Map && Array.from(map[i].keys()).length) {
-                  pathsList.push(currentPath.concat(i));
-                  _walkAndPushPaths(map[i], currentPath.concat([i]));
-                } else if (Array.isArray(map[i]) && (map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(i) === -1) && map[i].length) {
-                  pathsList.push(currentPath.concat(i));
-                  _walkAndPushPaths(map[i], currentPath.concat([i]));
-                } else {
-                  pathsList.push(currentPath.concat(map[i]));
-                }
-              }
-            }
-          }
-        }
-        /**
-         * Arrays of inline-arrays produce array-parameters
-         * @param {string} damon
-         * @return {string} mathJs
-         */
-        damonToMathJs(damon) {
-          const $ = this;
-          let mathJs = "", damonMap = $.damonToMap(damon);
-          if (Array.isArray(damonMap)) {
-            mathJs += "(\r\n";
-            _recurse(damonMap);
-            mathJs += ")";
-            return mathJs;
-          } else if (typeof damonMap === "object" && damonMap !== null && damonMap instanceof Map && damonMap.constructor === Map) {
-            mathJs += "(\r\n";
-            _recurse(damonMap);
-            mathJs += ")";
-            return mathJs;
-          } else {
-            if (typeof damonMap == "string") {
-              damonMap = JSON.stringify(damonMap);
-            }
-            JSON.parse(damonMap);
-            return damonMap;
-          }
-          function _recurse(damonMap2, level = 1) {
-            if (typeof damonMap2 === "object" && damonMap2 !== null && !Array.isArray(damonMap2) && damonMap2 instanceof Map && damonMap2.constructor === Map) {
-              for (const [key, value] of damonMap2) {
-                if (typeof value === "object" && value !== null) {
-                  if (Array.isArray(value)) {
-                    if (value.length > 0) {
-                      mathJs += "    ".repeat(level) + `${JSON.stringify(key)}(\r
-`;
-                      _recurse(value, level + 1);
-                      mathJs += "    ".repeat(level) + `)`;
-                    } else {
-                      mathJs += "    ".repeat(level) + `${JSON.stringify(key)}()`;
-                    }
-                  } else {
-                    if (Array.from(value.keys()).length > 0) {
-                      mathJs += "    ".repeat(level) + `${JSON.stringify(key)}(\r
-`;
-                      _recurse(value, level + 1);
-                      mathJs += "    ".repeat(level) + `)`;
-                    } else {
-                      mathJs += "    ".repeat(level) + `${JSON.stringify(key)}()`;
-                    }
-                  }
-                } else {
-                  if (value === true) {
-                    mathJs += "    ".repeat(level) + `${JSON.stringify(key)}(true)`;
-                  } else if (value === false) {
-                    mathJs += "    ".repeat(level) + `${JSON.stringify(key)}(false)`;
-                  } else if (value === null) {
-                    mathJs += "    ".repeat(level) + `${JSON.stringify(key)}(null)`;
-                  } else if (Number.isFinite(value) && !Number.isNaN(value)) {
-                    mathJs += "    ".repeat(level) + `${JSON.stringify(key)}(` + value + ")";
-                  } else {
-                    mathJs += "    ".repeat(level) + `${JSON.stringify(key)}(` + JSON.stringify(value) + ")";
-                  }
-                }
-                if (key != Array.from(damonMap2.keys())[Array.from(damonMap2.keys()).length - 1]) {
-                  mathJs += ",\r\n";
-                } else {
-                  mathJs += "\r\n";
-                }
-              }
-            } else if (Array.isArray(damonMap2)) {
-              for (var i = 0, c = damonMap2.length; i < c; i++) {
-                if (typeof damonMap2[i] === "object" && damonMap2[i] !== null) {
-                  if (Array.isArray(damonMap2[i])) {
-                    if (damonMap2[i].length > 0) {
-                      if (damonMap2.damonInlineArrays !== void 0 && damonMap2.damonInlineArrays.indexOf(i) > -1) {
-                        mathJs += "    ".repeat(level) + JSON.stringify(damonMap2[i]);
-                      } else {
-                        mathJs += "    ".repeat(level) + `(\r
-`;
-                        _recurse(damonMap2[i], level + 1);
-                        mathJs += "    ".repeat(level) + `)`;
-                      }
-                    } else {
-                      mathJs += "    ".repeat(level) + `()`;
-                    }
-                  } else {
-                    if (Array.from(damonMap2[i].keys()).length > 0) {
-                      mathJs += "    ".repeat(level) + `(\r
-`;
-                      _recurse(damonMap2[i], level + 1);
-                      mathJs += "    ".repeat(level) + `)`;
-                    } else {
-                      mathJs += "    ".repeat(level) + `()`;
-                    }
-                  }
-                } else {
-                  if (damonMap2[i] === true) {
-                    mathJs += "    ".repeat(level) + "true";
-                  } else if (damonMap2[i] === false) {
-                    mathJs += "    ".repeat(level) + "false";
-                  } else if (damonMap2[i] === null) {
-                    mathJs += "    ".repeat(level) + "null";
-                  } else if (Number.isFinite(damonMap2[i]) && !Number.isNaN(damonMap2[i])) {
-                    mathJs += "    ".repeat(level) + damonMap2[i];
-                  } else {
-                    mathJs += "    ".repeat(level) + JSON.stringify(damonMap2[i]);
-                  }
-                }
-                if (i != c - 1) {
-                  mathJs += ",\r\n";
-                } else {
-                  mathJs += "\r\n";
-                }
-              }
-            }
-          }
         }
       };
     }
