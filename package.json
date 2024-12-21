@@ -1,6 +1,6 @@
 {
   "name": "damon2",
-  "version": "2.1.27",
+  "version": "2.2.0",
   "description": "A JSON shorthand",
   "author": "Adrian Turcev",
   "license": "MPL-2.0",
@@ -28,8 +28,6 @@
     "build": "npx grunt dist"
   },
   "dependencies": {
-    "@types/dompurify": "^3.0.5",
-    "dompurify": "^3.0.11",
     "esbuild": "^0.20.2",
     "json-in-order": "^0.2.1",
     "tslib": "^2.6.2"

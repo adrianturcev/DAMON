@@ -65,29 +65,6 @@ describe('# DAMON', function () {
         });
     });
 
-    describe('## S-EXPRESSION', function () {
-        it('Turns a Damon map-based S-expression into a JSON array-based S-expression.', function () {
-            let sExpression =
-                `- Divide: {}
-                    - n
-                    - Add: {}
-                        - 1
-                        - n`;
-            assert.deepEqual(
-                [
-                    "Divide",
-                    "n",
-                    [
-                        "Add",
-                        "1",
-                        "n"
-                    ]
-                ],
-                JSON.parse(damon.implicitMapToSExpression(damon.damonToMap(sExpression)))
-            );
-        });
-    });
-
     describe('## RANGE', function () {
         it('Gets selection range from array path.', function () {
             assert.equal(

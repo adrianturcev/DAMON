@@ -4,7 +4,7 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
         watch: {
             devBuild: {
-                files: ['main.js', 'Damon.js', 'src/*.js'],
+                files: ['main.js', 'Damon.js'],
                 tasks: ['esbuild:dev', 'exec:mocha'],
                 options: {
                     livereload: true
@@ -45,7 +45,6 @@ module.exports = function(grunt) {
     // Load the plugins that provides the tasks.
     grunt.loadNpmTasks('grunt-exec');
     grunt.loadNpmTasks('grunt-esbuild');
-    grunt.loadNpmTasks('grunt-concurrent');
     grunt.loadNpmTasks('grunt-contrib-watch');
 
     // Default task(s).

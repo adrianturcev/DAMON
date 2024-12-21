@@ -1,6 +1,5 @@
 // Copyright © 2024 Adrian Turcev
 const parse = require('json-in-order').parse;
-const DamonUtils = require('./src/Utils.js');
 
 //# Damon
 module.exports =
@@ -16,7 +15,6 @@ class Damon {
             throw new Error("@param {Boolean} pedantic");
         }
         this.pedantic = pedantic;
-        this.utils = new DamonUtils($);
     }
     /**
      * Object-like ordered dictionaries declarations in js
