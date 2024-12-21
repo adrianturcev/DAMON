@@ -40,11 +40,11 @@ npm run build # distribuable
 Core methods:
 
 ```js
-let damon = new DAMON();
-let damonString =`
-- {}
-    - key: "value"
-`;
+const Damon = require('damon2');
+let damon = new Damon();
+let damonString = `
+    - {}
+        - key: "value"`;
 
 console.log(damon.damonToJSON(damonString));
 // {
