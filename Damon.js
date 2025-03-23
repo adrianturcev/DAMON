@@ -1343,7 +1343,7 @@ class Damon {
                         }
                     } else {
                         if (implicitNullsMap) {
-                            list += '    '.repeat(level) + '- ' + JSON.stringify(key).slice(1, -1);
+                            list += '    '.repeat(level) + '- ' + JSON.stringify(key).slice(1, -1) + "\n";
                         } else {
                             list += '    '.repeat(level) + '- ' + JSON.stringify(key).slice(1, -1) + ': ';
                             if (value === true) {
