@@ -1275,12 +1275,12 @@ class Damon {
                 && jsonMap.constructor === Map
             ) {
                 let mapKeys = Array.from(jsonMap.keys()),
+                    implicitNullsMap = false;
+                if (
+                    jsonMap.implicitNulls !== undefined
+                    && jsonMap.implicitNulls.length === mapKeys.length
+                ) {
                     implicitNullsMap = true;
-                for (let i = 0, c = mapKeys.length; i < c; i++) {
-                    if (jsonMap.get(mapKeys[i]) !== null) {
-                        implicitNullsMap = false;
-                        break;
-                    }
                 }
                 for (const [key, value] of jsonMap) {
                     if (

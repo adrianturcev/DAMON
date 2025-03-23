@@ -2314,12 +2314,9 @@
           return list.slice(0, -1);
           function _recurse(jsonMap2, level = 1) {
             if (typeof jsonMap2 === "object" && jsonMap2 !== null && !Array.isArray(jsonMap2) && jsonMap2 instanceof Map && jsonMap2.constructor === Map) {
-              let mapKeys = Array.from(jsonMap2.keys()), implicitNullsMap = true;
-              for (let i2 = 0, c2 = mapKeys.length; i2 < c2; i2++) {
-                if (jsonMap2.get(mapKeys[i2]) !== null) {
-                  implicitNullsMap = false;
-                  break;
-                }
+              let mapKeys = Array.from(jsonMap2.keys()), implicitNullsMap = false;
+              if (jsonMap2.implicitNulls !== void 0 && jsonMap2.implicitNulls.length === mapKeys.length) {
+                implicitNullsMap = true;
               }
               for (const [key, value] of jsonMap2) {
                 if (typeof value === "object" && value !== null) {
