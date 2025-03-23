@@ -1274,6 +1274,14 @@ class Damon {
                 && jsonMap instanceof Map
                 && jsonMap.constructor === Map
             ) {
+                let mapKeys = Array.from(jsonMap.keys()),
+                    implicitNullsMap = true;
+                for (let i = 0, c = mapKeys.length; i < c; i++) {
+                    if (jsonMap.get(mapKeys[i]) !== null) {
+                        implicitNullsMap = false;
+                        break;
+                    }
+                }
                 for (const [key, value] of jsonMap) {
                     if (
                         typeof value === 'object'
@@ -1334,22 +1342,24 @@ class Damon {
                             _recurse(value, level + 1);
                         }
                     } else {
-                        list += '    '.repeat(level) + '- ' + JSON.stringify(key).slice(1, -1) + ': ';
-                        if (value === true) {
-                            list += "true\n";
-                        } else if (value === false) {
-                            list += "false\n";
-                        } else if (value === null) {
-                            list += "null\n";
-                        } else if (
-                            Number.isFinite(value)
-                            && !Number.isNaN(value)
-                        ) {
-                            list += value + "\n";
+                        if (implicitNullsMap) {
+                            list += '    '.repeat(level) + '- ' + JSON.stringify(key).slice(1, -1);
                         } else {
-                            // console.log(value[2]);
-                            // console.log(JSON.parse('"' + value.slice(3) + '"'));
-                            list += JSON.stringify(value) + '\n';
+                            list += '    '.repeat(level) + '- ' + JSON.stringify(key).slice(1, -1) + ': ';
+                            if (value === true) {
+                                list += "true\n";
+                            } else if (value === false) {
+                                list += "false\n";
+                            } else if (value === null) {
+                                list += "null\n";
+                            } else if (
+                                Number.isFinite(value)
+                                && !Number.isNaN(value)
+                            ) {
+                                list += value + "\n";
+                            } else {
+                                list += JSON.stringify(value) + '\n';
+                            }
                         }
                     }
                 }
