@@ -2542,6 +2542,43 @@
           }
         }
         /**
+         * @param {string} damonString
+         * @returns {Array<Array<string|number>>} pathsList
+         */
+        getPathsList(damonString) {
+          const $ = this;
+          let damonMap = $.damonToMap(damonString), pathsList = [];
+          _walkAndPushPaths(damonMap);
+          return pathsList;
+          function _walkAndPushPaths(map, currentPath = []) {
+            if (typeof map === "object" && map !== null && !Array.isArray(map) && map instanceof Map && map.constructor === Map) {
+              for (const [key, value] of map) {
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && value instanceof Map && value.constructor === Map && Array.from(value.keys()).length) {
+                  pathsList.push(currentPath.concat(key));
+                  _walkAndPushPaths(value, currentPath.concat([key]));
+                } else if (Array.isArray(value) && (map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(key) === -1) && value.length) {
+                  pathsList.push(currentPath.concat(key));
+                  _walkAndPushPaths(value, currentPath.concat([key]));
+                } else {
+                  pathsList.push(currentPath.concat(key).concat(value));
+                }
+              }
+            } else {
+              for (let i = 0, c = map.length; i < c; i++) {
+                if (typeof map[i] === "object" && map[i] !== null && !Array.isArray(map[i]) && map[i] instanceof Map && map[i].constructor === Map && Array.from(map[i].keys()).length) {
+                  pathsList.push(currentPath.concat(i));
+                  _walkAndPushPaths(map[i], currentPath.concat([i]));
+                } else if (Array.isArray(map[i]) && (map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(i) === -1) && map[i].length) {
+                  pathsList.push(currentPath.concat(i));
+                  _walkAndPushPaths(map[i], currentPath.concat([i]));
+                } else {
+                  pathsList.push(currentPath.concat(map[i]));
+                }
+              }
+            }
+          }
+        }
+        /**
          * @param {string} damon
          * @param {Array<string|number>} path
          * @returns {Array<Array<number>>}
