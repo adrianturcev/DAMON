@@ -1816,18 +1816,14 @@
           if (damonTree.content == "- {}") {
             let map = /* @__PURE__ */ new Map();
             map.damonOriginalLinesMapping = damonTree.damonOriginalLinesMapping;
+            if (damonTree.headless) {
+              map.headless = true;
+            }
             return _recurse(damonTree, map);
           } else if (damonTree.content == "- []") {
             let array = [];
             array.damonOriginalLinesMapping = damonTree.damonOriginalLinesMapping;
             return _recurse(damonTree, array);
-          } else {
-            let map = /* @__PURE__ */ new Map();
-            map.damonOriginalLinesMapping = damonTree.damonOriginalLinesMapping;
-            if (damonTree.headless) {
-              map.headless = true;
-            }
-            return _recurse(damonTree, map);
           }
           function _recurse(tree, jsonMap) {
             if (typeof tree !== "object" || tree == null || Array.isArray(tree)) {

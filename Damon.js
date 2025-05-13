@@ -520,20 +520,14 @@ class Damon {
         if (damonTree.content == '- {}') {
             let map = new Map();
             map.damonOriginalLinesMapping = damonTree.damonOriginalLinesMapping;
+            if (damonTree.headless) {
+                map.headless = true;
+            }
             return _recurse(damonTree, map);
         } else if (damonTree.content == '- []') {
             let array = [];
             array.damonOriginalLinesMapping = damonTree.damonOriginalLinesMapping;
             return _recurse(damonTree, array);
-        } else {
-            // implicit dictionary
-            // Storing for utils formatting
-            let map = new Map();
-            map.damonOriginalLinesMapping = damonTree.damonOriginalLinesMapping;
-            if (damonTree.headless) {
-                map.headless = true;
-            }
-            return _recurse(damonTree, map);
         }
         /**
          * @param {Object} tree
