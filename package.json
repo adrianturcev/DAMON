@@ -1,6 +1,6 @@
 {
   "name": "damon2",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "description": "A JSON shorthand",
   "author": "Adrian Turcev",
   "license": "MPL-2.0",
@@ -28,20 +28,20 @@
     "build": "npx grunt dist"
   },
   "dependencies": {
-    "esbuild": "^0.20.2",
     "json-in-order": "^0.2.1",
-    "tslib": "^2.6.2"
+    "tslib": "^2.8.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.14.0",
-    "eslint": "^9.14.0",
-    "eslint-plugin-jsdoc": "^50.4.3",
-    "globals": "^15.11.0",
+    "esbuild": "^0.25.4",
+    "@eslint/js": "^9.27.0",
+    "eslint": "^9.27.0",
+    "eslint-plugin-jsdoc": "^50.6.17",
+    "globals": "^16.1.0",
     "grunt": "^1.6.1",
     "grunt-concurrent": "^3.0.0",
     "grunt-contrib-watch": "^1.1.0",
     "grunt-esbuild": "^1.0.1",
     "grunt-exec": "^3.0.0",
-    "mocha": "^10.7.3"
+    "mocha": "^11.4.0"
   }
 }

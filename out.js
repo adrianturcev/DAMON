@@ -6,8 +6,7 @@
   var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
     get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
   }) : x)(function(x) {
-    if (typeof require !== "undefined")
-      return require.apply(this, arguments);
+    if (typeof require !== "undefined") return require.apply(this, arguments);
     throw Error('Dynamic require of "' + x + '" is not supported');
   });
   var __esm = (fn, res) => function __init() {
@@ -78,9 +77,8 @@
   }
   function __rest(s, e) {
     var t = {};
-    for (var p in s)
-      if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+      t[p] = s[p];
     if (s != null && typeof Object.getOwnPropertySymbols === "function")
       for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
         if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
@@ -90,12 +88,8 @@
   }
   function __decorate(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function")
-      r = Reflect.decorate(decorators, target, key, desc);
-    else
-      for (var i = decorators.length - 1; i >= 0; i--)
-        if (d = decorators[i])
-          r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
   }
   function __param(paramIndex, decorator) {
@@ -105,8 +99,7 @@
   }
   function __esDecorate(ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) {
-      if (f !== void 0 && typeof f !== "function")
-        throw new TypeError("Function expected");
+      if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected");
       return f;
     }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -115,36 +108,25 @@
     var _, done = false;
     for (var i = decorators.length - 1; i >= 0; i--) {
       var context = {};
-      for (var p in contextIn)
-        context[p] = p === "access" ? {} : contextIn[p];
-      for (var p in contextIn.access)
-        context.access[p] = contextIn.access[p];
+      for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+      for (var p in contextIn.access) context.access[p] = contextIn.access[p];
       context.addInitializer = function(f) {
-        if (done)
-          throw new TypeError("Cannot add initializers after decoration has completed");
+        if (done) throw new TypeError("Cannot add initializers after decoration has completed");
         extraInitializers.push(accept(f || null));
       };
       var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
       if (kind === "accessor") {
-        if (result === void 0)
-          continue;
-        if (result === null || typeof result !== "object")
-          throw new TypeError("Object expected");
-        if (_ = accept(result.get))
-          descriptor.get = _;
-        if (_ = accept(result.set))
-          descriptor.set = _;
-        if (_ = accept(result.init))
-          initializers.unshift(_);
+        if (result === void 0) continue;
+        if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+        if (_ = accept(result.get)) descriptor.get = _;
+        if (_ = accept(result.set)) descriptor.set = _;
+        if (_ = accept(result.init)) initializers.unshift(_);
       } else if (_ = accept(result)) {
-        if (kind === "field")
-          initializers.unshift(_);
-        else
-          descriptor[key] = _;
+        if (kind === "field") initializers.unshift(_);
+        else descriptor[key] = _;
       }
     }
-    if (target)
-      Object.defineProperty(target, contextIn.name, descriptor);
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
   }
   function __runInitializers(thisArg, initializers, value) {
@@ -158,13 +140,11 @@
     return typeof x === "symbol" ? x : "".concat(x);
   }
   function __setFunctionName(f, name, prefix) {
-    if (typeof name === "symbol")
-      name = name.description ? "[".concat(name.description, "]") : "";
+    if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
     return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
   }
   function __metadata(metadataKey, metadataValue) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function")
-      return Reflect.metadata(metadataKey, metadataValue);
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
   }
   function __awaiter(thisArg, _arguments, P, generator) {
     function adopt(value) {
@@ -195,8 +175,7 @@
   }
   function __generator(thisArg, body) {
     var _ = { label: 0, sent: function() {
-      if (t[0] & 1)
-        throw t[1];
+      if (t[0] & 1) throw t[1];
       return t[1];
     }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
     return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() {
@@ -208,103 +187,88 @@
       };
     }
     function step(op) {
-      if (f)
-        throw new TypeError("Generator is already executing.");
-      while (g && (g = 0, op[0] && (_ = 0)), _)
-        try {
-          if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done)
-            return t;
-          if (y = 0, t)
-            op = [op[0] & 2, t.value];
-          switch (op[0]) {
-            case 0:
-            case 1:
+      if (f) throw new TypeError("Generator is already executing.");
+      while (g && (g = 0, op[0] && (_ = 0)), _) try {
+        if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+        if (y = 0, t) op = [op[0] & 2, t.value];
+        switch (op[0]) {
+          case 0:
+          case 1:
+            t = op;
+            break;
+          case 4:
+            _.label++;
+            return { value: op[1], done: false };
+          case 5:
+            _.label++;
+            y = op[1];
+            op = [0];
+            continue;
+          case 7:
+            op = _.ops.pop();
+            _.trys.pop();
+            continue;
+          default:
+            if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+              _ = 0;
+              continue;
+            }
+            if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
+              _.label = op[1];
+              break;
+            }
+            if (op[0] === 6 && _.label < t[1]) {
+              _.label = t[1];
               t = op;
               break;
-            case 4:
-              _.label++;
-              return { value: op[1], done: false };
-            case 5:
-              _.label++;
-              y = op[1];
-              op = [0];
-              continue;
-            case 7:
-              op = _.ops.pop();
-              _.trys.pop();
-              continue;
-            default:
-              if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
-                _ = 0;
-                continue;
-              }
-              if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
-                _.label = op[1];
-                break;
-              }
-              if (op[0] === 6 && _.label < t[1]) {
-                _.label = t[1];
-                t = op;
-                break;
-              }
-              if (t && _.label < t[2]) {
-                _.label = t[2];
-                _.ops.push(op);
-                break;
-              }
-              if (t[2])
-                _.ops.pop();
-              _.trys.pop();
-              continue;
-          }
-          op = body.call(thisArg, _);
-        } catch (e) {
-          op = [6, e];
-          y = 0;
-        } finally {
-          f = t = 0;
+            }
+            if (t && _.label < t[2]) {
+              _.label = t[2];
+              _.ops.push(op);
+              break;
+            }
+            if (t[2]) _.ops.pop();
+            _.trys.pop();
+            continue;
         }
-      if (op[0] & 5)
-        throw op[1];
+        op = body.call(thisArg, _);
+      } catch (e) {
+        op = [6, e];
+        y = 0;
+      } finally {
+        f = t = 0;
+      }
+      if (op[0] & 5) throw op[1];
       return { value: op[0] ? op[1] : void 0, done: true };
     }
   }
   function __exportStar(m, o) {
-    for (var p in m)
-      if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p))
-        __createBinding(o, m, p);
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p)) __createBinding(o, m, p);
   }
   function __values(o) {
     var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m)
-      return m.call(o);
-    if (o && typeof o.length === "number")
-      return {
-        next: function() {
-          if (o && i >= o.length)
-            o = void 0;
-          return { value: o && o[i++], done: !o };
-        }
-      };
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+      next: function() {
+        if (o && i >= o.length) o = void 0;
+        return { value: o && o[i++], done: !o };
+      }
+    };
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
   }
   function __read(o, n) {
     var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m)
-      return o;
+    if (!m) return o;
     var i = m.call(o), r, ar = [], e;
     try {
-      while ((n === void 0 || n-- > 0) && !(r = i.next()).done)
-        ar.push(r.value);
+      while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
     } catch (error) {
       e = { error };
     } finally {
       try {
-        if (r && !r.done && (m = i["return"]))
-          m.call(i);
+        if (r && !r.done && (m = i["return"])) m.call(i);
       } finally {
-        if (e)
-          throw e.error;
+        if (e) throw e.error;
       }
     }
     return ar;
@@ -315,30 +279,26 @@
     return ar;
   }
   function __spreadArrays() {
-    for (var s = 0, i = 0, il = arguments.length; i < il; i++)
-      s += arguments[i].length;
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
     for (var r = Array(s), k = 0, i = 0; i < il; i++)
       for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
         r[k] = a[j];
     return r;
   }
   function __spreadArray(to, from, pack) {
-    if (pack || arguments.length === 2)
-      for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-          if (!ar)
-            ar = Array.prototype.slice.call(from, 0, i);
-          ar[i] = from[i];
-        }
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+      if (ar || !(i in from)) {
+        if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+        ar[i] = from[i];
       }
+    }
     return to.concat(ar || Array.prototype.slice.call(from));
   }
   function __await(v) {
     return this instanceof __await ? (this.v = v, this) : new __await(v);
   }
   function __asyncGenerator(thisArg, _arguments, generator) {
-    if (!Symbol.asyncIterator)
-      throw new TypeError("Symbol.asyncIterator is not defined.");
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
     var g = generator.apply(thisArg, _arguments || []), i, q = [];
     return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function() {
       return this;
@@ -355,8 +315,7 @@
             q.push([n, v, a, b]) > 1 || resume(n, v);
           });
         };
-        if (f)
-          i[n] = f(i[n]);
+        if (f) i[n] = f(i[n]);
       }
     }
     function resume(n, v) {
@@ -376,8 +335,7 @@
       resume("throw", value);
     }
     function settle(f, v) {
-      if (f(v), q.shift(), q.length)
-        resume(q[0][0], q[0][1]);
+      if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
     }
   }
   function __asyncDelegator(o) {
@@ -394,8 +352,7 @@
     }
   }
   function __asyncValues(o) {
-    if (!Symbol.asyncIterator)
-      throw new TypeError("Symbol.asyncIterator is not defined.");
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
     var m = o[Symbol.asyncIterator], i;
     return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function() {
       return this;
@@ -422,13 +379,10 @@
     return cooked;
   }
   function __importStar(mod) {
-    if (mod && mod.__esModule)
-      return mod;
+    if (mod && mod.__esModule) return mod;
     var result = {};
     if (mod != null) {
-      for (var k = ownKeys(mod), i = 0; i < k.length; i++)
-        if (k[i] !== "default")
-          __createBinding(result, mod, k[i]);
+      for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
     }
     __setModuleDefault(result, mod);
     return result;
@@ -437,53 +391,41 @@
     return mod && mod.__esModule ? mod : { default: mod };
   }
   function __classPrivateFieldGet(receiver, state, kind, f) {
-    if (kind === "a" && !f)
-      throw new TypeError("Private accessor was defined without a getter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver))
-      throw new TypeError("Cannot read private member from an object whose class did not declare it");
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
   }
   function __classPrivateFieldSet(receiver, state, value, kind, f) {
-    if (kind === "m")
-      throw new TypeError("Private method is not writable");
-    if (kind === "a" && !f)
-      throw new TypeError("Private accessor was defined without a setter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver))
-      throw new TypeError("Cannot write private member to an object whose class did not declare it");
+    if (kind === "m") throw new TypeError("Private method is not writable");
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
     return kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value), value;
   }
   function __classPrivateFieldIn(state, receiver) {
-    if (receiver === null || typeof receiver !== "object" && typeof receiver !== "function")
-      throw new TypeError("Cannot use 'in' operator on non-object");
+    if (receiver === null || typeof receiver !== "object" && typeof receiver !== "function") throw new TypeError("Cannot use 'in' operator on non-object");
     return typeof state === "function" ? receiver === state : state.has(receiver);
   }
   function __addDisposableResource(env, value, async) {
     if (value !== null && value !== void 0) {
-      if (typeof value !== "object" && typeof value !== "function")
-        throw new TypeError("Object expected.");
+      if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
       var dispose, inner;
       if (async) {
-        if (!Symbol.asyncDispose)
-          throw new TypeError("Symbol.asyncDispose is not defined.");
+        if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
         dispose = value[Symbol.asyncDispose];
       }
       if (dispose === void 0) {
-        if (!Symbol.dispose)
-          throw new TypeError("Symbol.dispose is not defined.");
+        if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
         dispose = value[Symbol.dispose];
-        if (async)
-          inner = dispose;
+        if (async) inner = dispose;
       }
-      if (typeof dispose !== "function")
-        throw new TypeError("Object not disposable.");
-      if (inner)
-        dispose = function() {
-          try {
-            inner.call(this);
-          } catch (e) {
-            return Promise.reject(e);
-          }
-        };
+      if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+      if (inner) dispose = function() {
+        try {
+          inner.call(this);
+        } catch (e) {
+          return Promise.reject(e);
+        }
+      };
       env.stack.push({ value, dispose, async });
     } else if (async) {
       env.stack.push({ async: true });
@@ -499,25 +441,20 @@
     function next() {
       while (r = env.stack.pop()) {
         try {
-          if (!r.async && s === 1)
-            return s = 0, env.stack.push(r), Promise.resolve().then(next);
+          if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
           if (r.dispose) {
             var result = r.dispose.call(r.value);
-            if (r.async)
-              return s |= 2, Promise.resolve(result).then(next, function(e) {
-                fail(e);
-                return next();
-              });
-          } else
-            s |= 1;
+            if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) {
+              fail(e);
+              return next();
+            });
+          } else s |= 1;
         } catch (e) {
           fail(e);
         }
       }
-      if (s === 1)
-        return env.hasError ? Promise.reject(env.error) : Promise.resolve();
-      if (env.hasError)
-        throw env.error;
+      if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
+      if (env.hasError) throw env.error;
     }
     return next();
   }
@@ -536,9 +473,7 @@
         extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
           d2.__proto__ = b2;
         } || function(d2, b2) {
-          for (var p in b2)
-            if (Object.prototype.hasOwnProperty.call(b2, p))
-              d2[p] = b2[p];
+          for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
         };
         return extendStatics(d, b);
       };
@@ -546,17 +481,14 @@
         __assign = Object.assign || function __assign2(t) {
           for (var s, i = 1, n = arguments.length; i < n; i++) {
             s = arguments[i];
-            for (var p in s)
-              if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
           }
           return t;
         };
         return __assign.apply(this, arguments);
       };
       __createBinding = Object.create ? function(o, m, k, k2) {
-        if (k2 === void 0)
-          k2 = k;
+        if (k2 === void 0) k2 = k;
         var desc = Object.getOwnPropertyDescriptor(m, k);
         if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
           desc = { enumerable: true, get: function() {
@@ -565,8 +497,7 @@
         }
         Object.defineProperty(o, k2, desc);
       } : function(o, m, k, k2) {
-        if (k2 === void 0)
-          k2 = k;
+        if (k2 === void 0) k2 = k;
         o[k2] = m[k];
       };
       __setModuleDefault = Object.create ? function(o, v) {
@@ -577,9 +508,7 @@
       ownKeys = function(o) {
         ownKeys = Object.getOwnPropertyNames || function(o2) {
           var ar = [];
-          for (var k in o2)
-            if (Object.prototype.hasOwnProperty.call(o2, k))
-              ar[ar.length] = k;
+          for (var k in o2) if (Object.prototype.hasOwnProperty.call(o2, k)) ar[ar.length] = k;
           return ar;
         };
         return ownKeys(o);
@@ -685,8 +614,7 @@
           NUMBER_DIGIT: S++
           // [0-9]
         };
-        for (var s_ in clarinet2.STATE)
-          clarinet2.STATE[clarinet2.STATE[s_]] = s_;
+        for (var s_ in clarinet2.STATE) clarinet2.STATE[clarinet2.STATE[s_]] = s_;
         S = clarinet2.STATE;
         const Char = {
           tab: 9,
@@ -763,9 +691,7 @@
         if (!Object.keys) {
           Object.keys = function(o) {
             var a = [];
-            for (var i in o)
-              if (o.hasOwnProperty(i))
-                a.push(i);
+            for (var i in o) if (o.hasOwnProperty(i)) a.push(i);
             return a;
           };
         }
@@ -793,8 +719,7 @@
         }
         var stringTokenPattern = /[\\"\n]/g;
         function CParser(opt) {
-          if (!(this instanceof CParser))
-            return new CParser(opt);
+          if (!(this instanceof CParser)) return new CParser(opt);
           var parser = this;
           clearBuffers(parser);
           parser.bufferCheckPosition = clarinet2.MAX_BUFFER_LENGTH;
@@ -835,8 +760,7 @@
           return new CStream(opt);
         }
         function CStream(opt) {
-          if (!(this instanceof CStream))
-            return new CStream(opt);
+          if (!(this instanceof CStream)) return new CStream(opt);
           this._parser = new CParser(opt);
           this.writable = true;
           this.readable = true;
@@ -895,12 +819,9 @@
               continue;
             }
             if (this.bytes_remaining === 0 && n >= 128) {
-              if (n >= 194 && n <= 223)
-                this.bytes_in_sequence = 2;
-              if (n >= 224 && n <= 239)
-                this.bytes_in_sequence = 3;
-              if (n >= 240 && n <= 244)
-                this.bytes_in_sequence = 4;
+              if (n >= 194 && n <= 223) this.bytes_in_sequence = 2;
+              if (n >= 224 && n <= 239) this.bytes_in_sequence = 3;
+              if (n >= 240 && n <= 244) this.bytes_in_sequence = 4;
               if (this.bytes_in_sequence + i > data.length) {
                 for (var k = 0; k <= data.length - 1 - i; k++) {
                   this.temp_buffs[this.bytes_in_sequence][k] = data[i + k];
@@ -916,8 +837,7 @@
               }
             }
             for (var p = i; p < data.length; p++) {
-              if (data[p] >= 128)
-                break;
+              if (data[p] >= 128) break;
             }
             this.string = data.slice(i, p).toString();
             this._parser.write(this.string);
@@ -927,8 +847,7 @@
           }
         };
         CStream.prototype.end = function(chunk) {
-          if (chunk && chunk.length)
-            this._parser.write(chunk.toString());
+          if (chunk && chunk.length) this._parser.write(chunk.toString());
           this._parser.end();
           return true;
         };
@@ -948,10 +867,8 @@
           this.emit("close");
         };
         function emit(parser, event, data) {
-          if (clarinet2.INFO)
-            console.log("-- emit", event, data);
-          if (parser[event])
-            parser[event](data);
+          if (clarinet2.INFO) console.log("-- emit", event, data);
+          if (parser[event]) parser[event](data);
         }
         function emitNode(parser, event, data) {
           closeValue(parser);
@@ -973,10 +890,8 @@
           if (text === void 0) {
             return text;
           }
-          if (opt.trim)
-            text = text.trim();
-          if (opt.normalize)
-            text = text.replace(/\s+/g, " ");
+          if (opt.trim) text = text.trim();
+          if (opt.normalize) text = text.replace(/\s+/g, " ");
           return text;
         }
         function error(parser, er) {
@@ -1002,55 +917,42 @@
         }
         function write(chunk) {
           var parser = this;
-          if (this.error)
-            throw this.error;
-          if (parser.closed)
-            return error(
-              parser,
-              "Cannot write after close. Assign an onready handler."
-            );
-          if (chunk === null)
-            return end(parser);
+          if (this.error) throw this.error;
+          if (parser.closed) return error(
+            parser,
+            "Cannot write after close. Assign an onready handler."
+          );
+          if (chunk === null) return end(parser);
           var i = 0, c = chunk.charCodeAt(0), p = parser.p;
           var lockIncrements = false;
-          if (clarinet2.DEBUG)
-            console.log("write -> [" + chunk + "]");
+          if (clarinet2.DEBUG) console.log("write -> [" + chunk + "]");
           while (c) {
             p = c;
             parser.c = c = chunk.charCodeAt(i++);
-            if (p !== c)
-              parser.p = p;
-            else
-              p = parser.p;
-            if (!c)
-              break;
-            if (clarinet2.DEBUG)
-              console.log(i, c, clarinet2.STATE[parser.state]);
+            if (p !== c) parser.p = p;
+            else p = parser.p;
+            if (!c) break;
+            if (clarinet2.DEBUG) console.log(i, c, clarinet2.STATE[parser.state]);
             if (!lockIncrements) {
               parser.position++;
               if (c === Char.lineFeed) {
                 parser.line++;
                 parser.column = 0;
-              } else
-                parser.column++;
+              } else parser.column++;
             } else {
               lockIncrements = false;
             }
             switch (parser.state) {
               case S.BEGIN:
-                if (c === Char.openBrace)
-                  parser.state = S.OPEN_OBJECT;
-                else if (c === Char.openBracket)
-                  parser.state = S.OPEN_ARRAY;
+                if (c === Char.openBrace) parser.state = S.OPEN_OBJECT;
+                else if (c === Char.openBracket) parser.state = S.OPEN_ARRAY;
                 else if (!isWhitespace(c))
                   error(parser, "Non-whitespace before {[.");
                 continue;
               case S.OPEN_KEY:
               case S.OPEN_OBJECT:
-                if (isWhitespace(c))
-                  continue;
-                if (parser.state === S.OPEN_KEY)
-                  parser.stack.push(S.CLOSE_KEY);
+                if (isWhitespace(c)) continue;
+                if (parser.state === S.OPEN_KEY) parser.stack.push(S.CLOSE_KEY);
                 else {
                   if (c === Char.closeBrace) {
                     emit(parser, "onopenobject");
@@ -1059,26 +961,21 @@
                     this.depth--;
                     parser.state = parser.stack.pop() || S.VALUE;
                     continue;
-                  } else
-                    parser.stack.push(S.CLOSE_OBJECT);
+                  } else parser.stack.push(S.CLOSE_OBJECT);
                 }
-                if (c === Char.doubleQuote)
-                  parser.state = S.STRING;
-                else
-                  error(parser, 'Malformed object key should start with "');
+                if (c === Char.doubleQuote) parser.state = S.STRING;
+                else error(parser, 'Malformed object key should start with "');
                 continue;
               case S.CLOSE_KEY:
               case S.CLOSE_OBJECT:
-                if (isWhitespace(c))
-                  continue;
+                if (isWhitespace(c)) continue;
                 var event = parser.state === S.CLOSE_KEY ? "key" : "object";
                 if (c === Char.colon) {
                   if (parser.state === S.CLOSE_OBJECT) {
                     parser.stack.push(S.CLOSE_OBJECT);
                     closeValue(parser, "onopenobject");
                     this.depth++;
-                  } else
-                    closeValue(parser, "onkey");
+                  } else closeValue(parser, "onkey");
                   parser.state = S.VALUE;
                 } else if (c === Char.closeBrace) {
                   emitNode(parser, "oncloseobject");
@@ -1089,13 +986,12 @@
                     parser.stack.push(S.CLOSE_OBJECT);
                   closeValue(parser);
                   parser.state = S.OPEN_KEY;
-                } else
-                  error(parser, "Bad object");
+                } else error(parser, "Bad object");
                 continue;
               case S.OPEN_ARRAY:
+              // after an array there always a value
               case S.VALUE:
-                if (isWhitespace(c))
-                  continue;
+                if (isWhitespace(c)) continue;
                 if (parser.state === S.OPEN_ARRAY) {
                   emit(parser, "onopenarray");
                   this.depth++;
@@ -1109,25 +1005,18 @@
                     parser.stack.push(S.CLOSE_ARRAY);
                   }
                 }
-                if (c === Char.doubleQuote)
-                  parser.state = S.STRING;
-                else if (c === Char.openBrace)
-                  parser.state = S.OPEN_OBJECT;
-                else if (c === Char.openBracket)
-                  parser.state = S.OPEN_ARRAY;
-                else if (c === Char.t)
-                  parser.state = S.TRUE;
-                else if (c === Char.f)
-                  parser.state = S.FALSE;
-                else if (c === Char.n)
-                  parser.state = S.NULL;
+                if (c === Char.doubleQuote) parser.state = S.STRING;
+                else if (c === Char.openBrace) parser.state = S.OPEN_OBJECT;
+                else if (c === Char.openBracket) parser.state = S.OPEN_ARRAY;
+                else if (c === Char.t) parser.state = S.TRUE;
+                else if (c === Char.f) parser.state = S.FALSE;
+                else if (c === Char.n) parser.state = S.NULL;
                 else if (c === Char.minus) {
                   parser.numberNode += "-";
                 } else if (Char._0 <= c && c <= Char._9) {
                   parser.numberNode += String.fromCharCode(c);
                   parser.state = S.NUMBER_DIGIT;
-                } else
-                  error(parser, "Bad value");
+                } else error(parser, "Bad value");
                 continue;
               case S.CLOSE_ARRAY:
                 if (c === Char.comma) {
@@ -1140,170 +1029,145 @@
                   parser.state = parser.stack.pop() || S.VALUE;
                 } else if (isWhitespace(c))
                   continue;
-                else
-                  error(parser, "Bad array");
+                else error(parser, "Bad array");
                 continue;
               case S.STRING:
                 if (parser.textNode === void 0) {
                   parser.textNode = "";
                 }
                 var starti = i - 1, slashed = parser.slashed, unicodeI = parser.unicodeI;
-                STRING_BIGLOOP:
-                  while (true) {
-                    if (clarinet2.DEBUG)
-                      console.log(
-                        i,
-                        c,
-                        clarinet2.STATE[parser.state],
-                        slashed
-                      );
-                    while (unicodeI > 0) {
-                      parser.unicodeS += String.fromCharCode(c);
-                      c = chunk.charCodeAt(i++);
-                      parser.position++;
-                      if (unicodeI === 4) {
-                        parser.textNode += String.fromCharCode(parseInt(parser.unicodeS, 16));
-                        unicodeI = 0;
-                        starti = i - 1;
-                      } else {
-                        unicodeI++;
-                      }
-                      if (!c)
-                        break STRING_BIGLOOP;
-                    }
-                    if (c === Char.doubleQuote && !slashed) {
-                      parser.state = parser.stack.pop() || S.VALUE;
-                      parser.textNode += chunk.substring(starti, i - 1);
-                      parser.position += i - 1 - starti;
-                      break;
-                    }
-                    if (c === Char.backslash && !slashed) {
-                      slashed = true;
-                      parser.textNode += chunk.substring(starti, i - 1);
-                      parser.position += i - 1 - starti;
-                      c = chunk.charCodeAt(i++);
-                      parser.position++;
-                      if (!c)
-                        break;
-                    }
-                    if (slashed) {
-                      slashed = false;
-                      if (c === Char.n) {
-                        parser.textNode += "\n";
-                      } else if (c === Char.r) {
-                        parser.textNode += "\r";
-                      } else if (c === Char.t) {
-                        parser.textNode += "	";
-                      } else if (c === Char.f) {
-                        parser.textNode += "\f";
-                      } else if (c === Char.b) {
-                        parser.textNode += "\b";
-                      } else if (c === Char.u) {
-                        unicodeI = 1;
-                        parser.unicodeS = "";
-                      } else {
-                        parser.textNode += String.fromCharCode(c);
-                      }
-                      c = chunk.charCodeAt(i++);
-                      parser.position++;
+                STRING_BIGLOOP: while (true) {
+                  if (clarinet2.DEBUG)
+                    console.log(
+                      i,
+                      c,
+                      clarinet2.STATE[parser.state],
+                      slashed
+                    );
+                  while (unicodeI > 0) {
+                    parser.unicodeS += String.fromCharCode(c);
+                    c = chunk.charCodeAt(i++);
+                    parser.position++;
+                    if (unicodeI === 4) {
+                      parser.textNode += String.fromCharCode(parseInt(parser.unicodeS, 16));
+                      unicodeI = 0;
                       starti = i - 1;
-                      if (!c)
-                        break;
-                      else
-                        continue;
+                    } else {
+                      unicodeI++;
                     }
-                    stringTokenPattern.lastIndex = i;
-                    var reResult = stringTokenPattern.exec(chunk);
-                    if (reResult === null) {
-                      i = chunk.length + 1;
-                      parser.textNode += chunk.substring(starti, i - 1);
-                      parser.position += i - 1 - starti;
-                      break;
-                    }
-                    i = reResult.index + 1;
-                    c = chunk.charCodeAt(reResult.index);
-                    if (!c) {
-                      parser.textNode += chunk.substring(starti, i - 1);
-                      parser.position += i - 1 - starti;
-                      break;
-                    }
+                    if (!c) break STRING_BIGLOOP;
                   }
+                  if (c === Char.doubleQuote && !slashed) {
+                    parser.state = parser.stack.pop() || S.VALUE;
+                    parser.textNode += chunk.substring(starti, i - 1);
+                    parser.position += i - 1 - starti;
+                    break;
+                  }
+                  if (c === Char.backslash && !slashed) {
+                    slashed = true;
+                    parser.textNode += chunk.substring(starti, i - 1);
+                    parser.position += i - 1 - starti;
+                    c = chunk.charCodeAt(i++);
+                    parser.position++;
+                    if (!c) break;
+                  }
+                  if (slashed) {
+                    slashed = false;
+                    if (c === Char.n) {
+                      parser.textNode += "\n";
+                    } else if (c === Char.r) {
+                      parser.textNode += "\r";
+                    } else if (c === Char.t) {
+                      parser.textNode += "	";
+                    } else if (c === Char.f) {
+                      parser.textNode += "\f";
+                    } else if (c === Char.b) {
+                      parser.textNode += "\b";
+                    } else if (c === Char.u) {
+                      unicodeI = 1;
+                      parser.unicodeS = "";
+                    } else {
+                      parser.textNode += String.fromCharCode(c);
+                    }
+                    c = chunk.charCodeAt(i++);
+                    parser.position++;
+                    starti = i - 1;
+                    if (!c) break;
+                    else continue;
+                  }
+                  stringTokenPattern.lastIndex = i;
+                  var reResult = stringTokenPattern.exec(chunk);
+                  if (reResult === null) {
+                    i = chunk.length + 1;
+                    parser.textNode += chunk.substring(starti, i - 1);
+                    parser.position += i - 1 - starti;
+                    break;
+                  }
+                  i = reResult.index + 1;
+                  c = chunk.charCodeAt(reResult.index);
+                  if (!c) {
+                    parser.textNode += chunk.substring(starti, i - 1);
+                    parser.position += i - 1 - starti;
+                    break;
+                  }
+                }
                 parser.slashed = slashed;
                 parser.unicodeI = unicodeI;
                 continue;
               case S.TRUE:
-                if (c === Char.r)
-                  parser.state = S.TRUE2;
-                else
-                  error(parser, "Invalid true started with t" + c);
+                if (c === Char.r) parser.state = S.TRUE2;
+                else error(parser, "Invalid true started with t" + c);
                 continue;
               case S.TRUE2:
-                if (c === Char.u)
-                  parser.state = S.TRUE3;
-                else
-                  error(parser, "Invalid true started with tr" + c);
+                if (c === Char.u) parser.state = S.TRUE3;
+                else error(parser, "Invalid true started with tr" + c);
                 continue;
               case S.TRUE3:
                 if (c === Char.e) {
                   emit(parser, "onvalue", true);
                   parser.state = parser.stack.pop() || S.VALUE;
-                } else
-                  error(parser, "Invalid true started with tru" + c);
+                } else error(parser, "Invalid true started with tru" + c);
                 continue;
               case S.FALSE:
-                if (c === Char.a)
-                  parser.state = S.FALSE2;
-                else
-                  error(parser, "Invalid false started with f" + c);
+                if (c === Char.a) parser.state = S.FALSE2;
+                else error(parser, "Invalid false started with f" + c);
                 continue;
               case S.FALSE2:
-                if (c === Char.l)
-                  parser.state = S.FALSE3;
-                else
-                  error(parser, "Invalid false started with fa" + c);
+                if (c === Char.l) parser.state = S.FALSE3;
+                else error(parser, "Invalid false started with fa" + c);
                 continue;
               case S.FALSE3:
-                if (c === Char.s)
-                  parser.state = S.FALSE4;
-                else
-                  error(parser, "Invalid false started with fal" + c);
+                if (c === Char.s) parser.state = S.FALSE4;
+                else error(parser, "Invalid false started with fal" + c);
                 continue;
               case S.FALSE4:
                 if (c === Char.e) {
                   emit(parser, "onvalue", false);
                   parser.state = parser.stack.pop() || S.VALUE;
-                } else
-                  error(parser, "Invalid false started with fals" + c);
+                } else error(parser, "Invalid false started with fals" + c);
                 continue;
               case S.NULL:
-                if (c === Char.u)
-                  parser.state = S.NULL2;
-                else
-                  error(parser, "Invalid null started with n" + c);
+                if (c === Char.u) parser.state = S.NULL2;
+                else error(parser, "Invalid null started with n" + c);
                 continue;
               case S.NULL2:
-                if (c === Char.l)
-                  parser.state = S.NULL3;
-                else
-                  error(parser, "Invalid null started with nu" + c);
+                if (c === Char.l) parser.state = S.NULL3;
+                else error(parser, "Invalid null started with nu" + c);
                 continue;
               case S.NULL3:
                 if (c === Char.l) {
                   emit(parser, "onvalue", null);
                   parser.state = parser.stack.pop() || S.VALUE;
-                } else
-                  error(parser, "Invalid null started with nul" + c);
+                } else error(parser, "Invalid null started with nul" + c);
                 continue;
               case S.NUMBER_DECIMAL_POINT:
                 if (c === Char.period) {
                   parser.numberNode += ".";
                   parser.state = S.NUMBER_DIGIT;
-                } else
-                  error(parser, "Leading zero not followed by .");
+                } else error(parser, "Leading zero not followed by .");
                 continue;
               case S.NUMBER_DIGIT:
-                if (Char._0 <= c && c <= Char._9)
-                  parser.numberNode += String.fromCharCode(c);
+                if (Char._0 <= c && c <= Char._9) parser.numberNode += String.fromCharCode(c);
                 else if (c === Char.period) {
                   if (parser.numberNode.indexOf(".") !== -1)
                     error(parser, "Invalid number has two dots");
