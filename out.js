@@ -2447,6 +2447,7 @@
           const $ = this;
           let damonMap = $.damonToMap(damon), line = -1, found = false;
           _incrementLineUntilReaching(damonMap, path);
+          console.log(line);
           if (damonMap.headless)
             line -= 1;
           let totalLines = 0, match = 0;
@@ -2505,12 +2506,12 @@
           }
           return [[totalLines, start], [totalLines, end]];
           function _incrementLineUntilReaching(map, targetPath, currentPath = []) {
-            if (found == true) {
-              return;
-            }
             line += 1;
             if (typeof map === "object" && map !== null && !Array.isArray(map) && map instanceof Map && map.constructor === Map) {
               for (const [key, value] of map) {
+                if (found == true) {
+                  return;
+                }
                 line += 1;
                 if (JSON.stringify(targetPath) === JSON.stringify(currentPath.concat([key]))) {
                   found = true;
@@ -2519,13 +2520,21 @@
                 if (typeof value === "object" && value !== null && !Array.isArray(value) && value instanceof Map && value.constructor === Map && Array.from(value.keys()).length) {
                   line -= 1;
                   _incrementLineUntilReaching(value, targetPath, currentPath.concat([key]));
-                } else if (Array.isArray(value) && (map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(key) === -1) && value.length) {
-                  line -= 1;
-                  _incrementLineUntilReaching(value, targetPath, currentPath.concat([key]));
+                } else if (Array.isArray(value) && value.length) {
+                  if (map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(key) === -1) {
+                    line -= 1;
+                    _incrementLineUntilReaching(value, targetPath, currentPath.concat([key]));
+                  } else if (JSON.stringify(targetPath.slice(0, -1)) === JSON.stringify(currentPath.concat([key]))) {
+                    found = true;
+                    return;
+                  }
                 }
               }
             } else {
               for (let i = 0, c = map.length; i < c; i++) {
+                if (found == true) {
+                  return;
+                }
                 line += 1;
                 if (JSON.stringify(targetPath) === JSON.stringify(currentPath.concat([i]))) {
                   found = true;
@@ -2534,9 +2543,14 @@
                 if (typeof map[i] === "object" && map[i] !== null && !Array.isArray(map[i]) && map[i] instanceof Map && map[i].constructor === Map && Array.from(map[i].keys()).length) {
                   line -= 1;
                   _incrementLineUntilReaching(map[i], targetPath, currentPath.concat([i]));
-                } else if (Array.isArray(map[i]) && (map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(i) === -1) && map[i].length) {
-                  line -= 1;
-                  _incrementLineUntilReaching(map[i], targetPath, currentPath.concat([i]));
+                } else if (Array.isArray(map[i]) && map[i].length) {
+                  if (map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(i) === -1) {
+                    line -= 1;
+                    _incrementLineUntilReaching(map[i], targetPath, currentPath.concat([i]));
+                  } else if (JSON.stringify(targetPath.slice(0, -1)) === JSON.stringify(currentPath.concat([i]))) {
+                    found = true;
+                    return;
+                  }
                 }
               }
             }
