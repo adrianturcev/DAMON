@@ -1591,7 +1591,6 @@
           damonLines.shift();
           for (let i = 0, c = damonLines.length; i < c; i++) {
             if (!/^- /.test(damonLines[i].trimStart()) || /^ +/.test(damonLines[i]) && (damonLines[i].match(/^ +/)[0].length % $.indentation != 0 || i == 0 && damonLines[i].match(/^ +/)[0].length != $.indentation || i != 0 && /^- /.test(damonLines[i - 1]) && damonLines[i].match(/^ +/)[0].length != $.indentation || i != 0 && !/^- /.test(damonLines[i - 1]) && damonLines[i].match(/^ +/)[0].length > damonLines[i - 1].match(/^ +/)[0].length + $.indentation)) {
-              console.log(damonLines[i]);
               let error = new Error(
                 "Error line " + (damonOriginalLinesMapping.indexOf(i) + 1) + ": bad formatting"
               );
@@ -2447,7 +2446,6 @@
           const $ = this;
           let damonMap = $.damonToMap(damon), line = -1, found = false;
           _incrementLineUntilReaching(damonMap, path);
-          console.log(line);
           if (damonMap.headless)
             line -= 1;
           let totalLines = 0, match = 0;

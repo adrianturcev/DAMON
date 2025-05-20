@@ -425,7 +425,6 @@ class Damon {
                     )
                 )
             ) {
-                console.log(damonLines[i]);
                 let error = new Error(
                     "Error line " + (damonOriginalLinesMapping.indexOf(i) + 1) + ": bad formatting"
                 );
@@ -1660,7 +1659,6 @@ class Damon {
             line = -1,
             found = false;
         _incrementLineUntilReaching(damonMap, path);
-        console.log(line);
         if (damonMap.headless)
             line -= 1;
         let totalLines = 0,
