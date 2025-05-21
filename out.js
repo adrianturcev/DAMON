@@ -2446,8 +2446,6 @@
           const $ = this;
           let damonMap = $.damonToMap(damon), mapIndex = -1, found = false;
           _incrementMapIndexUntilReaching(damonMap, path);
-          if (damonMap.headless)
-            mapIndex -= 1;
           let totalLines = $.mapIndexToLine(damonMap, mapIndex);
           let lineText = $._getLines(damon)[totalLines], start = 0, end = lineText.length;
           if (path.length == 1) {
@@ -2663,6 +2661,8 @@
          */
         mapIndexToLine(map, mapIndex) {
           let totalLines = 0, match = 0;
+          if (map.headless)
+            mapIndex -= 1;
           for (let i = 0, c = map.damonOriginalLinesMapping.length; i < c; i++) {
             if (map.damonOriginalLinesMapping[i] !== null) {
               match++;
