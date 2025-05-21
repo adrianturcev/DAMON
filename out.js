@@ -2444,20 +2444,11 @@
          */
         getRangeFromPath(damon, path) {
           const $ = this;
-          let damonMap = $.damonToMap(damon), line = -1, found = false;
-          _incrementLineUntilReaching(damonMap, path);
+          let damonMap = $.damonToMap(damon), mapIndex = -1, found = false;
+          _incrementMapIndexUntilReaching(damonMap, path);
           if (damonMap.headless)
-            line -= 1;
-          let totalLines = 0, match = 0;
-          for (let i = 0, c = damonMap.damonOriginalLinesMapping.length; i < c; i++) {
-            if (damonMap.damonOriginalLinesMapping[i] !== null) {
-              match++;
-            }
-            if (match == line) {
-              totalLines = i + 1;
-              break;
-            }
-          }
+            mapIndex -= 1;
+          let totalLines = $.mapIndexToLine(damonMap, mapIndex);
           let lineText = $._getLines(damon)[totalLines], start = 0, end = lineText.length;
           if (path.length == 1) {
             if (typeof path[path.length - 1] == "string") {
@@ -2471,14 +2462,14 @@
                 start = lineText.length - lineText.trimStart().slice(2 + path[path.length - 1].length + 2).trimStart().length;
               } else {
                 if (lineText[lineText.length - 1] == "]" && !/\[ *\]$/.test(lineText)) {
-                  let arrayText = lineText.trimStart().slice(2 + path[path.length - 2].length + 2), array = JSON.parse(arrayText), occurences = array.slice(0, path[path.length - 1].length).reduce((acc, value) => acc + (value === array[path[path.length - 1]]), 0), index = 0, match2 = array[path[path.length - 1]];
-                  if (typeof match2 == "string")
-                    match2 = '"' + match2 + '"';
+                  let arrayText = lineText.trimStart().slice(2 + path[path.length - 2].length + 2), array = JSON.parse(arrayText), occurences = array.slice(0, path[path.length - 1].length).reduce((acc, value) => acc + (value === array[path[path.length - 1]]), 0), index = 0, match = array[path[path.length - 1]];
+                  if (typeof match == "string")
+                    match = '"' + match + '"';
                   for (let i = 0, c = occurences + 1; i < c; i++) {
-                    index = arrayText.indexOf(match2, index);
+                    index = arrayText.indexOf(match, index);
                   }
                   start = lineText.length - arrayText.length + index;
-                  end = start + match2.length;
+                  end = start + match.length;
                 } else {
                   start = lineText.length - lineText.trimStart().slice(2).length;
                 }
@@ -2488,14 +2479,14 @@
                 start = lineText.length - lineText.trimStart().slice(2 + path[path.length - 1].length + 2).trimStart().length;
               } else {
                 if (lineText[lineText.length - 1] == "]" && !/\[ *\]$/.test(lineText)) {
-                  let arrayText = lineText.trimStart().slice(2), array = JSON.parse(arrayText), occurences = array.slice(0, path[path.length - 1]).reduce((acc, value) => acc + (value === array[path[path.length - 1]]), 0), index = 0, match2 = array[path[path.length - 1]];
-                  if (typeof match2 == "string")
-                    match2 = '"' + match2 + '"';
+                  let arrayText = lineText.trimStart().slice(2), array = JSON.parse(arrayText), occurences = array.slice(0, path[path.length - 1]).reduce((acc, value) => acc + (value === array[path[path.length - 1]]), 0), index = 0, match = array[path[path.length - 1]];
+                  if (typeof match == "string")
+                    match = '"' + match + '"';
                   for (let i = 0, c = occurences + 1; i < c; i++) {
-                    index = arrayText.indexOf(match2, index);
+                    index = arrayText.indexOf(match, index);
                   }
                   start = lineText.length - arrayText.length + index;
-                  end = start + match2.length;
+                  end = start + match.length;
                 } else {
                   start = lineText.length - lineText.trimStart().slice(2).length;
                 }
@@ -2503,25 +2494,25 @@
             }
           }
           return [[totalLines, start], [totalLines, end]];
-          function _incrementLineUntilReaching(map, targetPath, currentPath = []) {
-            line += 1;
+          function _incrementMapIndexUntilReaching(map, targetPath, currentPath = []) {
+            mapIndex += 1;
             if (typeof map === "object" && map !== null && !Array.isArray(map) && map instanceof Map && map.constructor === Map) {
               for (const [key, value] of map) {
                 if (found == true) {
                   return;
                 }
-                line += 1;
+                mapIndex += 1;
                 if (JSON.stringify(targetPath) === JSON.stringify(currentPath.concat([key]))) {
                   found = true;
                   return;
                 }
                 if (typeof value === "object" && value !== null && !Array.isArray(value) && value instanceof Map && value.constructor === Map && Array.from(value.keys()).length) {
-                  line -= 1;
-                  _incrementLineUntilReaching(value, targetPath, currentPath.concat([key]));
+                  mapIndex -= 1;
+                  _incrementMapIndexUntilReaching(value, targetPath, currentPath.concat([key]));
                 } else if (Array.isArray(value) && value.length) {
                   if (map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(key) === -1) {
-                    line -= 1;
-                    _incrementLineUntilReaching(value, targetPath, currentPath.concat([key]));
+                    mapIndex -= 1;
+                    _incrementMapIndexUntilReaching(value, targetPath, currentPath.concat([key]));
                   } else if (JSON.stringify(targetPath.slice(0, -1)) === JSON.stringify(currentPath.concat([key]))) {
                     found = true;
                     return;
@@ -2533,18 +2524,18 @@
                 if (found == true) {
                   return;
                 }
-                line += 1;
+                mapIndex += 1;
                 if (JSON.stringify(targetPath) === JSON.stringify(currentPath.concat([i]))) {
                   found = true;
                   return;
                 }
                 if (typeof map[i] === "object" && map[i] !== null && !Array.isArray(map[i]) && map[i] instanceof Map && map[i].constructor === Map && Array.from(map[i].keys()).length) {
-                  line -= 1;
-                  _incrementLineUntilReaching(map[i], targetPath, currentPath.concat([i]));
+                  mapIndex -= 1;
+                  _incrementMapIndexUntilReaching(map[i], targetPath, currentPath.concat([i]));
                 } else if (Array.isArray(map[i]) && map[i].length) {
                   if (map.damonInlineArrays == void 0 || map.damonInlineArrays.indexOf(i) === -1) {
-                    line -= 1;
-                    _incrementLineUntilReaching(map[i], targetPath, currentPath.concat([i]));
+                    mapIndex -= 1;
+                    _incrementMapIndexUntilReaching(map[i], targetPath, currentPath.concat([i]));
                   } else if (JSON.stringify(targetPath.slice(0, -1)) === JSON.stringify(currentPath.concat([i]))) {
                     found = true;
                     return;
@@ -2664,6 +2655,24 @@
             }
           }
           return token;
+        }
+        /**
+         * @param {damonValue} map
+         * @param {number} mapIndex
+         * @returns number
+         */
+        mapIndexToLine(map, mapIndex) {
+          let totalLines = 0, match = 0;
+          for (let i = 0, c = map.damonOriginalLinesMapping.length; i < c; i++) {
+            if (map.damonOriginalLinesMapping[i] !== null) {
+              match++;
+            }
+            if (match == mapIndex) {
+              totalLines = i + 1;
+              break;
+            }
+          }
+          return totalLines;
         }
       };
     }
