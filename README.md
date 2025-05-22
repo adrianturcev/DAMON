@@ -8,7 +8,7 @@ A JSON-shorthand that:
 
 ## Demo
 
-[Hello, human!](https://planviii.com/)
+[Hello, human!](https://space.planviii.com/)
 
 ## Syntax
 
