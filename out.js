@@ -1324,7 +1324,7 @@
          */
         damonToMap(damon, startLine = 0) {
           const $ = this;
-          let treeOrPrimitive = $._damonToTree(damon);
+          let treeOrPrimitive = $._damonToTree(damon, startLine);
           if (treeOrPrimitive === true || treeOrPrimitive === false || treeOrPrimitive === null || typeof treeOrPrimitive === "string" || typeof treeOrPrimitive === "number") {
             return treeOrPrimitive;
           }
@@ -1424,7 +1424,7 @@
             throw error;
           }
           var delimiter = /\r\n/.test(damon) ? "\r\n" : "\n", damonLines = damon.split(delimiter);
-          if (/\\*\n/.test(damon) && delimiter == "\n") {
+          if (delimiter == "\n" && /\\*\n/.test(damon)) {
             if (/[^\\]\\(\\\\)*\n/.test(damon)) {
               let errorLine = damon.split(/[^\\]\\(\\\\)*\n/)[0].split("\n").length;
               let error = new Error("Error line " + (startLine + errorLine) + ": oddly escaped newline");
@@ -1522,7 +1522,7 @@
               }
             }
             if (!/^ *- $/.test(damonLines[i]) && /[ \t]+$/.test(damonLines[i])) {
-              let error = new Error(
+              const error = new Error(
                 "Error line " + (startLine + damonOriginalLinesMapping.indexOf(i) + 1) + ": trailing whitespace"
               );
               error.line = startLine + damonOriginalLinesMapping.indexOf(i) + 1;
