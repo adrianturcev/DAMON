@@ -1407,19 +1407,19 @@
          * @param {string} [language='DAMON']
          * @returns {Array<string>} damonLines
          */
-        _getLines(damon, language = "DAMON") {
+        _getLines(damon, language = "DAMON", startLine = 0) {
           if (["DAMON", "JSON"].indexOf(language) == -1) {
             throw new Error("Bad language argument, expected 'DAMON' or 'JSON'");
           }
           if (damon === "") {
-            let error = new Error("Error line 1: empty string");
-            error.line = 1;
+            let error = new Error("Error line " + (startLine + 1) + ": empty string");
+            error.line = startLine + 1;
             error.language = language;
             throw error;
           }
           if (/[\s]/.test(damon) && damon.match(new RegExp(/[\s]/))[0].length == damon.length) {
-            let error = new Error("Error line 1: string only contains whitespace");
-            error.line = 1;
+            let error = new Error("Error line " + (startLine + 1) + ": string only contains whitespace");
+            error.line = startLine + 1;
             error.language = language;
             throw error;
           }
@@ -1427,8 +1427,8 @@
           if (/\\*\n/.test(damon) && delimiter == "\n") {
             if (/[^\\]\\(\\\\)*\n/.test(damon)) {
               let errorLine = damon.split(/[^\\]\\(\\\\)*\n/)[0].split("\n").length;
-              let error = new Error("Error line " + errorLine + ": oddly escaped newline");
-              error.line = errorLine;
+              let error = new Error("Error line " + (startLine + errorLine) + ": oddly escaped newline");
+              error.line = startLine + errorLine;
               error.language = language;
               throw error;
             }
@@ -1454,7 +1454,7 @@
          */
         _damonToTree(damon, startLine) {
           const $ = this;
-          let damonLines = $._getLines(damon), damonOriginalLines = damonLines.slice(0);
+          let damonLines = $._getLines(damon, "DAMON", startLine), damonOriginalLines = damonLines.slice(0);
           damonLines = damonLines.filter((x) => !/^ *\/\//.test(x));
           damonLines = damonLines.filter((x) => x != "");
           damonLines = damonLines.filter((x) => !/^[ \t]+$/.test(x));
@@ -1468,7 +1468,7 @@
                 console.error(
                   "Error line number " + (startLine + 1) + ": not JSON-compliant, detailed error follows"
                 );
-                error.line = 1;
+                error.line = startLine + 1;
                 error.language = "JSON";
                 error.type = "string";
                 throw error;
@@ -1476,7 +1476,7 @@
             } else if (isFinite(damonLines[0]) && !isNaN(parseFloat(damonLines[0])) && Number.isFinite(damonLines[0] * 1) && !Number.isNaN(damonLines[0] * 1)) {
               if (damonLines[0].indexOf(0) == 0 && damonLines[0].length > 1 && damonLines[0].indexOf(".") !== 1) {
                 let error = new Error("Error line number " + (startLine + 1) + ": leading 0");
-                error.line = 1;
+                error.line = startLine + 1;
                 error.language = "DAMON";
                 throw error;
               }
@@ -1486,7 +1486,7 @@
                 console.error(
                   "Error line number " + (startLine + 1) + ": not JSON-compliant, detailed error follows"
                 );
-                error.line = 1;
+                error.line = startLine + 1;
                 error.language = "JSON";
                 error.type = "number";
                 throw error;
@@ -1498,7 +1498,7 @@
                 console.error(
                   "Error line number " + (startLine + 1) + ": not JSON-compliant, detailed error follows"
                 );
-                error.line = 1;
+                error.line = startLine + 1;
                 error.language = "JSON";
                 error.type = "infinity";
                 throw error;
@@ -1523,9 +1523,9 @@
             }
             if (!/^ *- $/.test(damonLines[i]) && /[ \t]+$/.test(damonLines[i])) {
               let error = new Error(
-                "Error line " + startLine + (damonOriginalLinesMapping.indexOf(i) + 1) + ": trailing whitespace"
+                "Error line " + (startLine + damonOriginalLinesMapping.indexOf(i) + 1) + ": trailing whitespace"
               );
-              error.line = damonOriginalLinesMapping.indexOf(i) + 1;
+              error.line = startLine + damonOriginalLinesMapping.indexOf(i) + 1;
               error.language = "DAMON";
               throw error;
             }
@@ -1542,7 +1542,7 @@
             }
             if (!trimmable) {
               let error = new Error("Error line " + (startLine + 1) + ": bad formatting");
-              error.line = 1;
+              error.line = startLine + 1;
               error.language = "DAMON";
               throw error;
             }
@@ -1557,7 +1557,7 @@
             }
             if (!trimmable) {
               let error = new Error("Error line " + (startLine + 2) + ": bad formatting");
-              error.line = 2;
+              error.line = startLine + 2;
               error.language = "DAMON";
               throw error;
             }
@@ -1590,7 +1590,7 @@
           var previousListItem = treeRoot;
           if (!/^- /.test(damonLines[0].trimStart()) || /^ +/.test(damonLines[0]) && (damonLines[0].match(/^ +/)[0].length % $.indentation != 0 || damonLines[0].match(/^ +/)[0].length != $.indentation)) {
             let error = new Error("Error line " + (startLine + (headless * 1 + 1)) + ": bad formatting");
-            error.line = headless * 1 + 1;
+            error.line = startLine + headless * 1 + 1;
             error.language = "DAMON";
             throw error;
           }
@@ -1598,9 +1598,9 @@
           for (let i = 0, c = damonLines.length; i < c; i++) {
             if (!/^- /.test(damonLines[i].trimStart()) || /^ +/.test(damonLines[i]) && (damonLines[i].match(/^ +/)[0].length % $.indentation != 0 || i == 0 && damonLines[i].match(/^ +/)[0].length != $.indentation || i != 0 && /^- /.test(damonLines[i - 1]) && damonLines[i].match(/^ +/)[0].length != $.indentation || i != 0 && !/^- /.test(damonLines[i - 1]) && damonLines[i].match(/^ +/)[0].length > damonLines[i - 1].match(/^ +/)[0].length + $.indentation)) {
               let error = new Error(
-                "Error line " + (startLine + (damonOriginalLinesMapping.indexOf(i) + 1)) + ": bad formatting"
+                "Error line " + (startLine + damonOriginalLinesMapping.indexOf(i) + 1) + ": bad formatting"
               );
-              error.line = damonOriginalLinesMapping.indexOf(i) + 1;
+              error.line = startLine + damonOriginalLinesMapping.indexOf(i) + 1;
               error.language = "DAMON";
               throw error;
             }
@@ -1698,7 +1698,7 @@
             if (typeof tree !== "object" || tree == null || Array.isArray(tree)) {
               let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
               let error = new Error("Error line number " + (startLine + errorLine) + ": @param { {} } tree");
-              error.line = errorLine;
+              error.line = startLine + errorLine;
               error.language = "DAMON";
               throw error;
             }
@@ -1709,7 +1709,7 @@
             } else {
               let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
               let error = new Error("Error line number " + (startLine + errorLine) + ": @param { {} | [] } jsonMap");
-              error.line = errorLine;
+              error.line = startLine + errorLine;
               error.language = "DAMON";
               throw error;
             }
@@ -1770,7 +1770,7 @@
                             let error2 = new Error(
                               "Error line number " + (startLine + errorLine) + ": invalid inline list"
                             );
-                            error2.line = errorLine;
+                            error2.line = startLine + errorLine;
                             error2.language = "DAMON";
                             throw error2;
                           }
@@ -1802,7 +1802,7 @@
                         let error = new Error(
                           "Error line number " + (startLine + errorLine) + ": no nesting in inline lists"
                         );
-                        error.line = errorLine;
+                        error.line = startLine + errorLine;
                         error.language = "DAMON";
                         throw error;
                       }
@@ -1811,7 +1811,7 @@
                         let error = new Error(
                           "Error line number " + (startLine + errorLine) + ": inline lists can't have children"
                         );
-                        error.line = errorLine;
+                        error.line = startLine + errorLine;
                         error.language = "DAMON";
                         throw error;
                       }
@@ -1858,7 +1858,7 @@
                         let error = new Error(
                           "Error line number " + (startLine + errorLine) + ": unescaped double quote"
                         );
-                        error.line = errorLine;
+                        error.line = startLine + errorLine;
                         error.language = "DAMON";
                         throw error;
                       }
@@ -1871,7 +1871,7 @@
                         let error = new Error(
                           "Error line number " + (startLine + errorLine) + ": leading 0"
                         );
-                        error.line = errorLine;
+                        error.line = startLine + errorLine;
                         error.language = "DAMON";
                         throw error;
                       }
@@ -1929,7 +1929,7 @@
                           let error = new Error(
                             "Error line number " + (startLine + errorLine) + ": missing separator"
                           );
-                          error.line = errorLine;
+                          error.line = startLine + errorLine;
                           error.language = "DAMON";
                           error.errorType = "pedantic";
                           throw error;
@@ -1962,7 +1962,7 @@
                             let error = new Error(
                               "Error line number " + (startLine + errorLine) + ": bad value"
                             );
-                            error.line = errorLine;
+                            error.line = startLine + errorLine;
                             error.language = "DAMON";
                             error.errorType = "pedantic";
                             throw error;
@@ -1971,7 +1971,7 @@
                             let error = new Error(
                               "Error line number " + (startLine + errorLine) + ": missing separator"
                             );
-                            error.line = errorLine;
+                            error.line = startLine + errorLine;
                             error.language = "DAMON";
                             error.errorType = "pedantic";
                             throw error;
@@ -2004,7 +2004,7 @@
                       let error = new Error(
                         "Error line number " + (startLine + errorLine) + ": missing container or excess indentation"
                       );
-                      error.line = errorLine;
+                      error.line = startLine + errorLine;
                       error.language = "DAMON";
                       throw error;
                     }
@@ -2015,7 +2015,7 @@
                     console.error(
                       "Error line number " + (startLine + errorLine) + ": not JSON-compliant, detailed error follows"
                     );
-                    error.line = errorLine;
+                    error.line = startLine + errorLine;
                     error.language = "JSON";
                     error.type = errorType;
                   }
@@ -2040,9 +2040,9 @@
                     } catch (error) {
                       let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
                       let err = new Error(
-                        "Error line number " + errorLine + ": invalid inline lists"
+                        "Error line number " + (startLine + errorLine) + ": invalid inline lists"
                       );
-                      err.line = errorLine;
+                      err.line = startLine + errorLine;
                       err.language = "JSON";
                       err.type = "list";
                       throw err;
@@ -2071,18 +2071,18 @@
                     } else {
                       let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
                       let error = new Error(
-                        "Error line number " + errorLine + ": no nesting in inline lists"
+                        "Error line number " + (startLine + errorLine) + ": no nesting in inline lists"
                       );
-                      error.line = errorLine;
+                      error.line = startLine + errorLine;
                       error.language = "DAMON";
                       throw error;
                     }
                     if (tree.children[i].children.length > 0) {
                       let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 3;
                       let error = new Error(
-                        "Error line number " + errorLine + ": inline lists can't have children"
+                        "Error line number " + (startLine + errorLine) + ": inline lists can't have children"
                       );
-                      error.line = errorLine;
+                      error.line = startLine + errorLine;
                       error.language = "DAMON";
                       throw error;
                     }
@@ -2102,9 +2102,9 @@
                   } catch (error) {
                     let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
                     console.error(
-                      "Error line number " + errorLine + ": not JSON-compliant, detailed error follows"
+                      "Error line number " + (startLine + errorLine) + ": not JSON-compliant, detailed error follows"
                     );
-                    error.line = errorLine;
+                    error.line = startLine + errorLine;
                     error.language = "JSON";
                     error.type = "string";
                     throw error;
@@ -2112,8 +2112,8 @@
                 } else if (isFinite(text) && !isNaN(parseFloat(text)) && Number.isFinite(text * 1) && !Number.isNaN(text * 1)) {
                   if (text.indexOf(0) == 0 && text.length > 1 && text.indexOf(".") !== 1) {
                     let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
-                    let error = new Error("Error line number " + errorLine + ": leading 0");
-                    error.line = errorLine;
+                    let error = new Error("Error line number " + (startLine + errorLine) + ": leading 0");
+                    error.line = startLine + errorLine;
                     error.language = "DAMON";
                     throw error;
                   }
@@ -2122,9 +2122,9 @@
                   } catch (error) {
                     let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
                     console.error(
-                      "Error line number " + errorLine + ": not JSON-compliant, detailed error follows"
+                      "Error line number " + (startLine + errorLine) + ": not JSON-compliant, detailed error follows"
                     );
-                    error.line = errorLine;
+                    error.line = startLine + errorLine;
                     error.language = "JSON";
                     error.type = "number";
                     throw error;
@@ -2135,24 +2135,26 @@
                   } catch (error) {
                     let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
                     console.error(
-                      "Error line number " + errorLine + ": not JSON-compliant, detailed error follows"
+                      "Error line number " + (startLine + errorLine) + ": not JSON-compliant, detailed error follows"
                     );
-                    error.line = errorLine;
+                    error.line = startLine + errorLine;
                     error.language = "JSON";
                     error.type = "infinity";
                     throw error;
                   }
                 } else {
                   let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
-                  let error = new Error("Error line number " + errorLine + ": list items can't have a key");
-                  error.line = errorLine;
+                  let error = new Error(
+                    "Error line number " + (startLine + errorLine) + ": list items can't have a key"
+                  );
+                  error.line = startLine + errorLine;
                   error.language = "DAMON";
                   throw error;
                 }
               } else {
                 let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
-                let error = new Error("Error line number " + errorLine + ": empty list node");
-                error.line = errorLine;
+                let error = new Error("Error line number " + (startLine + errorLine) + ": empty list node");
+                error.line = startLine + errorLine;
                 error.language = "DAMON";
                 throw error;
               }

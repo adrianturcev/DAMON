@@ -153,13 +153,13 @@ class Damon {
      * @param {string} [language='DAMON']
      * @returns {Array<string>} damonLines
      */
-    _getLines(damon, language = 'DAMON') {
+    _getLines(damon, language = 'DAMON', startLine = 0) {
         if (['DAMON', 'JSON'].indexOf(language) == -1) {
             throw new Error("Bad language argument, expected 'DAMON' or 'JSON'");
         }
         if (damon === '') {
-            let error = new Error("Error line 1: empty string");
-            error.line = 1;
+            let error = new Error("Error line " + (startLine + 1) + ": empty string");
+            error.line = startLine + 1;
             error.language = language;
             throw error;
         }
@@ -167,8 +167,8 @@ class Damon {
             /[\s]/.test(damon)
             && damon.match(new RegExp(/[\s]/))[0].length == damon.length
         ) {
-            let error = new Error("Error line 1: string only contains whitespace");
-            error.line = 1;
+            let error = new Error("Error line " + (startLine + 1) + ": string only contains whitespace");
+            error.line = startLine + 1;
             error.language = language;
             throw error;
         }
@@ -177,8 +177,8 @@ class Damon {
         if (/\\*\n/.test(damon) && delimiter == '\n') {
             if (/[^\\]\\(\\\\)*\n/.test(damon)) {
                 let errorLine = damon.split(/[^\\]\\(\\\\)*\n/)[0].split('\n').length;
-                let error = new Error("Error line " + errorLine + ": oddly escaped newline");
-                error.line = errorLine;
+                let error = new Error("Error line " + (startLine + errorLine) + ": oddly escaped newline");
+                error.line =  startLine + errorLine;
                 error.language = language;
                 throw error;
             }
@@ -206,7 +206,7 @@ class Damon {
      */
     _damonToTree(damon, startLine) {
         const $ = this;
-        let damonLines = $._getLines(damon),
+        let damonLines = $._getLines(damon, "DAMON", startLine),
             damonOriginalLines = damonLines.slice(0);
         // Let the shaving, begin!
         // - Remove comments lines
@@ -226,7 +226,7 @@ class Damon {
                     console.error(
                         "Error line number " + (startLine + 1) + ": not JSON-compliant, detailed error follows"
                     );
-                    error.line = 1;
+                    error.line = startLine + 1;
                     error.language = "JSON";
                     error.type = "string";
                     throw error;
@@ -244,7 +244,7 @@ class Damon {
                     && damonLines[0].indexOf('.') !== 1
                 ) {
                     let error = new Error("Error line number " + (startLine + 1) + ": leading 0");
-                    error.line = 1;
+                    error.line = startLine + 1;
                     error.language = "DAMON";
                     throw error;
                 }
@@ -254,7 +254,7 @@ class Damon {
                     console.error(
                         "Error line number " + (startLine + 1) + ": not JSON-compliant, detailed error follows"
                     );
-                    error.line = 1;
+                    error.line = startLine + 1;
                     error.language = "JSON";
                     error.type = "number";
                     throw error;
@@ -267,7 +267,7 @@ class Damon {
                     console.error(
                         "Error line number " + (startLine + 1) + ": not JSON-compliant, detailed error follows"
                     );
-                    error.line = 1;
+                    error.line = startLine + 1;
                     error.language = "JSON";
                     error.type = "infinity";
                     throw error;
@@ -301,9 +301,9 @@ class Damon {
                 && /[ \t]+$/.test(damonLines[i])
             ) {
                 let error = new Error(
-                    "Error line " + startLine + (damonOriginalLinesMapping.indexOf(i) + 1) + ": trailing whitespace"
+                    "Error line " + (startLine + damonOriginalLinesMapping.indexOf(i) + 1) + ": trailing whitespace"
                 );
-                error.line = damonOriginalLinesMapping.indexOf(i) + 1;
+                error.line = startLine + damonOriginalLinesMapping.indexOf(i) + 1;
                 error.language = "DAMON";
                 throw error;
             }
@@ -327,7 +327,7 @@ class Damon {
             }
             if (!trimmable) {
                 let error = new Error("Error line " + (startLine + 1) + ": bad formatting");
-                error.line = 1;
+                error.line = startLine + 1;
                 error.language = "DAMON";
                 throw error;
             }
@@ -349,7 +349,7 @@ class Damon {
             }
             if (!trimmable) {
                 let error = new Error("Error line " + (startLine + 2) + ": bad formatting");
-                error.line = 2;
+                error.line = startLine + 2;
                 error.language = "DAMON";
                 throw error;
             }
@@ -401,7 +401,7 @@ class Damon {
             )
         ) {
             let error = new Error("Error line " + (startLine + ((headless * 1) + 1)) + ": bad formatting");
-            error.line = (headless * 1) + 1;
+            error.line = startLine + (headless * 1) + 1;
             error.language = "DAMON";
             throw error;
         }
@@ -432,9 +432,9 @@ class Damon {
                 )
             ) {
                 let error = new Error(
-                    "Error line " + (startLine  + (damonOriginalLinesMapping.indexOf(i) + 1)) + ": bad formatting"
+                    "Error line " + (startLine  + damonOriginalLinesMapping.indexOf(i) + 1) + ": bad formatting"
                 );
-                error.line = damonOriginalLinesMapping.indexOf(i) + 1;
+                error.line = startLine + damonOriginalLinesMapping.indexOf(i) + 1;
                 error.language = "DAMON";
                 throw error;
             }
@@ -550,7 +550,7 @@ class Damon {
                     + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1)
                     + 2;
                 let error = new Error("Error line number " + (startLine + errorLine) + ": @param { {} } tree");
-                error.line = errorLine;
+                error.line = startLine + errorLine;
                 error.language = "DAMON";
                 throw error;
             }
@@ -571,7 +571,7 @@ class Damon {
                     + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1)
                     + 2;
                 let error = new Error("Error line number " + (startLine  + errorLine) + ": @param { {} | [] } jsonMap");
-                error.line = errorLine;
+                error.line = startLine + errorLine;
                 error.language = "DAMON";
                 throw error;
             }
@@ -661,7 +661,7 @@ class Damon {
                                             let error = new Error(
                                                 "Error line number " + (startLine + errorLine) + ": invalid inline list"
                                             );
-                                            error.line = errorLine;
+                                            error.line = startLine + errorLine;
                                             error.language = "DAMON";
                                             throw error;
                                         }
@@ -706,7 +706,7 @@ class Damon {
                                     let error = new Error(
                                         "Error line number " + (startLine + errorLine) + ": no nesting in inline lists"
                                     );
-                                    error.line = errorLine;
+                                    error.line = startLine + errorLine;
                                     error.language = "DAMON";
                                     throw error;
                                 }
@@ -719,7 +719,7 @@ class Damon {
                                         "Error line number " + (startLine + errorLine)
                                         + ": inline lists can't have children"
                                     );
-                                    error.line = errorLine;
+                                    error.line = startLine + errorLine;
                                     error.language = "DAMON";
                                     throw error;
                                 }
@@ -803,7 +803,7 @@ class Damon {
                                     let error = new Error(
                                         "Error line number " + (startLine + errorLine) + ": unescaped double quote"
                                     );
-                                    error.line = errorLine;
+                                    error.line = startLine + errorLine;
                                     error.language = "DAMON";
                                     throw error;
                                 }
@@ -832,7 +832,7 @@ class Damon {
                                     let error = new Error(
                                         "Error line number " + (startLine  + errorLine) + ": leading 0"
                                     );
-                                    error.line = errorLine;
+                                    error.line = startLine + errorLine;
                                     error.language = "DAMON";
                                     throw error;
                                 }
@@ -923,7 +923,7 @@ class Damon {
                                         let error = new Error(
                                             "Error line number " + (startLine  + errorLine) + ": missing separator"
                                         );
-                                        error.line = errorLine;
+                                        error.line = startLine + errorLine;
                                         error.language = "DAMON";
                                         error.errorType = "pedantic";
                                         throw error;
@@ -967,7 +967,7 @@ class Damon {
                                                 "Error line number " + (startLine + errorLine) + ": bad value"
 
                                             );
-                                            error.line = errorLine;
+                                            error.line = startLine + errorLine;
                                             error.language = "DAMON";
                                             error.errorType = "pedantic";
                                             throw error;
@@ -980,7 +980,7 @@ class Damon {
                                             let error = new Error(
                                                 "Error line number " + (startLine + errorLine) + ": missing separator"
                                             );
-                                            error.line = errorLine;
+                                            error.line = startLine + errorLine;
                                             error.language = "DAMON";
                                             error.errorType = "pedantic";
                                             throw error;
@@ -1024,7 +1024,7 @@ class Damon {
                                     "Error line number " + (startLine + errorLine)
                                     + ": missing container or excess indentation"
                                 );
-                                error.line = errorLine;
+                                error.line = startLine + errorLine;
                                 error.language = "DAMON";
                                 throw error;
                             }
@@ -1039,7 +1039,7 @@ class Damon {
                                 "Error line number " + (startLine + errorLine)
                                 + ": not JSON-compliant, detailed error follows"
                             );
-                            error.line = errorLine;
+                            error.line = startLine + errorLine;
                             error.language = "JSON";
                             error.type = errorType;
                         }
@@ -1077,9 +1077,9 @@ class Damon {
                                     + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1)
                                     + 2;
                                 let err = new Error(
-                                    "Error line number " + errorLine + ": invalid inline lists"
+                                    "Error line number " + (startLine + errorLine) + ": invalid inline lists"
                                 );
-                                err.line = errorLine;
+                                err.line = startLine + errorLine;
                                 err.language = "JSON";
                                 err.type = "list";
                                 throw err;
@@ -1119,9 +1119,9 @@ class Damon {
                                     + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1)
                                     + 2;
                                 let error = new Error(
-                                    "Error line number " + errorLine + ": no nesting in inline lists"
+                                    "Error line number " + (startLine + errorLine) + ": no nesting in inline lists"
                                 );
-                                error.line = errorLine;
+                                error.line = startLine + errorLine;
                                 error.language = "DAMON";
                                 throw error;
                             }
@@ -1131,9 +1131,9 @@ class Damon {
                                     + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1)
                                     + 3;
                                 let error = new Error(
-                                    "Error line number " + errorLine + ": inline lists can't have children"
+                                    "Error line number " + (startLine + errorLine) + ": inline lists can't have children"
                                 );
-                                error.line = errorLine;
+                                error.line = startLine + errorLine;
                                 error.language = "DAMON";
                                 throw error;
                             }
@@ -1156,9 +1156,10 @@ class Damon {
                                 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1)
                                 + 2;
                             console.error(
-                                "Error line number " + errorLine + ": not JSON-compliant, detailed error follows"
+                                "Error line number " + (startLine + errorLine)
+                                + ": not JSON-compliant, detailed error follows"
                             );
-                            error.line = errorLine;
+                            error.line = startLine + errorLine;
                             error.language = "JSON";
                             error.type = "string";
                             throw error;
@@ -1179,8 +1180,8 @@ class Damon {
                                 (damonTree.headless * -1)
                                 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1)
                                 + 2;
-                            let error = new Error("Error line number " + errorLine + ": leading 0");
-                            error.line = errorLine;
+                            let error = new Error("Error line number " + (startLine + errorLine) + ": leading 0");
+                            error.line = startLine + errorLine;
                             error.language = "DAMON";
                             throw error;
                         }
@@ -1192,9 +1193,9 @@ class Damon {
                                 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1)
                                 + 2;
                             console.error(
-                                "Error line number " + errorLine + ": not JSON-compliant, detailed error follows"
+                                "Error line number " + (startLine + errorLine) + ": not JSON-compliant, detailed error follows"
                             );
-                            error.line = errorLine;
+                            error.line = startLine + errorLine;
                             error.language = "JSON";
                             error.type = "number";
                             throw error;
@@ -1209,9 +1210,9 @@ class Damon {
                                 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1)
                                 + 2;
                             console.error(
-                                "Error line number " + errorLine + ": not JSON-compliant, detailed error follows"
+                                "Error line number " + (startLine + errorLine) + ": not JSON-compliant, detailed error follows"
                             );
-                            error.line = errorLine;
+                            error.line = startLine + errorLine;
                             error.language = "JSON";
                             error.type = "infinity";
                             throw error;
@@ -1221,8 +1222,10 @@ class Damon {
                             (damonTree.headless * -1)
                             + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1)
                             + 2;
-                        let error = new Error("Error line number " + errorLine + ": list items can't have a key");
-                        error.line = errorLine;
+                        let error = new Error(
+                            "Error line number " + (startLine + errorLine) + ": list items can't have a key"
+                        );
+                        error.line = startLine + errorLine;
                         error.language = "DAMON";
                         throw error;
                     }
@@ -1231,8 +1234,8 @@ class Damon {
                         (damonTree.headless * -1)
                         + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1)
                         + 2;
-                    let error = new Error("Error line number " + errorLine + ": empty list node");
-                    error.line = errorLine;
+                    let error = new Error("Error line number " + (startLine + errorLine) + ": empty list node");
+                    error.line = startLine + errorLine;
                     error.language = "DAMON";
                     throw error;
                 }
