@@ -119,6 +119,14 @@ class Damon {
                     error.language = "DAMON";
                     throw error;
                 }
+                if (
+                    jsonLines[0].indexOf('_') > -1
+                ) {
+                    let error = new Error("Error line number 1: numeric separator");
+                    error.line = 1;
+                    error.language = "DAMON";
+                    throw error;
+                }
                 try {
                     return JSON.parse(jsonLines[0] * 1);
                 } catch (error) {
@@ -244,6 +252,14 @@ class Damon {
                     && damonLines[0].indexOf('.') !== 1
                 ) {
                     let error = new Error("Error line number " + (startLine + 1) + ": leading 0");
+                    error.line = startLine + 1;
+                    error.language = "DAMON";
+                    throw error;
+                }
+                if (
+                    damonLines[0].indexOf('_') > -1
+                ) {
+                    let error = new Error("Error line number " + (startLine + 1) + ": numeric separator");
                     error.line = startLine + 1;
                     error.language = "DAMON";
                     throw error;
@@ -836,6 +852,20 @@ class Damon {
                                     error.language = "DAMON";
                                     throw error;
                                 }
+                                if (
+                                    value.indexOf('_') > -1
+                                ) {
+                                    let errorLine =
+                                        (damonTree.headless * -1)
+                                        + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1)
+                                        + 2;
+                                    let error = new Error(
+                                        "Error line number " + (startLine  + errorLine) + ": Numeric separator"
+                                    );
+                                    error.line = startLine + errorLine;
+                                    error.language = "DAMON";
+                                    throw error;
+                                }
                                 let number = JSON.parse(`[${text.split(': ')[text.split(': ').length - 1] * 1}]`)[0];
                                 jsonMap.set(key, number);
                             } else if (
@@ -903,8 +933,18 @@ class Damon {
                                             if (!/[ \t]/.test(text[i])) {
                                                 break;
                                             }
-                                            validValue = true;
-                                            valueLength = accumulator.length;
+                                            if (
+                                                (
+                                                    accumulator.indexOf(0) == 0
+                                                    && accumulator.length > 1
+                                                    && accumulator.indexOf('.') !== 1
+                                                ) || (
+                                                    accumulator.indexOf('_') > -1
+                                                )
+                                            ) {
+                                                validValue = true;
+                                                valueLength = accumulator.length;
+                                            }
                                         } else {
                                             break;
                                         }
@@ -1175,6 +1215,18 @@ class Damon {
                             text.indexOf(0) == 0
                             && text.length > 1
                             && text.indexOf('.') !== 1
+                        ) {
+                            let errorLine =
+                                (damonTree.headless * -1)
+                                + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1)
+                                + 2;
+                            let error = new Error("Error line number " + (startLine + errorLine) + ": leading 0");
+                            error.line = startLine + errorLine;
+                            error.language = "DAMON";
+                            throw error;
+                        }
+                        if (
+                            text.indexOf('_') > -1
                         ) {
                             let errorLine =
                                 (damonTree.headless * -1)

@@ -1376,6 +1376,12 @@
                 error.language = "DAMON";
                 throw error;
               }
+              if (jsonLines[0].indexOf("_") > -1) {
+                let error = new Error("Error line number 1: numeric separator");
+                error.line = 1;
+                error.language = "DAMON";
+                throw error;
+              }
               try {
                 return JSON.parse(jsonLines[0] * 1);
               } catch (error) {
@@ -1476,6 +1482,12 @@
             } else if (isFinite(damonLines[0]) && !isNaN(parseFloat(damonLines[0])) && Number.isFinite(damonLines[0] * 1) && !Number.isNaN(damonLines[0] * 1)) {
               if (damonLines[0].indexOf(0) == 0 && damonLines[0].length > 1 && damonLines[0].indexOf(".") !== 1) {
                 let error = new Error("Error line number " + (startLine + 1) + ": leading 0");
+                error.line = startLine + 1;
+                error.language = "DAMON";
+                throw error;
+              }
+              if (damonLines[0].indexOf("_") > -1) {
+                let error = new Error("Error line number " + (startLine + 1) + ": numeric separator");
                 error.line = startLine + 1;
                 error.language = "DAMON";
                 throw error;
@@ -1875,6 +1887,15 @@
                         error.language = "DAMON";
                         throw error;
                       }
+                      if (value.indexOf("_") > -1) {
+                        let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
+                        let error = new Error(
+                          "Error line number " + (startLine + errorLine) + ": Numeric separator"
+                        );
+                        error.line = startLine + errorLine;
+                        error.language = "DAMON";
+                        throw error;
+                      }
                       let number = JSON.parse(`[${text.split(": ")[text.split(": ").length - 1] * 1}]`)[0];
                       jsonMap.set(key, number);
                     } else if (/^.*: /.test(text) && text.split(new RegExp(/: +/))[text.split(new RegExp(/: +/)).length - 1] * 1 === Infinity) {
@@ -1915,8 +1936,10 @@
                             if (!/[ \t]/.test(text[i2])) {
                               break;
                             }
-                            validValue = true;
-                            valueLength = accumulator.length;
+                            if (accumulator.indexOf(0) == 0 && accumulator.length > 1 && accumulator.indexOf(".") !== 1 || accumulator.indexOf("_") > -1) {
+                              validValue = true;
+                              valueLength = accumulator.length;
+                            }
                           } else {
                             break;
                           }
@@ -2111,6 +2134,13 @@
                   }
                 } else if (isFinite(text) && !isNaN(parseFloat(text)) && Number.isFinite(text * 1) && !Number.isNaN(text * 1)) {
                   if (text.indexOf(0) == 0 && text.length > 1 && text.indexOf(".") !== 1) {
+                    let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
+                    let error = new Error("Error line number " + (startLine + errorLine) + ": leading 0");
+                    error.line = startLine + errorLine;
+                    error.language = "DAMON";
+                    throw error;
+                  }
+                  if (text.indexOf("_") > -1) {
                     let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex - 1) + 2;
                     let error = new Error("Error line number " + (startLine + errorLine) + ": leading 0");
                     error.line = startLine + errorLine;
