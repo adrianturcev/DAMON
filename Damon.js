@@ -2176,10 +2176,9 @@ class Damon {
      * @param {number} lineOffset
      * @returns {Array<Array<string|number>>} pathsList
      */
-    getRangeMap(damonString, lineOffset = 0) {
+    getRangeMap(damonString, damonMap, lineOffset = 0) {
         const $ = this;
-        let damonMap = $.damonToMap(damonString),
-            damonLines = $._getLines(damonString),
+        let damonLines = $._getLines(damonString),
             rangesMap = new Map();
         _walk(damonMap, [], rangesMap);
         return rangesMap;

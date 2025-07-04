@@ -2833,9 +2833,9 @@
          * @param {number} lineOffset
          * @returns {Array<Array<string|number>>} pathsList
          */
-        getRangeMap(damonString, lineOffset = 0) {
+        getRangeMap(damonString, damonMap, lineOffset = 0) {
           const $ = this;
-          let damonMap = $.damonToMap(damonString), damonLines = $._getLines(damonString), rangesMap = /* @__PURE__ */ new Map();
+          let damonLines = $._getLines(damonString), rangesMap = /* @__PURE__ */ new Map();
           _walk(damonMap, [], rangesMap);
           return rangesMap;
           function _walk(map, currentPath = [], rangesMap2, inlineArray = false) {
@@ -2892,9 +2892,7 @@
                   }
                 } else {
                   if (inlineArray) {
-                    console.log(map[i]);
                     let keyRangeString = JSON.stringify($.getRangeFromPath(damonString, currentPath.concat(i), lineOffset, true));
-                    console.log(keyRangeString);
                     rangesMap2.set(
                       keyRangeString,
                       JSON.stringify(
