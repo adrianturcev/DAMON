@@ -2833,7 +2833,7 @@
          * @param {number} lineOffset
          * @returns {Array<Array<string|number>>} pathsList
          */
-        getRangeMap(damonString, damonMap, lineOffset = 0) {
+        getRangesMap(damonString, damonMap, lineOffset = 0) {
           const $ = this;
           let damonLines = $._getLines(damonString), rangesMap = /* @__PURE__ */ new Map();
           _walk(damonMap, [], rangesMap);
