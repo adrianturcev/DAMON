@@ -1827,7 +1827,7 @@ class Damon {
      */
     getRangeFromPath(damon, path, lineOffset = 0, inlineArray = false, prefixedMap = false) {
         const $ = this;
-        let damonMap = $.damonToMap(damon),
+        let damonMap = $.damonToMap(damon, 0, prefixedMap),
             mapIndex = -1,
             found = false;
         _incrementMapIndexUntilReaching(damonMap, path);
@@ -1841,7 +1841,7 @@ class Damon {
                     path[i] = path[i].split('-').slice(1).join('-');
             }
         }
-        if (path.length == 1) {
+        if (path.length === 1) {
             if (typeof path[path.length - 1] == 'string') {
                 start =
                     lineText.length
@@ -1931,7 +1931,7 @@ class Damon {
                 && map.constructor === Map
             ) {
                 for (const [key, value] of map) {
-                    if (found == true) {
+                    if (found === true) {
                         return;
                     }
                     mapIndex += 1;
@@ -2256,7 +2256,9 @@ class Damon {
                             );
                         } else {
                             let valueRange =
-                                $.getRangeFromPath(damonString, currentPath.concat(key), lineOffset),
+                                $.getRangeFromPath(
+                                    damonString, currentPath.concat(key), lineOffset, false, prefixedMap
+                                ),
                                 keyStart = damonLines[valueRange[0][0] - lineOffset].match('^([ \t]*)')[1].length + 2,
                                 keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + key.length]],
                                 keyRangeString = JSON.stringify(keyRange);

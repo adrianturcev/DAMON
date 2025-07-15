@@ -2577,7 +2577,7 @@
          */
         getRangeFromPath(damon, path, lineOffset = 0, inlineArray = false, prefixedMap = false) {
           const $ = this;
-          let damonMap = $.damonToMap(damon), mapIndex = -1, found = false;
+          let damonMap = $.damonToMap(damon, 0, prefixedMap), mapIndex = -1, found = false;
           _incrementMapIndexUntilReaching(damonMap, path);
           let totalLines = $.mapIndexToLine(damonMap, mapIndex);
           let lineText = $._getLines(damon)[totalLines], start = 0, end = lineText.length;
@@ -2587,7 +2587,7 @@
                 path[i] = path[i].split("-").slice(1).join("-");
             }
           }
-          if (path.length == 1) {
+          if (path.length === 1) {
             if (typeof path[path.length - 1] == "string") {
               start = lineText.length - lineText.trimStart().slice(2 + path[path.length - 1].length + 2).trimStart().length;
             } else {
@@ -2649,7 +2649,7 @@
             mapIndex += 1;
             if (typeof map === "object" && map !== null && !Array.isArray(map) && map instanceof Map && map.constructor === Map) {
               for (const [key, value] of map) {
-                if (found == true) {
+                if (found === true) {
                   return;
                 }
                 mapIndex += 1;
@@ -2883,7 +2883,13 @@
                       )
                     );
                   } else {
-                    let valueRange = $.getRangeFromPath(damonString, currentPath.concat(key), lineOffset), keyStart = damonLines[valueRange[0][0] - lineOffset].match("^([ 	]*)")[1].length + 2, keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + key.length]], keyRangeString = JSON.stringify(keyRange);
+                    let valueRange = $.getRangeFromPath(
+                      damonString,
+                      currentPath.concat(key),
+                      lineOffset,
+                      false,
+                      prefixedMap
+                    ), keyStart = damonLines[valueRange[0][0] - lineOffset].match("^([ 	]*)")[1].length + 2, keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + key.length]], keyRangeString = JSON.stringify(keyRange);
                     rangesMap2.set(
                       keyRangeString,
                       JSON.stringify(
