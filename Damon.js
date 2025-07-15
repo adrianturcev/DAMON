@@ -1837,7 +1837,8 @@ class Damon {
             end = lineText.length;
         if (prefixedMap) {
             for (let i = 0, c = path.length; i < c; i++) {
-                path[i] = path[i].split('-').slice(1).join('-');
+                if (typeof path[i] === string)
+                    path[i] = path[i].split('-').slice(1).join('-');
             }
         }
         if (path.length == 1) {
