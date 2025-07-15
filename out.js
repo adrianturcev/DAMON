@@ -2050,9 +2050,9 @@
                           }
                         }
                       } else {
-                        let string2 = JSON.parse(`["${text.slice(0, -1 * valueLength)}"]`)[0];
+                        let string = JSON.parse(`["${text.slice(0, -1 * valueLength)}"]`)[0];
                         if ($.pedantic) {
-                          if (/: +$/.test(string2)) {
+                          if (/: +$/.test(string)) {
                             let errorLine = damonTree.headless * -1 + damonTree.damonOriginalLinesMapping.indexOf(treeItemIndex);
                             let error = new Error(
                               "Error line number " + (startLine + errorLine) + ": bad value"
@@ -2583,7 +2583,7 @@
           let lineText = $._getLines(damon)[totalLines], start = 0, end = lineText.length;
           if (prefixedMap) {
             for (let i = 0, c = path.length; i < c; i++) {
-              if (typeof path[i] === string)
+              if (typeof path[i] === "string")
                 path[i] = path[i].split("-").slice(1).join("-");
             }
           }
