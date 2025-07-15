@@ -1825,7 +1825,7 @@ class Damon {
      * @param {boolean} inlineArray
      * @returns {Array<Array<number>>}
      */
-    getRangeFromPath(damon, path, lineOffset = 0, inlineArray = false) {
+    getRangeFromPath(damon, path, lineOffset = 0, inlineArray = false, prefixedMap = false) {
         const $ = this;
         let damonMap = $.damonToMap(damon),
             mapIndex = -1,
@@ -1835,6 +1835,11 @@ class Damon {
         let lineText = $._getLines(damon)[totalLines],
             start = 0,
             end = lineText.length;
+        if (prefixedMap) {
+            for (let i = 0, c = path.length; i < c; i++) {
+                path[i] = path[i].split('-').slice(1).join('-');
+            }
+        }
         if (path.length == 1) {
             if (typeof path[path.length - 1] == 'string') {
                 start =
@@ -2176,7 +2181,7 @@ class Damon {
      * @param {number} lineOffset
      * @returns {Array<Array<string|number>>} pathsList
      */
-    getRangesMap(damonString, damonMap, lineOffset = 0) {
+    getRangesMap(damonString, damonMap, lineOffset = 0, prefixedMap = false) {
         const $ = this;
         let damonLines = $._getLines(damonString),
             rangesMap = new Map();
@@ -2206,7 +2211,7 @@ class Damon {
                         && Array.from(value.keys()).length
                     ) {
                         let valueRange =
-                            $.getRangeFromPath(damonString, currentPath.concat(key), lineOffset),
+                            $.getRangeFromPath(damonString, currentPath.concat(key), lineOffset, false, prefixedMap),
                             keyStart = damonLines[valueRange[0][0] - lineOffset].match('^([ \t]*)')[1].length + 2,
                             keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + key.length]],
                             keyRangeString = JSON.stringify(keyRange);
@@ -2217,7 +2222,10 @@ class Damon {
                         && value.length
                     ) {
                         let valueRange = [];
-                            valueRange = $.getRangeFromPath(damonString, currentPath.concat(key), lineOffset);
+                            valueRange =
+                                $.getRangeFromPath(
+                                    damonString, currentPath.concat(key), lineOffset, false, prefixedMap
+                                );
                         let keyStart = damonLines[valueRange[0][0] - lineOffset].match('^([ \t]*)')[1].length + 2,
                             keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + key.length]],
                             keyRangeString = JSON.stringify(keyRange);
@@ -2240,7 +2248,9 @@ class Damon {
                             rangesMap.set(
                                 keyRangeString,
                                 JSON.stringify(
-                                    $.getRangeFromPath(damonString, currentPath.concat(key), lineOffset, false)
+                                    $.getRangeFromPath(
+                                        damonString, currentPath.concat(key), lineOffset, false, prefixedMap
+                                    )
                                 )
                             );
                         } else {
@@ -2252,7 +2262,9 @@ class Damon {
                             rangesMap.set(
                                 keyRangeString,
                                 JSON.stringify(
-                                    $.getRangeFromPath(damonString, currentPath.concat(key), lineOffset)
+                                    $.getRangeFromPath(
+                                        damonString, currentPath.concat(key), lineOffset, false, prefixedMap
+                                    )
                                 )
                             );
                         }
@@ -2269,7 +2281,9 @@ class Damon {
                         && Array.from(map[i].keys()).length
                     ) {
                         let keyRangeString =
-                            JSON.stringify($.getRangeFromPath(damonString, currentPath.concat(i), lineOffset));
+                            JSON.stringify(
+                                $.getRangeFromPath(damonString, currentPath.concat(i), lineOffset, false, prefixedMap)
+                            );
                         rangesMap.set(keyRangeString, new Map());
                         _walk(map[i], currentPath.concat([i]), rangesMap.get(keyRangeString));
                     } else if (
@@ -2278,7 +2292,9 @@ class Damon {
                     ) {
                         let keyRangeString = '';
                             keyRangeString =
-                        JSON.stringify($.getRangeFromPath(damonString, currentPath.concat(i), lineOffset));
+                        JSON.stringify(
+                            $.getRangeFromPath(damonString, currentPath.concat(i), lineOffset, false, prefixedMap)
+                        );
                         rangesMap.set(keyRangeString, new Map());
                         if (
                             map.damonInlineArrays !== undefined
@@ -2291,20 +2307,32 @@ class Damon {
                     } else {
                         if (inlineArray) {
                             let keyRangeString =
-                                JSON.stringify($.getRangeFromPath(damonString, currentPath.concat(i), lineOffset, true));
+                                JSON.stringify(
+                                    $.getRangeFromPath(
+                                        damonString, currentPath.concat(i), lineOffset, true, prefixedMap
+                                    )
+                                );
                             rangesMap.set(
                                 keyRangeString,
                                 JSON.stringify(
-                                    $.getRangeFromPath(damonString, currentPath.concat(i), lineOffset, true)
+                                    $.getRangeFromPath(
+                                        damonString, currentPath.concat(i), lineOffset, true, prefixedMap
+                                    )
                                 )
                             );
                         } else {
                             let keyRangeString =
-                                JSON.stringify($.getRangeFromPath(damonString, currentPath.concat(i), lineOffset));
+                                JSON.stringify(
+                                    $.getRangeFromPath(
+                                        damonString, currentPath.concat(i), lineOffset, false, prefixedMap
+                                    )
+                                );
                             rangesMap.set(
                                 keyRangeString,
                                 JSON.stringify(
-                                    $.getRangeFromPath(damonString, currentPath.concat(i), lineOffset)
+                                    $.getRangeFromPath(
+                                        damonString, currentPath.concat(i), lineOffset, false, prefixedMap
+                                    )
                                 )
                             );
                         }
