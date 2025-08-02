@@ -1834,8 +1834,10 @@ class Damon {
         let totalLines = $.mapIndexToLine(damonMap, mapIndex);
         let lineText = $._getLines(damon)[totalLines],
             start = 0,
-            end = lineText.length;
+            end = lineText.length,
+            idLength = 0;
         if (prefixedMap) {
+            idLength = path[path.length - 1].split('-')[0].length + 1;
             for (let i = 0, c = path.length; i < c; i++) {
                 if (typeof path[i] === 'string')
                     path[i] = path[i].split('-').slice(1).join('-');
@@ -1915,7 +1917,7 @@ class Damon {
                 }
             }
         }
-        return [[totalLines + lineOffset, start], [totalLines + lineOffset, end]];
+        return [[totalLines + lineOffset, start], [totalLines + lineOffset, end + idLength]];
         /**
          * @param {Map<string, any>|Array<any>} map
          * @param {Array<string|number>} targetPath
