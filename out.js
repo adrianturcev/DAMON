@@ -2580,9 +2580,8 @@
           let damonMap = $.damonToMap(damon, 0, prefixedMap), mapIndex = -1, found = false;
           _incrementMapIndexUntilReaching(damonMap, path);
           let totalLines = $.mapIndexToLine(damonMap, mapIndex);
-          let lineText = $._getLines(damon)[totalLines], start = 0, end = lineText.length, idLength = 0;
+          let lineText = $._getLines(damon)[totalLines], start = 0, end = lineText.length;
           if (prefixedMap) {
-            idLength = path[path.length - 1].split("-")[0].length + 1;
             for (let i = 0, c = path.length; i < c; i++) {
               if (typeof path[i] === "string")
                 path[i] = path[i].split("-").slice(1).join("-");
@@ -2645,7 +2644,7 @@
               }
             }
           }
-          return [[totalLines + lineOffset, start], [totalLines + lineOffset, end + idLength]];
+          return [[totalLines + lineOffset, start], [totalLines + lineOffset, end]];
           function _incrementMapIndexUntilReaching(map, targetPath, currentPath = []) {
             mapIndex += 1;
             if (typeof map === "object" && map !== null && !Array.isArray(map) && map instanceof Map && map.constructor === Map) {
@@ -2836,7 +2835,7 @@
           return totalLines;
         }
         /**
-         * @param {string} damonString
+         * @param {string} damonString - remember to format indentation
          * @param {number} lineOffset
          * @returns {Array<Array<string|number>>} pathsList
          */
@@ -2849,7 +2848,7 @@
             if (typeof map === "object" && map !== null && !Array.isArray(map) && map instanceof Map && map.constructor === Map) {
               for (const [key, value] of map) {
                 if (typeof value === "object" && value !== null && !Array.isArray(value) && value instanceof Map && value.constructor === Map && Array.from(value.keys()).length) {
-                  let valueRange = $.getRangeFromPath(damonString, currentPath.concat(key), lineOffset, false, prefixedMap), keyStart = damonLines[valueRange[0][0] - lineOffset].match("^([ 	]*)")[1].length + 2, keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + key.length]], keyRangeString = JSON.stringify(keyRange);
+                  let valueRange = $.getRangeFromPath(damonString, currentPath.concat(key), lineOffset, false, prefixedMap), keyStart = damonLines[valueRange[0][0] - lineOffset].match("^([ 	]*)")[1].length + 2, keyLength = prefixedMap ? key.length - (key.split("-")[0].length + 1) : key.length, keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + keyLength]], keyRangeString = JSON.stringify(keyRange);
                   rangesMap2.set(keyRangeString, /* @__PURE__ */ new Map());
                   _walk(value, currentPath.concat([key]), rangesMap2.get(keyRangeString));
                 } else if (Array.isArray(value) && value.length) {
@@ -2861,7 +2860,7 @@
                     false,
                     prefixedMap
                   );
-                  let keyStart = damonLines[valueRange[0][0] - lineOffset].match("^([ 	]*)")[1].length + 2, keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + key.length]], keyRangeString = JSON.stringify(keyRange);
+                  let keyStart = damonLines[valueRange[0][0] - lineOffset].match("^([ 	]*)")[1].length + 2, keyLength = prefixedMap ? key.length - (key.split("-")[0].length + 1) : key.length, keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + keyLength]], keyRangeString = JSON.stringify(keyRange);
                   rangesMap2.set(keyRangeString, /* @__PURE__ */ new Map());
                   if (map.damonInlineArrays !== void 0 && map.damonInlineArrays.indexOf(key) > -1) {
                     _walk(value, currentPath.concat([key]), rangesMap2.get(keyRangeString), true);
@@ -2870,7 +2869,7 @@
                   }
                 } else {
                   if (inlineArray) {
-                    let valueRange = $.getRangeFromPath(damonString, currentPath.concat(key), lineOffset, false), keyStart = damonLines[valueRange[0][0] - lineOffset].match("^([ 	]*)")[1].length + 2, keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + key.length]], keyRangeString = JSON.stringify(keyRange);
+                    let valueRange = $.getRangeFromPath(damonString, currentPath.concat(key), lineOffset, false), keyStart = damonLines[valueRange[0][0] - lineOffset].match("^([ 	]*)")[1].length + 2, keyLength = prefixedMap ? key.length - (key.split("-")[0].length + 1) : key.length, keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + keyLength]], keyRangeString = JSON.stringify(keyRange);
                     rangesMap2.set(
                       keyRangeString,
                       JSON.stringify(
@@ -2890,7 +2889,7 @@
                       lineOffset,
                       false,
                       prefixedMap
-                    ), keyStart = damonLines[valueRange[0][0] - lineOffset].match("^([ 	]*)")[1].length + 2, keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + key.length]], keyRangeString = JSON.stringify(keyRange);
+                    ), keyStart = damonLines[valueRange[0][0] - lineOffset].match("^([ 	]*)")[1].length + 2, keyLength = prefixedMap ? key.length - (key.split("-")[0].length + 1) : key.length, keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + keyLength]], keyRangeString = JSON.stringify(keyRange);
                     rangesMap2.set(
                       keyRangeString,
                       JSON.stringify(

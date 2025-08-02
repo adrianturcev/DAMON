@@ -1834,10 +1834,8 @@ class Damon {
         let totalLines = $.mapIndexToLine(damonMap, mapIndex);
         let lineText = $._getLines(damon)[totalLines],
             start = 0,
-            end = lineText.length,
-            idLength = 0;
+            end = lineText.length;
         if (prefixedMap) {
-            idLength = path[path.length - 1].split('-')[0].length + 1;
             for (let i = 0, c = path.length; i < c; i++) {
                 if (typeof path[i] === 'string')
                     path[i] = path[i].split('-').slice(1).join('-');
@@ -1917,7 +1915,7 @@ class Damon {
                 }
             }
         }
-        return [[totalLines + lineOffset, start], [totalLines + lineOffset, end + idLength]];
+        return [[totalLines + lineOffset, start], [totalLines + lineOffset, end]];
         /**
          * @param {Map<string, any>|Array<any>} map
          * @param {Array<string|number>} targetPath
@@ -2180,7 +2178,7 @@ class Damon {
 
 
     /**
-     * @param {string} damonString
+     * @param {string} damonString - remember to format indentation
      * @param {number} lineOffset
      * @returns {Array<Array<string|number>>} pathsList
      */
@@ -2216,7 +2214,8 @@ class Damon {
                         let valueRange =
                             $.getRangeFromPath(damonString, currentPath.concat(key), lineOffset, false, prefixedMap),
                             keyStart = damonLines[valueRange[0][0] - lineOffset].match('^([ \t]*)')[1].length + 2,
-                            keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + key.length]],
+                            keyLength = prefixedMap ? key.length - (key.split('-')[0].length + 1) : key.length,
+                            keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + keyLength]],
                             keyRangeString = JSON.stringify(keyRange);
                         rangesMap.set(keyRangeString, new Map());
                         _walk(value, currentPath.concat([key]), rangesMap.get(keyRangeString));
@@ -2230,7 +2229,8 @@ class Damon {
                                     damonString, currentPath.concat(key), lineOffset, false, prefixedMap
                                 );
                         let keyStart = damonLines[valueRange[0][0] - lineOffset].match('^([ \t]*)')[1].length + 2,
-                            keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + key.length]],
+                            keyLength = prefixedMap ? key.length - (key.split('-')[0].length + 1) : key.length,
+                            keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + keyLength]],
                             keyRangeString = JSON.stringify(keyRange);
                         rangesMap.set(keyRangeString, new Map());
                         if (
@@ -2246,7 +2246,8 @@ class Damon {
                             let valueRange =
                                 $.getRangeFromPath(damonString, currentPath.concat(key), lineOffset, false),
                                 keyStart = damonLines[valueRange[0][0] - lineOffset].match('^([ \t]*)')[1].length + 2,
-                                keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + key.length]],
+                                keyLength = prefixedMap ? key.length - (key.split('-')[0].length + 1) : key.length,
+                                keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + keyLength]],
                                 keyRangeString = JSON.stringify(keyRange);
                             rangesMap.set(
                                 keyRangeString,
@@ -2262,7 +2263,8 @@ class Damon {
                                     damonString, currentPath.concat(key), lineOffset, false, prefixedMap
                                 ),
                                 keyStart = damonLines[valueRange[0][0] - lineOffset].match('^([ \t]*)')[1].length + 2,
-                                keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + key.length]],
+                                keyLength = prefixedMap ? key.length - (key.split('-')[0].length + 1) : key.length,
+                                keyRange = [[valueRange[0][0], keyStart], [valueRange[0][0], keyStart + keyLength]],
                                 keyRangeString = JSON.stringify(keyRange);
                             rangesMap.set(
                                 keyRangeString,
