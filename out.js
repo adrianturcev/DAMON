@@ -2301,6 +2301,14 @@
           }
           _recurse(jsonMap);
           $.damonToMap(list.slice(0, -1));
+          if (jsonMap.headless) {
+            let damonLines = $._getLines(list);
+            damonLines = damonLines.slice(1);
+            for (let i = 0, c = damonLines.length; i < c; i++) {
+              damonLines[i] = damonLines[i].slice(4);
+            }
+            return damonLines.join("\n").slice(0, -1);
+          }
           return list.slice(0, -1);
           function _recurse(jsonMap2, level = 1) {
             if (typeof jsonMap2 === "object" && jsonMap2 !== null && !Array.isArray(jsonMap2) && jsonMap2 instanceof Map && jsonMap2.constructor === Map) {

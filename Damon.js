@@ -1423,6 +1423,14 @@ class Damon {
         _recurse(jsonMap);
         // Parsing-check
         $.damonToMap(list.slice(0, -1));
+        if (jsonMap.headless) {
+            let damonLines = $._getLines(list);
+            damonLines = damonLines.slice(1);
+            for (let i = 0, c = damonLines.length; i < c; i++) {
+                damonLines[i] = damonLines[i].slice(4);
+            }
+            return damonLines.join('\n').slice(0, -1);
+        }
         return list.slice(0, -1); // last linefeed
         /**
          * @param {Map<string, any>|Array<any>} jsonMap
