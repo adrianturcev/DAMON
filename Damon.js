@@ -1399,9 +1399,10 @@ class Damon {
     /**
      * @param {damonValue} jsonMap
      * @param {boolean} pristine
+     * @param {boolean} unprefixKeys
      * @returns {string}
      */
-    mapToDamon(jsonMap, pristine) {
+    mapToDamon(jsonMap, pristine, unprefixKeys) {
         const $ = this;
         var list = ``;
         if (Array.isArray(jsonMap)) {
@@ -1453,7 +1454,10 @@ class Damon {
                 ) {
                     implicitNullsMap = true;
                 }
-                for (const [key, value] of jsonMap) {
+                for (const [k, value] of jsonMap) {
+                    let key = k;
+                    if (unprefixKeys)
+                        key = key.split('-').slice(1).join('-');
                     if (
                         typeof value === 'object'
                         && value !== null

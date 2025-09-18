@@ -2283,9 +2283,10 @@
         /**
          * @param {damonValue} jsonMap
          * @param {boolean} pristine
+         * @param {boolean} unprefixKeys
          * @returns {string}
          */
-        mapToDamon(jsonMap, pristine) {
+        mapToDamon(jsonMap, pristine, unprefixKeys) {
           const $ = this;
           var list = ``;
           if (Array.isArray(jsonMap)) {
@@ -2316,7 +2317,10 @@
               if (jsonMap2.implicitNulls !== void 0 && jsonMap2.implicitNulls.length === mapKeys.length) {
                 implicitNullsMap = true;
               }
-              for (const [key, value] of jsonMap2) {
+              for (const [k, value] of jsonMap2) {
+                let key = k;
+                if (unprefixKeys)
+                  key = key.split("-").slice(1).join("-");
                 if (typeof value === "object" && value !== null) {
                   if (Array.isArray(value)) {
                     let nullsCounter = 0, arrayOfPrimitives = value.filter(function(item) {
