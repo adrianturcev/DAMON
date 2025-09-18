@@ -251,14 +251,11 @@ You may turn this off:
 new DAMON(true)
 ```
 
-Cheatsheet
+*Cheatsheet*
 
 ```js
 // List Import
 Array.from(map.keys());
 // Multiline Strings
 Array.from(map.keys()).join('\n');
-// S-Expression conversion
-// See [Typedown]()
-// For more, see json-lisp
 ```
