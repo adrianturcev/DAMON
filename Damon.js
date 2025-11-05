@@ -609,7 +609,7 @@ class Damon {
                     if (tree.children[i].children.length > 0) {
                         errorType = "implicit map key";
                         if (indexPrefixKeys) {
-                            jsonMap.set(treeItemIndex + "-", new Map());
+                            jsonMap.set(i + "-", new Map());
                         } else {
                             jsonMap.set("", new Map());
                         }
@@ -649,13 +649,13 @@ class Damon {
                                         `["${text.slice(0, -1 * text.match(/: +\[ *\]$/)[0].length)}"]`
                                     )[0];
                                 if (indexPrefixKeys) {
-                                    jsonMap.set(treeItemIndex + "-" + key, []);
+                                    jsonMap.set(i + "-" + key, []);
                                 } else {
                                     jsonMap.set(key, []);
                                 }
                                 if (tree.children[i].children.length > 0) {
                                     if (indexPrefixKeys) {
-                                        _recurse(tree.children[i], jsonMap.get(treeItemIndex + "-" + key));
+                                        _recurse(tree.children[i], jsonMap.get(i + "-" + key));
                                     } else {
                                         _recurse(tree.children[i], jsonMap.get(key));
                                     }
@@ -727,7 +727,7 @@ class Damon {
                                 if (arrayOfPrimitives) {
                                     // No nesting, fits on an archivable line
                                     if (indexPrefixKeys) {
-                                        jsonMap.set(treeItemIndex + "-" + shortestPossibleKey, longestPossibleArray);
+                                        jsonMap.set(i + "-" + shortestPossibleKey, longestPossibleArray);
                                     } else {
                                         jsonMap.set(shortestPossibleKey, longestPossibleArray);
                                     }
@@ -737,7 +737,7 @@ class Damon {
                                     }
 
                                     if (indexPrefixKeys) {
-                                        jsonMap.damonInlineArrays.push(treeItemIndex + "-" + shortestPossibleKey);
+                                        jsonMap.damonInlineArrays.push(i + "-" + shortestPossibleKey);
                                     } else {
                                         jsonMap.damonInlineArrays.push(shortestPossibleKey);
                                     }
@@ -775,8 +775,8 @@ class Damon {
                                     `["${text.slice(0, -1 * text.match(/: +\{ *\}$/)[0].length)}"]`
                                 )[0];
                             if (indexPrefixKeys) {
-                                jsonMap.set(treeItemIndex + "-" + key, new Map());
-                                _recurse(tree.children[i], jsonMap.get(treeItemIndex + "-" + key));
+                                jsonMap.set(i + "-" + key, new Map());
+                                _recurse(tree.children[i], jsonMap.get(i + "-" + key));
                             } else {
                                 jsonMap.set(key, new Map());
                                 _recurse(tree.children[i], jsonMap.get(key));
@@ -791,7 +791,7 @@ class Damon {
                                         text.match(new RegExp(/: +/g))[text.match(new RegExp(/: +/g)).length - 1],
                                     key = JSON.parse(`["${text.slice(0, (-1 * lastTextMatch.length) -4)}"]`)[0];
                                 if (indexPrefixKeys) {
-                                    jsonMap.set(treeItemIndex + "-" + key, true);
+                                    jsonMap.set(i + "-" + key, true);
                                 } else {
                                     jsonMap.set(key, true);
                                 }
@@ -804,7 +804,7 @@ class Damon {
                                     key = JSON.parse(`["${text.slice(0, (-1 * lastTextMatch.length) -5)}"]`)[0];
 
                                 if (indexPrefixKeys) {
-                                    jsonMap.set(treeItemIndex + "-" + key, false);
+                                    jsonMap.set(i + "-" + key, false);
                                 } else {
                                     jsonMap.set(key, false);
                                 }
@@ -817,7 +817,7 @@ class Damon {
                                     key = JSON.parse(`["${text.slice(0, (-1 * lastTextMatch.length) -4)}"]`)[0];
 
                                 if (indexPrefixKeys) {
-                                    jsonMap.set(treeItemIndex + "-" + key, null);
+                                    jsonMap.set(i + "-" + key, null);
                                 } else {
                                     jsonMap.set(key, null);
                                 }
@@ -842,7 +842,7 @@ class Damon {
                                         )[0];
 
                                     if (indexPrefixKeys) {
-                                        jsonMap.set(treeItemIndex + "-" + key, childText);
+                                        jsonMap.set(i + "-" + key, childText);
                                     } else {
                                         jsonMap.set(key, childText);
                                     }
@@ -863,7 +863,7 @@ class Damon {
                                         )[0];
 
                                     if (indexPrefixKeys) {
-                                        jsonMap.set(treeItemIndex + "-" + key, childText);
+                                        jsonMap.set(i + "-" + key, childText);
                                     } else {
                                         jsonMap.set(key, childText);
                                     }
@@ -924,7 +924,7 @@ class Damon {
                                 }
                                 let number = JSON.parse(`[${text.split(': ')[text.split(': ').length - 1] * 1}]`)[0];
                                 if (indexPrefixKeys) {
-                                    jsonMap.set(treeItemIndex + "-" + key, number);
+                                    jsonMap.set(i + "-" + key, number);
                                 } else {
                                     jsonMap.set(key, number);
                                 }
@@ -1035,7 +1035,7 @@ class Damon {
                                             let key = JSON.parse(`["${text}"]`)[0];
 
                                             if (indexPrefixKeys) {
-                                                jsonMap.set(treeItemIndex + "-" + key, new Map());
+                                                jsonMap.set(i + "-" + key, new Map());
                                             } else {
                                                 jsonMap.set(key, new Map());
                                             }
@@ -1045,8 +1045,8 @@ class Damon {
                                             }
 
                                             if (indexPrefixKeys) {
-                                                jsonMap.implicitMaps.push(treeItemIndex + "-" + key);
-                                                _recurse(tree.children[i], jsonMap.get(treeItemIndex + "-" + key));
+                                                jsonMap.implicitMaps.push(i + "-" + key);
+                                                _recurse(tree.children[i], jsonMap.get(i + "-" + key));
                                             } else {
                                                 jsonMap.implicitMaps.push(key);
                                                 _recurse(tree.children[i], jsonMap.get(key));
@@ -1056,7 +1056,7 @@ class Damon {
                                             let key = JSON.parse(`["${text}"]`)[0];
 
                                             if (indexPrefixKeys) {
-                                                jsonMap.set(treeItemIndex + "-" + key, null);
+                                                jsonMap.set(i + "-" + key, null);
                                             } else {
                                                 jsonMap.set(key, null);
                                             }
@@ -1066,7 +1066,7 @@ class Damon {
                                             }
 
                                             if (indexPrefixKeys) {
-                                                jsonMap.implicitNulls.push(treeItemIndex + "-" + key);
+                                                jsonMap.implicitNulls.push(i + "-" + key);
                                             } else {
                                                 jsonMap.implicitNulls.push(key);
                                             }
@@ -1114,7 +1114,7 @@ class Damon {
                                             errorType = "implicit map key";
                                             let key = JSON.parse(`["${text}"]`)[0];
                                             if (indexPrefixKeys) {
-                                                jsonMap.set(treeItemIndex + "-" + key, new Map());
+                                                jsonMap.set(i + "-" + key, new Map());
                                             } else {
                                                 jsonMap.set(key, new Map());
                                             }
@@ -1124,8 +1124,8 @@ class Damon {
                                             }
 
                                             if (indexPrefixKeys) {
-                                                jsonMap.implicitMaps.push(treeItemIndex + "-" + key);
-                                                _recurse(tree.children[i], jsonMap.get(treeItemIndex + "-" + key));
+                                                jsonMap.implicitMaps.push(i + "-" + key);
+                                                _recurse(tree.children[i], jsonMap.get(i + "-" + key));
                                             } else {
                                                 jsonMap.implicitMaps.push(key);
                                                 _recurse(tree.children[i], jsonMap.get(key));
@@ -1135,7 +1135,7 @@ class Damon {
                                             let key = JSON.parse(`["${text}"]`)[0];
 
                                             if (indexPrefixKeys) {
-                                                jsonMap.set(treeItemIndex + "-" + key, null);
+                                                jsonMap.set(i + "-" + key, null);
                                             } else {
                                                 jsonMap.set(key, null);
                                             }
@@ -1145,7 +1145,7 @@ class Damon {
                                             }
 
                                             if (indexPrefixKeys) {
-                                                jsonMap.implicitNulls.push(treeItemIndex + "-" + key);
+                                                jsonMap.implicitNulls.push(i + "-" + key);
                                             } else {
                                                 jsonMap.implicitNulls.push(key);
                                             }

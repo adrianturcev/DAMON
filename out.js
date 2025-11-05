@@ -1737,7 +1737,7 @@
                 if (tree.children[i].children.length > 0) {
                   errorType = "implicit map key";
                   if (indexPrefixKeys) {
-                    jsonMap.set(treeItemIndex + "-", /* @__PURE__ */ new Map());
+                    jsonMap.set(i + "-", /* @__PURE__ */ new Map());
                   } else {
                     jsonMap.set("", /* @__PURE__ */ new Map());
                   }
@@ -1767,13 +1767,13 @@
                         `["${text.slice(0, -1 * text.match(/: +\[ *\]$/)[0].length)}"]`
                       )[0];
                       if (indexPrefixKeys) {
-                        jsonMap.set(treeItemIndex + "-" + key, []);
+                        jsonMap.set(i + "-" + key, []);
                       } else {
                         jsonMap.set(key, []);
                       }
                       if (tree.children[i].children.length > 0) {
                         if (indexPrefixKeys) {
-                          _recurse(tree.children[i], jsonMap.get(treeItemIndex + "-" + key));
+                          _recurse(tree.children[i], jsonMap.get(i + "-" + key));
                         } else {
                           _recurse(tree.children[i], jsonMap.get(key));
                         }
@@ -1823,7 +1823,7 @@
                       });
                       if (arrayOfPrimitives) {
                         if (indexPrefixKeys) {
-                          jsonMap.set(treeItemIndex + "-" + shortestPossibleKey, longestPossibleArray);
+                          jsonMap.set(i + "-" + shortestPossibleKey, longestPossibleArray);
                         } else {
                           jsonMap.set(shortestPossibleKey, longestPossibleArray);
                         }
@@ -1831,7 +1831,7 @@
                           jsonMap.damonInlineArrays = [];
                         }
                         if (indexPrefixKeys) {
-                          jsonMap.damonInlineArrays.push(treeItemIndex + "-" + shortestPossibleKey);
+                          jsonMap.damonInlineArrays.push(i + "-" + shortestPossibleKey);
                         } else {
                           jsonMap.damonInlineArrays.push(shortestPossibleKey);
                         }
@@ -1859,8 +1859,8 @@
                       `["${text.slice(0, -1 * text.match(/: +\{ *\}$/)[0].length)}"]`
                     )[0];
                     if (indexPrefixKeys) {
-                      jsonMap.set(treeItemIndex + "-" + key, /* @__PURE__ */ new Map());
-                      _recurse(tree.children[i], jsonMap.get(treeItemIndex + "-" + key));
+                      jsonMap.set(i + "-" + key, /* @__PURE__ */ new Map());
+                      _recurse(tree.children[i], jsonMap.get(i + "-" + key));
                     } else {
                       jsonMap.set(key, /* @__PURE__ */ new Map());
                       _recurse(tree.children[i], jsonMap.get(key));
@@ -1870,21 +1870,21 @@
                     if (/^.*: /.test(text) && text.split(new RegExp(/: +/))[text.split(new RegExp(/: +/)).length - 1] === "true") {
                       let lastTextMatch = text.match(new RegExp(/: +/g))[text.match(new RegExp(/: +/g)).length - 1], key = JSON.parse(`["${text.slice(0, -1 * lastTextMatch.length - 4)}"]`)[0];
                       if (indexPrefixKeys) {
-                        jsonMap.set(treeItemIndex + "-" + key, true);
+                        jsonMap.set(i + "-" + key, true);
                       } else {
                         jsonMap.set(key, true);
                       }
                     } else if (/^.*: /.test(text) && text.split(new RegExp(/: +/))[text.split(new RegExp(/: +/)).length - 1] === "false") {
                       let lastTextMatch = text.match(new RegExp(/: +/g))[text.match(new RegExp(/: +/g)).length - 1], key = JSON.parse(`["${text.slice(0, -1 * lastTextMatch.length - 5)}"]`)[0];
                       if (indexPrefixKeys) {
-                        jsonMap.set(treeItemIndex + "-" + key, false);
+                        jsonMap.set(i + "-" + key, false);
                       } else {
                         jsonMap.set(key, false);
                       }
                     } else if (/^.*: /.test(text) && text.split(new RegExp(/: +/))[text.split(new RegExp(/: +/)).length - 1] === "null") {
                       let lastTextMatch = text.match(new RegExp(/: +/g))[text.match(new RegExp(/: +/g)).length - 1], key = JSON.parse(`["${text.slice(0, -1 * lastTextMatch.length - 4)}"]`)[0];
                       if (indexPrefixKeys) {
-                        jsonMap.set(treeItemIndex + "-" + key, null);
+                        jsonMap.set(i + "-" + key, null);
                       } else {
                         jsonMap.set(key, null);
                       }
@@ -1899,7 +1899,7 @@
                           `["${text.split(separatorMatches[0]).slice(1).join("").slice(0, -1)}"]`
                         )[0];
                         if (indexPrefixKeys) {
-                          jsonMap.set(treeItemIndex + "-" + key, childText);
+                          jsonMap.set(i + "-" + key, childText);
                         } else {
                           jsonMap.set(key, childText);
                         }
@@ -1912,7 +1912,7 @@
                           `["${text.split(separatorMatches[0]).slice(1).join("") + ": "}"]`
                         )[0];
                         if (indexPrefixKeys) {
-                          jsonMap.set(treeItemIndex + "-" + key, childText);
+                          jsonMap.set(i + "-" + key, childText);
                         } else {
                           jsonMap.set(key, childText);
                         }
@@ -1949,7 +1949,7 @@
                       }
                       let number = JSON.parse(`[${text.split(": ")[text.split(": ").length - 1] * 1}]`)[0];
                       if (indexPrefixKeys) {
-                        jsonMap.set(treeItemIndex + "-" + key, number);
+                        jsonMap.set(i + "-" + key, number);
                       } else {
                         jsonMap.set(key, number);
                       }
@@ -2017,7 +2017,7 @@
                             errorType = "implicit map key";
                             let key = JSON.parse(`["${text}"]`)[0];
                             if (indexPrefixKeys) {
-                              jsonMap.set(treeItemIndex + "-" + key, /* @__PURE__ */ new Map());
+                              jsonMap.set(i + "-" + key, /* @__PURE__ */ new Map());
                             } else {
                               jsonMap.set(key, /* @__PURE__ */ new Map());
                             }
@@ -2025,8 +2025,8 @@
                               jsonMap.implicitMaps = [];
                             }
                             if (indexPrefixKeys) {
-                              jsonMap.implicitMaps.push(treeItemIndex + "-" + key);
-                              _recurse(tree.children[i], jsonMap.get(treeItemIndex + "-" + key));
+                              jsonMap.implicitMaps.push(i + "-" + key);
+                              _recurse(tree.children[i], jsonMap.get(i + "-" + key));
                             } else {
                               jsonMap.implicitMaps.push(key);
                               _recurse(tree.children[i], jsonMap.get(key));
@@ -2035,7 +2035,7 @@
                             errorType = "implicit null key";
                             let key = JSON.parse(`["${text}"]`)[0];
                             if (indexPrefixKeys) {
-                              jsonMap.set(treeItemIndex + "-" + key, null);
+                              jsonMap.set(i + "-" + key, null);
                             } else {
                               jsonMap.set(key, null);
                             }
@@ -2043,7 +2043,7 @@
                               jsonMap.implicitNulls = [];
                             }
                             if (indexPrefixKeys) {
-                              jsonMap.implicitNulls.push(treeItemIndex + "-" + key);
+                              jsonMap.implicitNulls.push(i + "-" + key);
                             } else {
                               jsonMap.implicitNulls.push(key);
                             }
@@ -2077,7 +2077,7 @@
                             errorType = "implicit map key";
                             let key = JSON.parse(`["${text}"]`)[0];
                             if (indexPrefixKeys) {
-                              jsonMap.set(treeItemIndex + "-" + key, /* @__PURE__ */ new Map());
+                              jsonMap.set(i + "-" + key, /* @__PURE__ */ new Map());
                             } else {
                               jsonMap.set(key, /* @__PURE__ */ new Map());
                             }
@@ -2085,8 +2085,8 @@
                               jsonMap.implicitMaps = [];
                             }
                             if (indexPrefixKeys) {
-                              jsonMap.implicitMaps.push(treeItemIndex + "-" + key);
-                              _recurse(tree.children[i], jsonMap.get(treeItemIndex + "-" + key));
+                              jsonMap.implicitMaps.push(i + "-" + key);
+                              _recurse(tree.children[i], jsonMap.get(i + "-" + key));
                             } else {
                               jsonMap.implicitMaps.push(key);
                               _recurse(tree.children[i], jsonMap.get(key));
@@ -2095,7 +2095,7 @@
                             errorType = "implicit null key";
                             let key = JSON.parse(`["${text}"]`)[0];
                             if (indexPrefixKeys) {
-                              jsonMap.set(treeItemIndex + "-" + key, null);
+                              jsonMap.set(i + "-" + key, null);
                             } else {
                               jsonMap.set(key, null);
                             }
@@ -2103,7 +2103,7 @@
                               jsonMap.implicitNulls = [];
                             }
                             if (indexPrefixKeys) {
-                              jsonMap.implicitNulls.push(treeItemIndex + "-" + key);
+                              jsonMap.implicitNulls.push(i + "-" + key);
                             } else {
                               jsonMap.implicitNulls.push(key);
                             }
