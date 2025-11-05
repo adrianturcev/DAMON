@@ -155,7 +155,6 @@ class Damon {
         }
     }
 
-
     /**
      * @param {string} damon
      * @param {string} [language='DAMON']
@@ -2359,5 +2358,77 @@ class Damon {
                 }
             }
         }
+    }
+
+    iJsonToDamon(json) {
+        let $ = this;
+        return $.mapToDamon($.iJsonToMap(json));
+    }
+
+    /**
+     * @param {string} json
+     */
+    iJsonToMap(json) {
+        let $ = this;
+        let jsonObject = JSON.parse(json),
+            rootObject = {};
+        if (Array.isArray(jsonObject)) {
+            rootObject = [];
+        } else if (
+            typeof jsonObject === 'object'
+            && jsonObject !== null
+        ) {
+            rootObject = new Map();
+        } else {
+            return jsonObject;
+        }
+        recurse(jsonObject, rootObject);
+        function recurse(object, damonObject) {
+            if (Array.isArray(object)) {
+                for (let i = 0, c = object.length; i < c; i++) {
+                    if (Array.isArray(object[i])) {
+                        damonObject[i] = [];
+                        recurse(object[i], damonObject[i]);
+                    } else if (
+                        typeof object[i] === 'object'
+                        && object[i] !== null
+                    ) {
+                        damonObject[i] = new Map();
+                        recurse(object[i], damonObject[i]);
+                    } else {
+                        damonObject[i] = object[i];
+                    }
+                }
+            } else if (
+                typeof object === 'object'
+                && object !== null
+            ) {
+                let keys = Object.keys(object),
+                    range = new Array(keys.length);
+                for (let i = 0, c = keys.length; i < c; i++) {
+                    let keyArray = keys[i].split('-'),
+                        keyIndex = keyArray[0] * 1;
+                    range[keyIndex] = keyArray.slice(1).join('-');
+                }
+                keys = range;
+                for (let i = 0, c = keys.length; i < c; i++) {
+                    let value = object[i + "-" + keys[i]],
+                        k = keys[i];
+                    if (Array.isArray(value)) {
+                        damonObject.set(k, [])
+                        recurse(value, damonObject.get(k));
+                    } else if (
+                        typeof value === 'object'
+                        && value !== null
+                    ) {
+                        damonObject.set(k, new Map())
+                        recurse(value, damonObject.get(k));
+                    } else {
+                        damonObject.set(k, value);
+                    }
+                }
+            }
+        }
+        return rootObject;
     }
 };

@@ -30,6 +30,12 @@ describe('# DAMON', function () {
         it('Performs isomorphic transformation between Damon string and JSON string.', function () {
             assert.equal(list, damon.jsonToDamon(damon.damonToJSON(list)));
         });
+        it('Performs isomorphic transformation between Damon string and iJSON string.', function () {
+            assert.equal(
+                list,
+                damon.iJsonToDamon(damon.mapToJSON(damon.damonToMap(list, 0, true)))
+            );
+        });
     });
 
     describe('## TEMPLATING', function () {
