@@ -59,6 +59,25 @@ console.log(damon.damonToMap(damonString));
 // Map(1) {"key" => "value"}
 ```
 
+## IJSON export
+
+Ordered JSON for bereft languages:
+
+```js
+const Damon = require('damon2');
+let damon = new Damon();
+let damonString = `
+- key: {}
+    - key: null`;
+
+console.log(damon.damonToIJSON(damonString));
+// {
+//     "0-key": {
+//          "0-key: null
+//     }
+// }
+```
+
 ## Attributions
 
 Built on:
