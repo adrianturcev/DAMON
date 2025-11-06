@@ -61,7 +61,7 @@ console.log(damon.damonToMap(damonString));
 
 ## IJSON export
 
-Ordered JSON for bereft languages:
+Ordered-JSON for languages bereft thereof:
 
 ```js
 const Damon = require('damon2');
