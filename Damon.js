@@ -2360,15 +2360,29 @@ class Damon {
         }
     }
 
-    iJsonToDamon(json) {
-        let $ = this;
-        return $.mapToDamon($.iJsonToMap(json));
+    /**
+     * @param {string} damon
+     * @returns {string}
+     */
+    damonToIJSON(damon) {
+        const $ = this;
+        return $.mapToJSON($.damonToMap(damon, 0, true));
     }
 
     /**
      * @param {string} json
+     * @returns {string}
      */
-    iJsonToMap(json) {
+    ijsonToDamon(json) {
+        let $ = this;
+        return $.mapToDamon($.ijsonToMap(json));
+    }
+
+    /**
+     * @param {string} json
+     * @returns {Map}
+     */
+    ijsonToMap(json) {
         let $ = this;
         let jsonObject = JSON.parse(json),
             rootObject = {};
