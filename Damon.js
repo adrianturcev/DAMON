@@ -621,7 +621,7 @@ class Damon {
                     } else {
                         errorType = "implicit null key";
                         if (indexPrefixKeys) {
-                            jsonMap.set(indexPrefixKeys + "-", null);
+                            jsonMap.set(i + "-", null);
                         } else {
                             jsonMap.set("", null);
                         }
