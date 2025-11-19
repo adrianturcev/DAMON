@@ -81,7 +81,7 @@ console.log(damon.damonToIJSON(damonString));
 const DamonUtils = require('damon-utils');
 const damonUtils = new DamonUtils(damon);
 console.log(damonUtils.damonToSExpression(damonString));
-// ["0-key", "0-key"]
+// ["key", "key"]
 ```
 
 ## Attributions
