@@ -90,7 +90,6 @@ Built on:
 
 - JSON-types and JSON.parse()
 - json-in-order [@sanderevers](https://github.com/sanderevers)
-- DOMPurify [@cure53](https://github.com/cure53)
 
 ## Going further
 
