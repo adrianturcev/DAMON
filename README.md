@@ -61,7 +61,7 @@ console.log(damon.damonToMap(damonString));
 
 ## IJSON export
 
-Ordered-JSON for languages bereft thereof:
+For ordered-JSON and key-value S-Expressions:
 
 ```js
 const Damon = require('damon2');
@@ -73,9 +73,15 @@ let damonString = `
 console.log(damon.damonToIJSON(damonString));
 // {
 //     "0-key": {
-//          "0-key: null
+//          "0-key": null
 //     }
 // }
+
+// Or, using DAMON-UTILS:
+const DamonUtils = require('damon-utils');
+const damonUtils = new DamonUtils(damon);
+console.log(damonUtils.damonToSExpression(damonString));
+// ["0-key", "0-key"]
 ```
 
 ## Attributions
